@@ -153,15 +153,9 @@ Example:
 - Code snippets for ___ algoirthm were adapted from resources such as [Stack Overflow](https://stackoverflow.com/) and [MDN Web Docs](https://developer.mozilla.org/).
 - Icons sourced from [FontAwesome](https://fontawesome.com/) and images from [Unsplash](https://unsplash.com/).
 
-MainPage:
-- Icons for mainpage from [Flaticon](https://www.flaticon.com/icon-fonts-most-downloaded?weight=bold&type=uicon).
-- Logo sourced from [Flaticon](https://www.flaticon.com/free-icon/hug_7081266).
-- Hero Image sourced from [VistingAngels](https://www.visitingangels.com/articles/outdoor-activities-for-seniors-caregivers/200)
-- Process Image sourced from [AssistingHands](https://www.assistinghands-il-wi.com/blog/teach-senior-parents-to-use-technology/)
-- About Us Card #1 sourced from [StockCake](https://stockcake.com/i/generational-handshake-outdoors_1449259_561774)
-- About Us Card #2 sourced from [iStock](https://www.istockphoto.com/photo/senior-men-embracing-on-a-pool-party-gm1390899974-447704106)
-- About Us Card #3 sourced from [liveinhomecare](https://www.liveinhomecare.com/helping-the-elderly-july-2021-2/helping-the-elderly/).
----
+Navbar:
+- Icons for Navbar from [Flaticon](https://www.flaticon.com/)
+- User Profile from [bootstrap](https://icons.getbootstrap.com/icons/person-circle/)
 
 ## Limitations and Future Work
 ### Limitations
