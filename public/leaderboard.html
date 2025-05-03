@@ -5,20 +5,21 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Leaderboard</title>
         <link rel="stylesheet" href="/styles/leaderboard.css">
+        <link rel="stylesheet" href="/styles/navbar.css">
     </head>
 
     <body>
         <!-- Top three user display -->
         <div id="topThree">
-            <div class="topUser" id="first">
+            <div class="topUser" id="second"> <!-- left bar -->
                 <img id="profilePic" src="/images/Logo.webp" alt="profile pic"/>
                 <span>Username</span>
                 <div class="square">
-                    <span>1</span>
+                    <span>2</span>
                 </div>
             </div>
             
-            <div class="topUser" id="second">
+            <div class="topUser" id="first"> <!-- middle bar -->
                 <img id="profilePic" src="/images/Logo.webp" alt="profile pic"/>
                 <span>Username</span>
                 <div class="square">
@@ -26,11 +27,11 @@
                 </div>
             </div>
         
-            <div class="topUser" id="third">
+            <div class="topUser" id="third"> <!-- right bar -->
                 <img id="profilePic" src="/images/Logo.webp" alt="profile pic"/>
                 <span>Username</span>
                 <div class="square">
-                    <span>1</span>
+                    <span>3</span>
                 </div>
             </div>
         </div>
@@ -54,5 +55,84 @@
         </div>
 
         <!-- Other users -->
+        <!-- use javascript to populate, copy paste for now -->
+        <div id="otherUsers">
+            <div class="square">
+                <span id="otherUserInfo">
+                    4
+                    <img id="profilePic" src="/images/Logo.webp" alt="profile pic"/>
+                    Username
+                </span>
+
+                <span>300 Points</span>
+            </div>
+
+            <div class="square">
+                <span id="otherUserInfo">
+                    4
+                    <img id="profilePic" src="/images/Logo.webp" alt="profile pic"/>
+                    Username
+                </span>
+
+                <span>300 Points</span>
+            </div>
+
+            <div class="square">
+                <span id="otherUserInfo">
+                    4
+                    <img id="profilePic" src="/images/Logo.webp" alt="profile pic"/>
+                    Username
+                </span>
+
+                <span>300 Points</span>
+            </div>
+            
+            <div class="square">
+                <span id="otherUserInfo">
+                    4
+                    <img id="profilePic" src="/images/Logo.webp" alt="profile pic"/>
+                    Username
+                </span>
+
+                <span>300 Points</span>
+            </div>
+
+            <div class="square">
+                <span id="otherUserInfo">
+                    4
+                    <img id="profilePic" src="/images/Logo.webp" alt="profile pic"/>
+                    Username
+                </span>
+
+                <span>300 Points</span>
+            </div>
+        </div>
+
+        <!-- Bottom navbar -->
+        <div class="bottom-navbar">
+            <a href="#" class="nav-icon">
+              <img src="/images/icons/home.svg" alt="Home" />
+            </a>
+            <a href="#" class="nav-icon">
+              <img src="/images/icons/shopping.svg" alt="Shopping" />
+            </a>
+            <a href="#" class="nav-icon">
+              <img src="/images/icons/leaderboard.svg" alt="Leaderboards" />
+            </a>
+          
+            <a href="#" class="nav-icon create-btn">
+              <img src="/images/icons/create.svg" alt="Create" />
+            </a>
+          
+            <a href="#" class="nav-icon">
+              <img src="/images/icons/stats.svg" alt="Fianncial Stats" />
+            </a>
+            <a href="#" class="nav-icon">
+              <img src="/images/icons/group.svg" alt="Groups" />
+            </a>
+            <a href="#" class="nav-icon">
+              <img src="/images/icons/userprofile.svg" alt="User" />
+            </a>
+          </div>
     </body>
 </html>
