@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Login</title>
+        <link rel="stylesheet" href="/styles/createPost.css">
+        <link rel="stylesheet" href="/styles/navbar.css">
+    </head>
+
+    <body>
+        <form action="/login" method="POST">
+            <span style="font-size: 20px"><strong>Create a bet</strong></span>
+            <input type="text" id="bet" name="bet" placeholder="Bet">
+            <input type="text" id="duration" name="duration" placeholder="Duration">
+            <input type="number" id="participants" name="participants" min="1" placeholder="Participants">
+            
+            <select name="betType" id="betType" placeholder="Bet Type">
+                <option value="" disabled selected>Bet Type</option>
+                <option value="Physical">Physical</option>
+                <option value="Financial">Financial</option>
+                <option value="Mental">Mental</option>
+                <option value="Social">Social</option>
+            </select>
+
+            <textarea id="description" name="description" placeholder="Description"></textarea>
+
+            <div id="checkboxContainer">
+                <input type="checkbox" id="private" name="private" value="Private">
+                <label for="private">Private bet</label>
+            </div>
+
+            <input type="submit" id="button" value="Place your Bets!">
+            
+        </form>
+
+        <!-- Bottom navbar -->
+        <div class="bottom-navbar">
+            <a href="#" class="nav-icon">
+              <img src="/images/icons/home.svg" alt="Home" />
+            </a>
+            <a href="#" class="nav-icon">
+              <img src="/images/icons/shopping.svg" alt="Shopping" />
+            </a>
+            <a href="#" class="nav-icon">
+              <img src="/images/icons/leaderboard.svg" alt="Leaderboards" />
+            </a>
+          
+            <a href="#" class="nav-icon create-btn">
+              <img src="/images/icons/create.svg" alt="Create" />
+            </a>
+          
+            <a href="#" class="nav-icon">
+              <img src="/images/icons/stats.svg" alt="Fianncial Stats" />
+            </a>
+            <a href="#" class="nav-icon">
+              <img src="/images/icons/group.svg" alt="Groups" />
+            </a>
+            <a href="#" class="nav-icon">
+              <img src="/images/icons/userprofile.svg" alt="User" />
+            </a>
+        </div>
+    </body>
+
+</html>
