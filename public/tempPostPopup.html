@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Popup</title>
+        <link rel="stylesheet" href="/styles/tempPostPopUp.css">
+    </head>
+
+    <body>
+        <button type="submit" id="openButton" onclick="openPost()">Click me</button>
+
+        <div id="container" onclick="myFunction()">
+            <!-- Popup that actually pops up -->
+            <div class="popup" id="popup">
+                <button type="button" onclick="closePost()">
+                    <img src="/images/icons/close.svg" alt="Close Icon" class="closeIcon">
+                </button>
+                
+                <!-- Bet poster info -->
+                 <!-- Will change to display user info from database later -->
+                <div id="posterInfo">
+                    <img src="/images/profilePic.jpg" alt="Profile Picture" class="profilePic">
+                    <span>Username</span>
+                </div>
+
+                <!-- Bet title -->
+                <span id="betTitle"><strong>Walk 10k steps everyday</strong></span>
+
+                <!-- Description -->
+                <p>
+                    Walk 10k steps everyday for a week. To keep each other in check, 
+                    you need to keep a pedometer on you and send a picture of your steps
+                </p>
+
+                <!-- Tags sections -->
+                <div id="tagContainer">
+                    <span>
+                        <img src="/images/icons/clock.svg" alt="Clock Icon" class="clockIcon">
+                        1 Week
+                    </span>
+
+                    <span>
+                        Physical
+                    </span>
+                </div>
+                
+                <!-- Will act as join/start bet depending on who is viewing it -->
+                <div id="buttonContainer">
+                    Join Bet
+                </div>
+
+                <!-- Participant section -->
+                <div id="participantCountContainer">
+                    <span>Participants: 5/8</span>
+                    <img src="/images/icons/share.svg" alt="Share Icon" class="shareIcon">
+                </div>
+
+                <div id="participantContainer"</div>
+                    <div class="participant">
+                        <img src="/images/profilePic.jpg" alt="Profile Picture" class="profilePic">
+                        <span>Username</span>
+                    </div>
+
+                    <div class="participant">
+                        <img src="/images/profilePic.jpg" alt="Profile Picture" class="profilePic">
+                        <span>Username</span>
+                    </div>
+
+                    <div class="participant">
+                        <img src="/images/profilePic.jpg" alt="Profile Picture" class="profilePic">
+                        <span>Username</span>
+                    </div>
+
+                    <div class="participant">
+                        <img src="/images/profilePic.jpg" alt="Profile Picture" class="profilePic">
+                        <span>Username</span>
+                    </div>
+
+                    <div class="participant">
+                        <img src="/images/profilePic.jpg" alt="Profile Picture" class="profilePic">
+                        <span>Username</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Temporary JavaScript to test popups -->
+        <script>
+            let popup = document.getElementById("popup");
+
+            function openPost() {
+                popup.classList.add("openPopup");
+            }
+
+            function closePost() {
+                popup.classList.remove("openPopup");
+            }
+        </script>
+    </body>
+<html>
