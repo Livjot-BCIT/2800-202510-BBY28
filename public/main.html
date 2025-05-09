@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Challenge Feed</title>
+    <link rel="stylesheet" href="../styles/main.css" />
+</head>
+
+<body>
+    <header class="top-bar">
+        <h1>🔥 Bet On Yourself</h1>
+        <select id="regionSelect">
+            <option value="America/Vancouver">British Columbia (Pacific Time)</option>
+            <option value="America/Edmonton">Alberta (Mountain Time)</option>
+            <option value="America/Regina">Saskatchewan (Central Time - No DST)</option>
+            <option value="America/Winnipeg">Manitoba (Central Time)</option>
+            <option value="America/Toronto">Ontario (Eastern Time)</option>
+            <option value="America/Halifax">Nova Scotia (Atlantic Time)</option>
+            <option value="America/St_Johns">Newfoundland (Newfoundland Time)</option>
+        </select>
+        <input type="text" id="search" placeholder="Search challenges..." />
+
+        <div class="summary">
+            <span id="totalChallenges">0 challenges</span> •
+            <span id="totalVotes">0 total votes</span>
+        </div>
+
+        <div class="tag-filters">
+            <button onclick="filterByTag('all')">All</button>
+            <button onclick="filterByTag('physical')">Physical</button>
+            <button onclick="filterByTag('puzzle')">Puzzle</button>
+            <button onclick="filterByTag('funny')">Funny</button>
+            <button onclick="filterByTag('timed')">Timed</button>
+        </div>
+    </header>
+
+    <div class="feed-container" id="feed"></div>
+
+    <button class="create-btn" onclick="alert('Redirect to create challenge page')">＋ Challenge</button>
+
+    <script src="../scripts/main.js"></script>
+</body>
+
+</html>
