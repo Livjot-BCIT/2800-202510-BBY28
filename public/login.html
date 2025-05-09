@@ -5,17 +5,23 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Login</title>
-        <link rel="stylesheet" href="auth.css">
+        <link rel="stylesheet" href="/styles/auth.css">
     </head>
 
     <body>
-        <div>
-            <!-- <form action="/login" method="POST"> -->
-                <input type="text" id="email" name="email" placeholder="Email">
+        <!-- Login form -->
+        <div id="container">
+            <img id="logo" src="/images/Logo.webp" alt="logo"/>
+            
+            <form action="/login" method="POST">
+                <span><strong>Login to Your Account</strong></span>
+                <input type="email" id="email" name="email" placeholder="Email">
                 <input type="password" id="password" name="password" placeholder="Password">
+                
                 <input type="submit" id="button" value="Login">
-            <!-- </form> -->
+            </form>
+        
+            <span id="signup">Don't have an account? <a href="/public/signup.html">Signup</a></span>
         </div>
     </body>
-
 </html>
