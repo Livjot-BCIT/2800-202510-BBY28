@@ -2,13 +2,54 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Money Planner</title>
+    <link rel="stylesheet" href="../styles/money.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
+    <div class="container">
+        <h1>💸 Your Financials</h1>
 
+        <input type="number" id="moneyInput" placeholder="Enter your current money" />
+
+        <div class="plan-options">
+            <button onclick="applyPlan(70, 30)">70% Spend / 30% Save</button>
+            <button onclick="applyPlan(60, 30)">60% Spend / 30% Save</button>
+            <button onclick="applyPlan(50, 50)">50% Spend / 50% Save</button>
+            <button onclick="applyPlan(80, 20)">80% Spend / 20% Save</button>
+        </div>
+
+        <div class="result">
+            <h2>💡 Recommendation</h2>
+            <p id="recommendation"></p>
+        </div>
+
+        <div class="stats">
+            <h2>📊 Your Allocation</h2>
+            <canvas id="moneyChart" width="400" height="400"></canvas>
+        </div>
+
+    </div>
+    <button id="toggleReport">📝 Report Spending</button>
+
+    <div class="report-tab" id="reportTab">
+        <h2>Report Your Actual Spendings</h2>
+        <form id="reportForm">
+            <label>Food: <input type="number" name="food" step="0.01" /></label>
+            <label>Rent: <input type="number" name="rent" step="0.01" /></label>
+            <label>Health: <input type="number" name="health" step="0.01" /></label>
+            <label>Education: <input type="number" name="education" step="0.01" /></label>
+            <label>Hangout: <input type="number" name="hangout" step="0.01" /></label>
+            <button type="submit">Update Graph</button>
+        </form>
+    </div>
+
+
+
+    <script src="../scripts/money.js"></script>
 </body>
 
 </html>
