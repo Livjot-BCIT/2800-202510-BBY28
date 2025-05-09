@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Settings</title>
+  <link rel="stylesheet" href="/COMP2800-BBY28/styles/usersettings.css" />
+  <link rel="stylesheet" href="/COMP2800-BBY28/styles/navbar.css" />
+
+
+</head>
+<body>
+ <!-- Top Navbar -->
+<div class="top-navbar">
+  <button class="nav-btn">Account</button>
+  <button class="nav-btn">Financials</button>
+  <button class="nav-btn active">Settings</button>
+</div>
+
+<!-- Profile Section -->
+<div class="profile-box">
+  <div class="profile-header">
+    <div class="avatar-container">
+      <div class="user-avatar">👤</div>
+      <button class="edit-btn" title="Edit Profile Picture">
+        <img src="/COMP2800-BBY28/images/icons/edit.svg" alt="Edit" />
+      </button>
+    </div>
+
+    <div class="profile-details">
+      <div class="field-row">
+        <label class="setting-label" for="username">Username:</label>
+        <input type="text" id="username" value="cooluser123" />
+      </div>
+      <div class="field-row">
+        <label class="setting-label" for="name">Name:</label>
+        <input type="text" id="name" value="Josh Carter" />
+      </div>
+      <div class="field-row">
+        <label class="setting-label" for="email">Email:</label>
+        <input type="email" id="email" value="josh@example.com" />
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Preferences Section -->
+<div class="profile-box">
+  <h2 style="color: var(--txt); margin-bottom: 16px;">Preferences</h2>
+  
+  <div class="setting-row">
+    <label class="setting-label" for="notifications">Enable Notifications</label>
+    <input type="checkbox" id="notifications" checked />
+  </div>
+
+  <div class="setting-row">
+    <label class="setting-label" for="showStats">Display Stats</label>
+    <input type="checkbox" id="showStats" checked />
+  </div>
+
+  <div class="setting-row">
+    <label class="setting-label" for="theme">Theme</label>
+    <select id="theme">
+      <option value="default">Default</option>
+      <option value="dark">Dark Mode</option>
+      <option value="light">Light Mode</option>
+    </select>
+  </div>
+</div>
+
+<!-- Security Section -->
+<div class="profile-box">
+  <h2 style="color: var(--txt); margin-bottom: 16px;">Security</h2>
+  
+  <div class="setting-row">
+    <button class="edit-bio-btn" onclick="alert('Redirect to Change Password')">Change Password</button>
+  </div>
+  <div class="setting-row">
+    <button class="danger-btn" onclick="confirm('Are you sure you want to delete your account?')">Delete Account</button>
+  </div>
+</div>
+
+  <!-- Bottom Navbar -->
+  <div class="bottom-navbar">
+    <a href="#" class="nav-icon">
+      <img src="/COMP2800-BBY28/images/icons/home.svg" alt="Home" />
+    </a>
+    <a href="#" class="nav-icon">
+      <img src="/COMP2800-BBY28/images/icons/shopping.svg" alt="Shopping" />
+    </a>
+    <a href="#" class="nav-icon">
+      <img src="/COMP2800-BBY28/images/icons/leaderboard.svg" alt="Leaderboards" />
+    </a>
+  
+    <a href="#" class="nav-icon create-btn">
+      <img src="/COMP2800-BBY28/images/icons/create.svg" alt="Create" />
+    </a>
+  
+    <a href="#" class="nav-icon">
+      <img src="/COMP2800-BBY28/images/icons/stats.svg" alt="Fianncial Stats" />
+    </a>
+    <a href="#" class="nav-icon">
+      <img src="/COMP2800-BBY28/images/icons/group.svg" alt="Groups" />
+    </a>
+    <a href="#" class="nav-icon">
+      <img src="/COMP2800-BBY28/images/icons/userprofile.svg" alt="User" />
+    </a>
+  </div>
+  
+</body>
+</html>
