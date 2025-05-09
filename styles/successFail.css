@@ -1,0 +1,38 @@
+body {
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100vh;
+    margin: 0;
+    padding-top: 120px;
+}
+
+.message-box {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+}
+
+.message-box .icon img {
+    width: 50px;
+    /* Adjust the size of the SVG */
+    height: 50px;
+    margin-bottom: 20px;
+}
+
+.message-box h2 {
+    font-size: 1.8em;
+    color: #34495e;
+    margin: 0;
+}
+
+.message-box p {
+    font-size: 1.2em;
+    color: #7f8c8d;
+    margin-top: 10px;
+}

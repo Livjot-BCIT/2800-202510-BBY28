@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bet on good</title>
+    <link rel="stylesheet" href="/styles/landingPage.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>Welcome back, Warren</h1>
+            </div>
+            <div class="profile-img">
+                <img src="https://via.placeholder.com/80" alt="Profile Image">
+            </div>
+        </div>
+
+        <div class="overview">
+            <div>
+                <span>Total Point</span>
+                <div>1250</div>
+            </div>
+            <div>
+                <span>This Week</span>
+                <div>200</div>
+            </div>
+            <div>
+                <span>Ranking</span>
+                <div>8</div>
+            </div>
+        </div>
+
+        <div class="achievement-progress">
+            <h2>Achievement Progress</h2>
+            <div class="progress-bar-wrapper">
+                <div class="progress-bar">
+                    <div class="ongoing" style="width: 15%;"></div>
+                    <div class="won" style="width: 75%; left: 15%;"></div>
+                    <div class="lost" style="width: 10%; left: 90%;"></div>
+                </div>
+                <div class="labels">
+                    <span>15% In going</span>
+                    <span>75% Bet Won</span>
+                    <span>10% Bet Lost</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bets">
+            <h2>On Going Bets</h2>
+            <div>
+                <span>Be a good person FOR A YEAR</span>
+                <button>View Details</button>
+            </div>
+            <div>
+                <span>Eat healthy for 3 days straight</span>
+                <button>View Details</button>
+            </div>
+        </div>
+
+        <div class="history">
+            <h2>History</h2>
+            <div>
+                <span>Go to the gym for a YEAR</span>
+                <span>+150 PP</span>
+            </div>
+            <div>
+                <span>Get 8 hours sleep every day for a week</span>
+                <span>+50 PP</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript to dynamically update the progress bar values
+        function updateProgressBar(ongoingPercent, wonPercent, lostPercent) {
+            const ongoing = document.querySelector(".progress-bar .ongoing");
+            const won = document.querySelector(".progress-bar .won");
+            const lost = document.querySelector(".progress-bar .lost");
+
+            ongoing.style.width = ongoingPercent + "%";
+            won.style.width = wonPercent + "%";
+            won.style.left = ongoingPercent + "%";
+            lost.style.width = lostPercent + "%";
+            lost.style.left = (ongoingPercent + wonPercent) + "%";
+        }
+
+        // Example usage: Update the progress bar with dynamic values
+        updateProgressBar(15, 75, 10); // This will update the progress bar with new values
+    </script>
+</body>
+
+</html>
