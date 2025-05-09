@@ -1,94 +1,93 @@
 /* If you plan to edit any of this, please duplicate the file or edit the specific
 section within your own page css file, thank you! */
 :root {
-    --bg: #676279; 
-    --container: #2B2738; 
-    --btn: #6F55B6; 
-    --txt: #FEFCFF; 
-    --active-txt: #FDF6FE; 
-    --active-bg: #5B566C; 
-  }
-  
-  .bottom-navbar {
-    position: fixed; 
-    bottom: 0; 
-    left: 0; 
-    width: 100%; 
-    max-width: 393px; 
-    background: var(--container); 
-    padding: 10px 0; 
-    display: grid; 
-    grid-template-columns: repeat(7, 1fr); /* creation of 7 equally spaced columns */
-    align-items: center; 
-    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.12); 
-    z-index: 5; /* adjust this if you want the navbar to not be ontop of something */
-  }
-  
-  /* Styles for the navigation icon links */
-  .nav-icon {
-    text-decoration: none; /* removed underline from links */
-    background: none; 
-    border: none; 
-    padding: 10px; 
-    border-radius: 50%; 
-    display: flex; 
-    justify-content: center; /* centers icons horizontally */
-    align-items: center; /* centers icons vertically */
-    cursor: pointer; /* change cursor to pointer on hover */
-    transition: background 0.2s ease, transform 0.2s ease; 
-    -webkit-tap-highlight-color: transparent; /* disable the tap highlight color on mobile devices */
-  }
-  
-  .nav-icon:focus {
-    outline: none; /* remove the outline when an item is focused */
-  }
-  
-  .nav-icon:active {
-    background-color: rgba(255, 255, 255, 0.08); /* adding a background effect when the button is active */
-  }
-  
-  .nav-icon img {
-    width: 28px; 
-    height: 28px; 
-    transition: transform 0.2s ease, filter 0.2s ease; /* applies transition for transform and filter */
-    filter: brightness(0) saturate(100%) invert(45%) sepia(20%) saturate(500%) 
-    hue-rotate(202deg) brightness(95%) contrast(90%); /* applying an initial filter to the icon colors */
-  }
-  
-  /* Hover effect for the icons */
-  .nav-icon:hover img {
-    transform: scale(1.15); /* slightly enlarge the icon on hover */
-    filter: brightness(0) saturate(100%) invert(100%) sepia(10%) saturate(200%) 
-    hue-rotate(10deg) brightness(120%) contrast(100%); /* change the icon color on hover */
-  }
-  
-  /* Active state for the icons */
-/*.nav-icon.active img {
-    filter: brightness(0) saturate(100%) invert(47%) sepia(65%) saturate(624%) 
-    hue-rotate(211deg) brightness(102%) contrast(97%);  change the icon color when active 
-  } */
-  
-  .create-btn {
-    background-color: var(--btn); 
-    border-radius: 60%; /* change this if you want to make the purple bg bigger/smaller */
-  }
-  
-  .create-btn img {
-    width: 34px; 
-    height: 34px; 
-    filter: brightness(0) saturate(100%) invert(100%) sepia(10%) saturate(200%) 
-    hue-rotate(10deg) brightness(110%) contrast(100%); /* applying a different "filter" (Color) for the "Create" icon */
-  }
-  
+  --bg: #676279; 
+  --container: #2B2738; 
+  --btn: #6F55B6; 
+  --txt: #FEFCFF; 
+  --active-txt: #FDF6FE; 
+  --active-bg: #5B566C; 
+}
 
-  .create-btn:hover img {
-    transform: scale(1.2); /* slightly enlarge the "Create" button icon on hover */
-    filter: brightness(0) saturate(100%) invert(100%) sepia(30%) saturate(300%) 
-    hue-rotate(10deg) brightness(130%) contrast(100%); /* applies a stronger color change when hovering */
-  }
-  
+.bottom-navbar {
+  position: fixed; 
+  bottom: 0; 
+  left: 0; 
+  width: 100%; 
+  max-width: 393px; 
+  background: var(--container); 
+  padding: 10px 0; 
+  display: grid; 
+  grid-template-columns: repeat(7, 1fr); /* creation of 7 equally spaced columns */
+  align-items: center; 
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.12); 
+  z-index: 5; /* adjust this if you want the navbar to not be ontop of something */
+}
+
+/* Styles for the navigation icon links */
+.nav-icon {
+  text-decoration: none; /* removed underline from links */
+  background: none; 
+  border: none; 
+  padding: 10px; 
+  border-radius: 50%; 
+  display: flex; 
+  justify-content: center; /* centers icons horizontally */
+  align-items: center; /* centers icons vertically */
+  cursor: pointer; /* change cursor to pointer on hover */
+  transition: background 0.2s ease, transform 0.2s ease; 
+  -webkit-tap-highlight-color: transparent; /* disable the tap highlight color on mobile devices */
+}
+
+.nav-icon:focus {
+  outline: none; /* remove the outline when an item is focused */
+}
+
+.nav-icon:active {
+  background-color: rgba(255, 255, 255, 0.08); /* adding a background effect when the button is active */
+}
+
+.nav-icon img {
+  width: 28px; 
+  height: 28px; 
+  transition: transform 0.2s ease, filter 0.2s ease; /* applies transition for transform and filter */
+  filter: brightness(0) saturate(100%) invert(45%) sepia(20%) saturate(500%) 
+  hue-rotate(202deg) brightness(95%) contrast(90%); /* applying an initial filter to the icon colors */
+}
+
+/* Hover effect for the icons */
+.nav-icon:hover img {
+  transform: scale(1.15); /* slightly enlarge the icon on hover */
+  filter: brightness(0) saturate(100%) invert(100%) sepia(10%) saturate(200%) 
+  hue-rotate(10deg) brightness(120%) contrast(100%); /* change the icon color on hover */
+}
+
+/* Active state for the icons */
+/*.nav-icon.active img {
+  filter: brightness(0) saturate(100%) invert(47%) sepia(65%) saturate(624%) 
+  hue-rotate(211deg) brightness(102%) contrast(97%);  change the icon color when active 
+} */
+
+.create-btn {
+  background-color: var(--btn); 
+  border-radius: 60%; /* change this if you want to make the purple bg bigger/smaller */
+}
+
+.create-btn img {
+  width: 34px; 
+  height: 34px; 
+  filter: brightness(0) saturate(100%) invert(100%) sepia(10%) saturate(200%) 
+  hue-rotate(10deg) brightness(110%) contrast(100%); /* applying a different "filter" (Color) for the "Create" icon */
+}
+
+
+.create-btn:hover img {
+  transform: scale(1.2); /* slightly enlarge the "Create" button icon on hover */
+  filter: brightness(0) saturate(100%) invert(100%) sepia(30%) saturate(300%) 
+  hue-rotate(10deg) brightness(130%) contrast(100%); /* applies a stronger color change when hovering */
+}
+
 /* .create-btn.active img {
-    filter: brightness(0) saturate(100%) invert(90%) sepia(20%) saturate(700%) 
-    hue-rotate(260deg) brightness(110%) contrast(95%);  applies a different color effect when active 
-  } */
-  
+  filter: brightness(0) saturate(100%) invert(90%) sepia(20%) saturate(700%) 
+  hue-rotate(260deg) brightness(110%) contrast(95%);  applies a different color effect when active 
+} */

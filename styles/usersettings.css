@@ -1,0 +1,207 @@
+:root {
+    --bg: #676279;
+    --container: #2B2738;
+    --btn: #6F55B6;
+    --txt: #FEFCFF;
+    --active-txt: #FDF6FE;
+    --active-bg: #5B566C;
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  body {
+    background-color: var(--bg);
+    color: var(--txt);
+    max-width: 393px;
+    margin: 0 auto;
+    padding: 16px;
+    overflow-y: auto;
+    height: 100vh;
+  }
+  
+  /* Top Navbar */
+  .top-navbar {
+    display: flex;
+    justify-content: space-around;
+    background: var(--container);
+    border-radius: 12px;
+    padding: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25), 0 12px 40px rgba(0, 0, 0, 0.2), inset 0 0 4px rgba(255, 255, 255, 0.04);
+  }
+  
+  .nav-btn {
+    background-color: var(--btn);
+    color: var(--txt);
+    border: 2px solid transparent;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    min-width: 6rem;
+  }
+  
+  .nav-btn.active {
+    background-color: var(--active-bg);
+    color: var(--active-txt);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+  
+  /* Profile Box */
+  .profile-box {
+    background: var(--container);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25), 0 12px 40px rgba(0, 0, 0, 0.2), inset 0 0 4px rgba(255, 255, 255, 0.04);
+  }
+  
+  /* Avatar & Edit */
+  .profile-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  
+  .avatar-container {
+    position: relative;
+    width: 80px;
+    height: 80px;
+  }
+  
+  .user-avatar {
+    background: var(--btn);
+    color: white;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+  }
+  
+  .edit-btn {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: var(--container);
+    border: 2px solid var(--bg);
+    border-radius: 50%;
+    font-size: 12px;
+    padding: 6px;
+    cursor: pointer;
+    /* transform: scaleX(-1); */
+    color: var(--btn);
+  }
+  
+  .profile-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+  }
+  
+  .profile-details label {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  
+  .profile-details input[type="text"],
+  .profile-details input[type="email"] {
+    background: var(--container);
+    color: var(--txt);
+    border: 1px solid #888;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 14px;
+    width: 100%;
+  }
+  
+  .field-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .field-label {
+    width: 80px;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  
+  .profile-details input[type="text"],
+  .profile-details input[type="email"] {
+    background: var(--container);
+    color: var(--txt);
+    border: 1px solid #888;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 14px;
+    flex: 1;
+  }
+  
+  /* Settings Section */
+  .setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+  
+  .setting-label {
+    font-weight: 600;
+  }
+  
+  select {
+    background-color: var(--container);
+    color: var(--txt);
+    border: 1px solid #aaa;
+    border-radius: 6px;
+    padding: 6px;
+    font-size: 14px;
+  }
+  
+  input[type="checkbox"] {
+    transform: scale(1.2);
+    accent-color: var(--btn);
+  }
+  
+  /* Buttons */
+  .edit-bio-btn,
+  .danger-btn {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .edit-bio-btn {
+    background: none;
+    border: 1px solid var(--btn);
+    color: var(--btn);
+  }
+  
+  .danger-btn {
+    background: none;
+    border: 1px solid red;
+    color: red;
+  }
+  
+  .danger-btn:hover {
+    background: rgba(255, 0, 0, 0.1);
+  }
+  
+  
