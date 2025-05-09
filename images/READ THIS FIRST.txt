@@ -1,4 +1,0 @@
-Please keep all the files the same format.
-In my opinion webp usually retains the best quality throughout
-jpg/jpeg are also viable but regardless please keep the images the same .
-Exceptions are applied to SVG icons and the favico but in that case create/use the subfolder for those
