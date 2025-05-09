@@ -1,0 +1,199 @@
+/* Global styling */
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f5f0fa;
+    /* light lavender */
+    margin: 0;
+    padding: 0;
+    color: #2d033b;
+}
+
+/* Top bar */
+.top-bar {
+    background: #e8d5f7;
+    /* soft purple */
+    padding: 20px 16px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid #d1b3f0;
+}
+
+.top-bar h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #2d033b;
+    letter-spacing: -0.5px;
+}
+
+.top-bar input {
+    width: 95%;
+    margin-top: 12px;
+    padding: 12px 14px;
+    font-size: 15px;
+    border: 1px solid #c39bd3;
+    border-radius: 10px;
+    outline: none;
+    transition: border-color 0.2s;
+    background-color: #fdf7ff;
+}
+
+.top-bar input:focus {
+    border-color: #9b59b6;
+}
+
+.summary {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #5c4372;
+}
+
+/* Tag filter buttons */
+.tag-filters {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.tag-filters button {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: none;
+    background-color: #e0c3fc;
+    color: #4a235a;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background-color 0.2s;
+}
+
+.tag-filters button:hover {
+    background-color: #d1aaff;
+}
+
+/* Challenge feed */
+.feed-container {
+    max-width: 600px;
+    margin: 30px auto;
+    padding: 0 16px;
+}
+
+/* Each challenge card */
+.challenge-post {
+    background-color: #fff0ff;
+    border-radius: 14px;
+    box-shadow: 0 4px 10px rgba(175, 122, 197, 0.1);
+    margin-bottom: 20px;
+    padding: 18px;
+    transition: box-shadow 0.3s;
+    cursor: pointer;
+}
+
+.challenge-post:hover {
+    box-shadow: 0 6px 14px rgba(155, 89, 182, 0.2);
+}
+
+.post-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.post-meta {
+    margin-left: 12px;
+}
+
+.username {
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.timestamp {
+    font-size: 12px;
+    color: #888;
+}
+
+.post-body {
+    margin-top: 10px;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.tag-label {
+    font-size: 12px;
+    color: #777;
+    margin-top: 8px;
+    display: inline-block;
+}
+
+/* Buttons and vote actions */
+.post-actions {
+    margin-top: 16px;
+}
+
+button.accept {
+    background-color: #a66cff;
+    color: white;
+}
+
+button.accept:hover {
+    background-color: #884dcf;
+}
+
+button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 8px;
+    margin-right: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+/* Floating Create Button */
+.create-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background-color: #b76df1;
+    color: white;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.create-btn:hover {
+    background-color: #9b59b6;
+}
+
+.top-bar select {
+    width: 95%;
+    margin-top: 10px;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #c39bd3;
+    border-radius: 10px;
+    background-color: #fdf7ff;
+    transition: border-color 0.2s;
+    outline: none;
+}
+
+.top-bar select:focus {
+    border-color: #9b59b6;
+}
