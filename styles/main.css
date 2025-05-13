@@ -162,7 +162,7 @@ button {
 }
 
 /* Floating Create Button */
-.create-btn {
+/* .create-btn {
     position: fixed;
     bottom: 24px;
     right: 24px;
@@ -180,7 +180,7 @@ button {
 
 .create-btn:hover {
     background-color: #9b59b6;
-}
+} */
 
 .top-bar select {
     width: 95%;

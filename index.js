@@ -86,10 +86,9 @@ const navLinks = [
 	{name: "Shop", link: "/shop"},
     {name: "Leaderboard", link: "/leaderboard"},
     {name: "Create Bet", link: "/createBet"},
-    {name: "Finance", link: "/money"},
+    {name: "Stats", link: "/stats"},
     {name: "Groups", link: "/groups"},
-    {name: "Profile", link: "/userprofile"},
-    {name: "Cat", link: "/cat"},
+    {name: "userprofile", link: "/userprofile"}
 ]
 
 // Middleware to set nav links in locals
@@ -119,8 +118,8 @@ app.get('/createBet', (req, res) => {
     res.render("createBet");
 });
 
-app.get('/money', (req, res) => {
-    res.render("money");
+app.get('/stats', (req, res) => {
+    res.render("stats");
 });
 
 app.get('/groups', (req, res) => {
@@ -132,10 +131,11 @@ app.get('/userprofile', (req, res) => {
 });
 // Rendering pages END
 
-// Absolute routing
+// Absolute routes
 app.use(express.static(__dirname + "/public"));
 app.use('/styles', express.static(__dirname + '/styles'));
 app.use('/scripts', express.static(__dirname + '/scripts'));
+app.use('/images', express.static(__dirname + '/images'));
 
 app.get(/(.*)/, (req, res, next) => {
     res.status(404);
