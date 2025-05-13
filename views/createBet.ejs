@@ -1,0 +1,31 @@
+<%- include("templates/header") %>
+<link rel="stylesheet" href="/styles/createPost.css">
+<link rel="stylesheet" href="/styles/navbar.css">
+
+<!-- Create a post form -->
+<!-- Change /login to /createPost when its made -->
+<form action="/login" method="POST">
+    <span style="font-size: 20px"><strong>Create a bet</strong></span>
+    <input type="text" id="bet" name="bet" placeholder="Bet">
+    <input type="text" id="duration" name="duration" placeholder="Duration">
+    <input type="number" id="participants" name="participants" min="1" placeholder="Participants">
+    
+    <select name="betType" id="betType" placeholder="Bet Type">
+        <option value="" disabled selected>Bet Type</option>
+        <option value="Physical">Physical</option>
+        <option value="Financial">Financial</option>
+        <option value="Mental">Mental</option>
+        <option value="Social">Social</option>
+    </select>
+
+    <textarea id="description" name="description" placeholder="Description"></textarea>
+
+    <div id="checkboxContainer">
+        <input type="checkbox" id="private" name="private" value="Private">
+        <label for="private">Private bet</label>
+    </div>
+
+    <input type="submit" id="button" value="Place your Bets!">
+</form>
+
+<%- include("templates/navbar") %>
