@@ -1,6 +1,6 @@
 <%- include("templates/header") %>
 
-<form action="/login" method="POST">
+<form action="/createBet" method="POST">
     <span style="font-size: 20px"><strong>Create a bet</strong></span>
     <input type="text" id="bet" name="bet" placeholder="Bet">
     <input type="text" id="duration" name="duration" placeholder="Duration">
@@ -17,8 +17,8 @@
     <textarea id="description" name="description" placeholder="Description"></textarea>
 
     <div id="checkboxContainer">
-        <input type="checkbox" id="private" name="private" value="Private">
-        <label for="private">Private bet</label>
+        <input type="checkbox" id="privateBet" name="privateBet" value="Private">
+        <label for="privateBet">Private bet</label>
     </div>
 
     <input type="submit" id="button" value="Place your Bets!">

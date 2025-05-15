@@ -30,6 +30,7 @@ const node_session_secret = process.env.NODE_SESSION_SECRET;
 const {database} = include('databaseConnection');
 
 const userCollection = database.db(mongodb_database).collection('users');
+const betCollection = database.db(mongodb_database).collection('bets');
 
 app.set('view engine', 'ejs');
 
@@ -241,6 +242,23 @@ app.post('/createUser', async (req,res) => {
     var html = "successfully created user";
     res.redirect('/main');
 });
+
+app.post('/createBet', async (req, res) => {
+    var betTitle = req.body.betTitle;
+    var duration = req.body.duration;
+    var participants = req.body.participants;
+    var betType = req.body.betType;
+    var description = req.body.description;
+    var privateBet = req.body.privateBet ? true : false;
+    
+    await betCollection.insertOne({
+        betTitle: betTitle, duration: duration, participants: participants,
+        betType: betType, description: description, privateBet: privateBet
+    });
+
+    console.log("Inserted bet")
+    res.redirect('/main')
+})
 // END Signup authentication
 // END Rendering pages
 
