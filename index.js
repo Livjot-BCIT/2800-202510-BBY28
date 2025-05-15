@@ -50,6 +50,22 @@ app.use(session({
 }
 ));
 
+function isValidSession(req) {
+    if (req.session.authenticated) {
+        return true;
+    }
+    return false;
+}
+
+function sessionValidation(req,res,next) {
+    if (isValidSession(req)) {
+        next();
+    }
+    else {
+        res.redirect('/login');
+    }
+}
+
 app.get('/nosql-injection', async (req,res) => {
 	var username = req.query.user;
 
@@ -98,6 +114,7 @@ app.use((req, res, next) => {
 });
 
 // Rendering pages
+// Pages on navbar
 app.get('/', (req, res) => {
     res.render("main", {title: "Challenge Feed", css: "/styles/main.css"});
 });
@@ -115,7 +132,7 @@ app.get('/leaderboard', (req, res) => {
 });
 
 app.get('/createBet', (req, res) => {   
-    res.render("createBet", {title: "Create a Bet", css: "/styles/createBet.css"});
+    res.render("createBet", {title: "Create a Bet", css: "/styles/createPost.css"});
 });
 
 app.get('/stats', (req, res) => {
@@ -129,7 +146,103 @@ app.get('/groups', (req, res) => {
 app.get('/userprofile', (req, res) => {
     res.render("userprofile", {title: "Profile", css: "/styles/userprofile.css"});
 });
-// Rendering pages END
+// END Pages on navbar
+
+// Login/logout authentication
+app.get('/login', (req, res) => {
+    // If the user is already logged in, redirect to the main page
+    if (req.session.authenticated) {
+        res.redirect('/main');
+        return;
+    }
+
+    res.render("login", {title: "Login", css: "/styles/auth.css"});
+});
+
+app.post('/loggingin', async (req,res) => {
+    var email = req.body.email;
+    var password = req.body.password;
+
+	const schema = Joi.string().max(50).required();
+	const validationResult = schema.validate(email);
+	if (validationResult.error != null) {
+	   console.log(validationResult.error);
+	   res.redirect("/login");
+	   return;
+	}
+
+	const result = await userCollection.find({email: email}).project({firstName: 1, lastName: 1, password: 1, _id: 1}).toArray();
+
+	console.log(result);
+	if (result.length != 1) {
+		console.log("user not found");
+		res.redirect("/login");
+		return;
+	}
+	if (await bcrypt.compare(password, result[0].password)) {
+		console.log("correct password");
+		req.session.authenticated = true;
+		req.session.email = email;
+		req.session.cookie.maxAge = expireTime;
+
+		res.redirect('/main');
+		return;
+	}
+	else {
+		console.log("incorrect password");
+		res.redirect("/login");
+		return;
+	}
+});
+
+app.use('/loggedin', sessionValidation);
+
+app.get('/logout', (req,res) => {
+	req.session.destroy();
+    res.redirect('/login');
+});
+// END Login/logout authentication
+
+// Signup authentication
+app.get('/signup', (req, res) => { 
+    res.render("signup", {title: "Signup", css: "/styles/auth.css"});
+});
+
+app.post('/createUser', async (req,res) => {
+    var firstName = req.body.firstName;
+    var lastName = req.body.lastName;
+    var email = req.body.email;
+    var password = req.body.password;
+
+	const schema = Joi.object(
+		{
+			firstName: Joi.string().alphanum().max(20).required(),
+            lastName: Joi.string().alphanum().max(20).required(),
+            email: Joi.string().email().max(50).required(),
+			password: Joi.string().max(20).required()
+		});
+	
+	const validationResult = schema.validate({firstName, lastName, email, password});
+	if (validationResult.error != null) {
+	   console.log(validationResult.error);
+	   res.redirect("/signup");
+	   return;
+   }
+
+    var hashedPassword = await bcrypt.hash(password, saltRounds);
+	
+	await userCollection.insertOne({firstName: firstName, lastName: lastName, email: email, password: hashedPassword});
+	console.log("Inserted user");
+	
+	req.session.authenticated = true;
+    req.session.email = email;
+    req.session.cookie.maxAge = expireTime;
+
+    var html = "successfully created user";
+    res.redirect('/main');
+});
+// END Signup authentication
+// END Rendering pages
 
 // Absolute routes
 app.use(express.static(__dirname + "/public"));
@@ -140,7 +253,7 @@ app.use('/images', express.static(__dirname + '/images'));
 // 404 Page
 app.get(/(.*)/, (req, res, next) => {
     res.status(404);
-	res.render("404", {navLinks: navLinks});
+	res.render("404", {title: "Page Not Found"});
     next();
 });
 
