@@ -1,4 +1,3 @@
-
 require("./utils.js");
 
 require('dotenv').config();
@@ -13,7 +12,6 @@ const port = process.env.PORT || 3000;
 const app = express();
 
 const Joi = require("joi");
-
 
 const expireTime = 24 * 60 * 60 * 1000; //expires after 1 day  (hours * minutes * seconds * millis)
 
@@ -43,6 +41,7 @@ var mongoStore = MongoStore.create({
 	}
 })
 
+// Session creation and validation
 app.use(session({ 
     secret: node_session_secret,
 	store: mongoStore, //default is memory store 
@@ -66,6 +65,7 @@ function sessionValidation(req,res,next) {
         res.redirect('/login');
     }
 }
+// END Session creation and validation
 
 app.get('/nosql-injection', async (req,res) => {
 	var username = req.query.user;
@@ -113,6 +113,12 @@ app.use((req, res, next) => {
     app.locals.navLinks = navLinks;
     next();
 });
+
+// Absolute routes
+app.use(express.static(__dirname + "/public"));
+app.use('/styles', express.static(__dirname + '/styles'));
+app.use('/scripts', express.static(__dirname + '/scripts'));
+app.use('/images', express.static(__dirname + '/images'));
 
 // Rendering pages
 // Pages on navbar
@@ -243,6 +249,7 @@ app.post('/createUser', async (req,res) => {
     res.redirect('/main');
 });
 
+// Create a new bet (post)
 app.post('/createBet', async (req, res) => {
     var betTitle = req.body.betTitle;
     var duration = req.body.duration;
@@ -258,15 +265,9 @@ app.post('/createBet', async (req, res) => {
 
     console.log("Inserted bet")
     res.redirect('/main')
-})
+});
 // END Signup authentication
 // END Rendering pages
-
-// Absolute routes
-app.use(express.static(__dirname + "/public"));
-app.use('/styles', express.static(__dirname + '/styles'));
-app.use('/scripts', express.static(__dirname + '/scripts'));
-app.use('/images', express.static(__dirname + '/images'));
 
 // 404 Page
 app.get(/(.*)/, (req, res, next) => {
