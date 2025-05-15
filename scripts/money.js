@@ -8,17 +8,48 @@ function applyPlan(spendPercent, savePercent) {
     const spend = (amount * spendPercent) / 100;
     const save = (amount * savePercent) / 100;
 
-    const categories = getRecommendations(spend);
+    const recommendations = getRecommendations(spend);
 
+    // Build the spending table
     document.getElementById('recommendation').innerHTML = `
-      <p>
-        Based on your choice, you can spend <b style="color:#6d28d9;">$${spend.toFixed(2)}</b>
-        and save <b style="color:#10b981;">$${save.toFixed(2)}</b>.
-      </p>
-      <p>👉 Here's how you can manage your spending wisely as a student:</p>
-      <ul>
-        ${categories.map(c => `<li style="margin-bottom: 8px;">${c}</li>`).join("")}
-      </ul>
+        <p>
+            Based on your choice, you can spend <b style="color:#6d28d9;">$${spend.toFixed(2)}</b>
+            and save <b style="color:#10b981;">$${save.toFixed(2)}</b>.
+        </p>
+        <p>👉 Here's how you should allocate your spending:</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Recommended</th>
+                    <th>Actual</th>
+                    <th>Difference</th>
+                </tr>
+            </thead>
+            <tbody id="spendingTable">
+                ${recommendations.map((item, index) => `
+                    <tr>
+                        <td>${item.label}</td>
+                        <td>$${item.recommended.toFixed(2)}</td>
+                        <td>
+                            <input type="number" min="0" step="0.01" 
+                                   data-index="${index}" 
+                                   data-recommended="${item.recommended.toFixed(2)}"
+                                   placeholder="Enter amount" 
+                                   oninput="updateSpending(${index}, ${item.recommended.toFixed(2)})" />
+                        </td>
+                        <td id="diff-${index}" class="neutral">$0.00</td>
+                    </tr>
+                `).join("")}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="2">Total</th>
+                    <th id="total-actual">$0.00</th>
+                    <th id="total-diff" class="neutral">$0.00</th>
+                </tr>
+            </tfoot>
+        </table>
     `;
 
     renderChart(spend, save);
@@ -33,10 +64,61 @@ function getRecommendations(spend) {
         { label: "Hangout (Friends, Entertainment)", percent: 5 }
     ];
 
-    return tasks.map(task => {
-        const amount = (spend * task.percent) / 100;
-        return `<b>${task.label}</b> — $${amount.toFixed(2)} (${task.percent}%)`;
+    return tasks.map(task => ({
+        label: task.label,
+        recommended: (spend * task.percent) / 100,
+        actual: 0
+    }));
+}
+
+function updateSpending(index, recommended) {
+    const input = document.querySelector(`input[data-index="${index}"]`);
+    const actual = parseFloat(input.value) || 0;
+    const difference = actual - recommended;
+
+    // Set color based on difference
+    let colorClass = "neutral";
+    if (difference > 0) colorClass = "negative"; // Overspent
+    else if (difference < 0) colorClass = "positive"; // Saved
+
+    // Update the row difference
+    const diffCell = document.getElementById(`diff-${index}`);
+    diffCell.textContent = `$${difference.toFixed(2)}`;
+    diffCell.className = colorClass;
+
+    // Update total amounts
+    updateTotals();
+}
+
+function updateTotals() {
+    const inputs = document.querySelectorAll("input[data-index]");
+    let totalActual = 0;
+    let totalRecommended = 0;
+    let totalDifference = 0;
+
+    inputs.forEach((input, index) => {
+        const actual = parseFloat(input.value) || 0;
+        const recommended = parseFloat(input.getAttribute("data-recommended")) || 0;
+        totalActual += actual;
+        totalDifference += actual - recommended;
     });
+
+    // Set total colors
+    const totalDiffCell = document.getElementById("total-diff");
+    const totalActualCell = document.getElementById("total-actual");
+
+    totalActualCell.textContent = `$${totalActual.toFixed(2)}`;
+
+    if (totalDifference > 0) {
+        totalDiffCell.textContent = `Overspent by $${totalDifference.toFixed(2)}`;
+        totalDiffCell.className = "negative";
+    } else if (totalDifference < 0) {
+        totalDiffCell.textContent = `Saved $${Math.abs(totalDifference).toFixed(2)}`;
+        totalDiffCell.className = "positive";
+    } else {
+        totalDiffCell.textContent = "Perfect Balance ($0.00)";
+        totalDiffCell.className = "neutral";
+    }
 }
 
 function renderChart(spend, save, labels = ['Spend', 'Save'], data = [spend, save]) {
@@ -82,31 +164,3 @@ function renderChart(spend, save, labels = ['Spend', 'Save'], data = [spend, sav
         }
     });
 }
-
-
-// Report actual spending and update graph
-document.getElementById("reportForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const form = e.target;
-    const food = parseFloat(form.food.value) || 0;
-    const rent = parseFloat(form.rent.value) || 0;
-    const health = parseFloat(form.health.value) || 0;
-    const education = parseFloat(form.education.value) || 0;
-    const hangout = parseFloat(form.hangout.value) || 0;
-
-    const total = food + rent + health + education + hangout;
-    if (total === 0) {
-        alert("Please enter at least one amount.");
-        return;
-    }
-
-    const labels = ["Food", "Rent", "Health", "Education", "Hangout"];
-    const data = [food, rent, health, education, hangout];
-
-    renderChart(0, 0, labels, data);
-});
-document.getElementById("toggleReport").addEventListener("click", () => {
-    const tab = document.getElementById("reportTab");
-    tab.style.display = tab.style.display === "block" ? "none" : "block";
-});
