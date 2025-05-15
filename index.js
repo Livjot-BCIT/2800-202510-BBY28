@@ -99,35 +99,35 @@ app.use((req, res, next) => {
 
 // Rendering pages
 app.get('/', (req, res) => {
-    res.render("main");
+    res.render("main", {title: "Home", css: "/styles/main.css"});
 });
 
 app.get('/main', (req, res) => {
-    res.render("main");
+    res.render("main", {title: "Home", css: "/styles/main.css"});
 });
 
 app.get('/shop', (req, res) => {
-    res.render("shop");
+    res.render("shop", {title: "In-Game Shop", css: "/styles/shop.css"});
 });
 
 app.get('/leaderboard', (req, res) => {
-    res.render("leaderboard");
+    res.render("leaderboard", {title: "Leaderboard", css: "/styles/leaderboard.css"});
 });
 
 app.get('/createBet', (req, res) => {   
-    res.render("createBet");
+    res.render("createBet", {title: "Create a Bet", css: "/styles/createBet.css"});
 });
 
 app.get('/stats', (req, res) => {
-    res.render("stats");
+    res.render("stats", {title: "Stats"});
 });
 
 app.get('/groups', (req, res) => {
-    res.render("groups");
+    res.render("groups", {title: "Groups"});
 });
 
 app.get('/userprofile', (req, res) => {
-    res.render("userprofile");
+    res.render("userprofile", {title: "Profile", css: "/styles/userprofile.css"});
 });
 // Rendering pages END
 
