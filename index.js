@@ -35,10 +35,12 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({extended: false}));
 
 var mongoStore = MongoStore.create({
-	mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/?retryWrites=true&w=majority&tls=true`,
+	mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_database}?retryWrites=true&w=majority&tls=true`,
 	crypto: {
 		secret: mongodb_session_secret
-	}
+	},
+	dbName: mongodb_database,
+	collectionName: 'sessions'
 })
 
 // Session creation and validation
@@ -134,8 +136,49 @@ app.get('/shop', (req, res) => {
     res.render("shop", {title: "In-Game Shop", css: "/styles/shop.css"});
 });
 
-app.get('/leaderboard', (req, res) => {
-    res.render("leaderboard", {title: "Leaderboard", css: "/styles/leaderboard.css"});
+const { ObjectId } = require('mongodb');
+
+app.get('/leaderboard', async (req, res) => {
+	try {
+        // Adjust the projection and sorting as needed for your leaderboard
+        const users = await userCollection.find({})
+            .project({ firstName: 1, lastName: 1, points: 1, _id: 0 }) // Add fields you want to show
+			.sort({ points: -1 })
+            .toArray();
+
+		const topThree = users.slice(0, 3);
+		const otherUsers = users.slice(3);
+
+		const userId = req.session.userId;
+		let currentUser = null;
+		let position = null;
+
+		if (userId) {
+			currentUser = await userCollection.findOne(
+				{ _id: new ObjectId(userId) },
+				{ projection: { firstName: 1, lastName: 1, points: 1 } }
+			);
+
+			if (currentUser) {
+				position = await userCollection.countDocuments({ points: { $gt: currentUser.points } });
+				position = position + 1;
+			}
+		}
+
+		console.log("Session data:", req.session);
+
+        res.render("leaderboard", {
+            title: "Leaderboard",
+            css: "/styles/leaderboard.css",
+			topThree: topThree,
+            users: otherUsers,
+			currentUser: currentUser,
+			currentPosition: position
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error loading leaderboard");
+    }
 });
 
 app.get('/createBet', (req, res) => {   
@@ -190,6 +233,7 @@ app.post('/loggingin', async (req,res) => {
 		console.log("correct password");
 		req.session.authenticated = true;
 		req.session.email = email;
+		req.session.userId = result[0]._id;
 		req.session.cookie.maxAge = expireTime;
 
 		res.redirect('/main');
@@ -242,7 +286,8 @@ app.post('/createUser', async (req,res) => {
 	console.log("Inserted user");
 	
 	req.session.authenticated = true;
-    req.session.email = email;
+	req.session.email = email;
+    req.session.userId = insertResult.insertedId;
     req.session.cookie.maxAge = expireTime;
 
     var html = "successfully created user";
