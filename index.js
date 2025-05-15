@@ -27,14 +27,14 @@ const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
 const node_session_secret = process.env.NODE_SESSION_SECRET;
 /* END secret section */
 
-const {database} = include('databaseConnection');
+const { database } = include('databaseConnection');
 
 const userCollection = database.db(mongodb_database).collection('users');
 const betCollection = database.db(mongodb_database).collection('bets');
 
 app.set('view engine', 'ejs');
 
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({ extended: false }));
 
 var mongoStore = MongoStore.create({
 	mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/?retryWrites=true&w=majority&tls=true`,
@@ -43,38 +43,38 @@ var mongoStore = MongoStore.create({
 	}
 })
 
-app.use(session({ 
-    secret: node_session_secret,
+app.use(session({
+	secret: node_session_secret,
 	store: mongoStore, //default is memory store 
-	saveUninitialized: false, 
+	saveUninitialized: false,
 	resave: true
 }
 ));
 
 function isValidSession(req) {
-    if (req.session.authenticated) {
-        return true;
-    }
-    return false;
+	if (req.session.authenticated) {
+		return true;
+	}
+	return false;
 }
 
-function sessionValidation(req,res,next) {
-    if (isValidSession(req)) {
-        next();
-    }
-    else {
-        res.redirect('/login');
-    }
+function sessionValidation(req, res, next) {
+	if (isValidSession(req)) {
+		next();
+	}
+	else {
+		res.redirect('/login');
+	}
 }
 
-app.get('/nosql-injection', async (req,res) => {
+app.get('/nosql-injection', async (req, res) => {
 	var username = req.query.user;
 
 	if (!username) {
 		res.send(`<h3>no user provided - try /nosql-injection?user=name</h3> <h3>or /nosql-injection?user[$ne]=name</h3>`);
 		return;
 	}
-	console.log("user: "+username);
+	console.log("user: " + username);
 
 	const schema = Joi.string().max(20).required();
 	const validationResult = schema.validate(username);
@@ -84,95 +84,140 @@ app.get('/nosql-injection', async (req,res) => {
 	// A URL parameter of user[$ne]=name would get executed as a MongoDB command
 	// and may result in revealing information about all users or a successful
 	// login without knowing the correct password.
-	if (validationResult.error != null) {  
-	   console.log(validationResult.error);
-	   res.send("<h1 style='color:darkred;'>A NoSQL injection attack was detected!!</h1>");
-	   return;
-	}	
+	if (validationResult.error != null) {
+		console.log(validationResult.error);
+		res.send("<h1 style='color:darkred;'>A NoSQL injection attack was detected!!</h1>");
+		return;
+	}
 
-	const result = await userCollection.find({username: username}).project({username: 1, password: 1, _id: 1}).toArray();
+	const result = await userCollection.find({ username: username }).project({ username: 1, password: 1, _id: 1 }).toArray();
 
 	console.log(result);
 
-    res.send(`<h1>Hello ${username}</h1>`);
+	res.send(`<h1>Hello ${username}</h1>`);
 });
 
 // Array of nav links
 const navLinks = [
-    {name: "Home", link: "/main"},
-	{name: "Shop", link: "/shop"},
-    {name: "Leaderboard", link: "/leaderboard"},
-    {name: "Create Bet", link: "/createBet"},
-    {name: "Stats", link: "/stats"},
-    {name: "Groups", link: "/groups"},
-    {name: "userprofile", link: "/userprofile"}
+	{ name: "Home", link: "/main" },
+	{ name: "Shop", link: "/shop" },
+	{ name: "Leaderboard", link: "/leaderboard" },
+	{ name: "Create Bet", link: "/createBet" },
+	{ name: "Stats", link: "/stats" },
+	{ name: "Groups", link: "/groups" },
+	{ name: "userprofile", link: "/userprofile" }
 ]
 
 // Middleware to set nav links in locals
 app.use((req, res, next) => {
-    app.locals.navLinks = navLinks;
-    next();
+	app.locals.navLinks = navLinks;
+	next();
 });
 
 // Rendering pages
 // Pages on navbar
 app.get('/', (req, res) => {
-    res.render("main", {title: "Challenge Feed", css: "/styles/main.css"});
+	res.render("main", { title: "Challenge Feed", css: "/styles/main.css" });
 });
 
 app.get('/main', (req, res) => {
-    res.render("main", {title: "Challenge Feed", css: "/styles/main.css"});
+	res.render("main", { title: "Challenge Feed", css: "/styles/main.css" });
 });
 
 app.get('/shop', (req, res) => {
-    res.render("shop", {title: "In-Game Shop", css: "/styles/shop.css"});
+	res.render("shop", { title: "In-Game Shop", css: "/styles/shop.css" });
 });
 
 app.get('/leaderboard', (req, res) => {
-    res.render("leaderboard", {title: "Leaderboard", css: "/styles/leaderboard.css"});
+	res.render("leaderboard", { title: "Leaderboard", css: "/styles/leaderboard.css" });
 });
 
-app.get('/createBet', (req, res) => {   
-    res.render("createBet", {title: "Create a Bet", css: "/styles/createPost.css"});
+app.get('/createBet', (req, res) => {
+	res.render("createBet", { title: "Create a Bet", css: "/styles/createPost.css" });
 });
 
 app.get('/stats', (req, res) => {
-    res.render("stats", {title: "Stats"});
+	res.render("stats", { title: "Stats" });
 });
 
 app.get('/groups', (req, res) => {
-    res.render("groups", {title: "Groups"});
+	res.render("groups", { title: "Groups" });
+});
+
+//make sample data
+const sampleGroups = require('./scripts/sampleGroups.js');
+app.get('/makeGroupData', async (req, res) => {
+	try {
+		const groupCollection = database.db(mongodb_database).collection('groups');
+		const existing = await groupCollection.countDocuments();
+
+		if (existing === 0) {
+			await groupCollection.insertMany(sampleGroups);
+		}
+	} catch (err) {
+		console.error(err);
+	} finally {
+		res.end();
+	}
+});
+
+
+app.get('/groupList', (req, res) => {
+	res.render("groupList", {
+		title: "Groups",
+		css: "/styles/groupList.css"
+	});
+});
+
+const groupCollection = database.db(mongodb_database).collection('groups');
+
+app.get('/api/groups', async (req, res) => {
+	const page = parseInt(req.query.page) || 1;
+	const limit = 6;
+	const skip = (page - 1) * limit;
+
+	try {
+		const groups = await groupCollection.find({})
+			.skip(skip)
+			.limit(limit)
+			.toArray();
+
+		res.json(groups);
+	} catch (err) {
+		console.error("Failed to fetch paginated groups:", err);
+		res.status(500).json({ error: "Failed to fetch group data" });
+	}
 });
 
 app.get('/userprofile', (req, res) => {
-    res.render("userprofile", {title: "Profile", css: "/styles/userprofile.css"});
+	res.render("userprofile", { title: "Profile", css: "/styles/userprofile.css" });
 });
 // END Pages on navbar
 
 // Login/logout authentication
 app.get('/login', (req, res) => {
-    // If the user is already logged in, redirect to the main page
-    if (req.session.authenticated) {
-        res.redirect('/main');
-        return;
-    }
+	// If the user is already logged in, redirect to the main page
+	if (req.session.authenticated) {
+		res.redirect('/main');
+		return;
+	}
 
-    res.render("login", {title: "Login", css: "/styles/auth.css"});
+	res.render("login", { title: "Login", css: "/styles/auth.css" });
 });
 
-app.post('/loggingin', async (req,res) => {
-    var email = req.body.email;
-    var password = req.body.password;
+app.post('/loggingin', async (req, res) => {
+	var email = req.body.email;
+	var password = req.body.password;
 
 	const schema = Joi.string().max(50).required();
 	const validationResult = schema.validate(email);
 	if (validationResult.error != null) {
-	   console.log(validationResult.error);
-	   res.redirect("/login");
-	   return;
+		console.log(validationResult.error);
+		res.redirect("/login");
+		return;
 	}
 
-	const result = await userCollection.find({email: email}).project({firstName: 1, lastName: 1, password: 1, _id: 1}).toArray();
+	const result = await userCollection.find({ email: email }).project({ firstName: 1, lastName: 1, password: 1, _id: 1 }).toArray();
 
 	console.log(result);
 	if (result.length != 1) {
@@ -198,66 +243,66 @@ app.post('/loggingin', async (req,res) => {
 
 app.use('/loggedin', sessionValidation);
 
-app.get('/logout', (req,res) => {
+app.get('/logout', (req, res) => {
 	req.session.destroy();
-    res.redirect('/login');
+	res.redirect('/login');
 });
 // END Login/logout authentication
 
 // Signup authentication
-app.get('/signup', (req, res) => { 
-    res.render("signup", {title: "Signup", css: "/styles/auth.css"});
+app.get('/signup', (req, res) => {
+	res.render("signup", { title: "Signup", css: "/styles/auth.css" });
 });
 
-app.post('/createUser', async (req,res) => {
-    var firstName = req.body.firstName;
-    var lastName = req.body.lastName;
-    var email = req.body.email;
-    var password = req.body.password;
+app.post('/createUser', async (req, res) => {
+	var firstName = req.body.firstName;
+	var lastName = req.body.lastName;
+	var email = req.body.email;
+	var password = req.body.password;
 
 	const schema = Joi.object(
 		{
 			firstName: Joi.string().alphanum().max(20).required(),
-            lastName: Joi.string().alphanum().max(20).required(),
-            email: Joi.string().email().max(50).required(),
+			lastName: Joi.string().alphanum().max(20).required(),
+			email: Joi.string().email().max(50).required(),
 			password: Joi.string().max(20).required()
 		});
-	
-	const validationResult = schema.validate({firstName, lastName, email, password});
+
+	const validationResult = schema.validate({ firstName, lastName, email, password });
 	if (validationResult.error != null) {
-	   console.log(validationResult.error);
-	   res.redirect("/signup");
-	   return;
-   }
+		console.log(validationResult.error);
+		res.redirect("/signup");
+		return;
+	}
 
-    var hashedPassword = await bcrypt.hash(password, saltRounds);
-	
-	await userCollection.insertOne({firstName: firstName, lastName: lastName, email: email, password: hashedPassword});
+	var hashedPassword = await bcrypt.hash(password, saltRounds);
+
+	await userCollection.insertOne({ firstName: firstName, lastName: lastName, email: email, password: hashedPassword });
 	console.log("Inserted user");
-	
-	req.session.authenticated = true;
-    req.session.email = email;
-    req.session.cookie.maxAge = expireTime;
 
-    var html = "successfully created user";
-    res.redirect('/main');
+	req.session.authenticated = true;
+	req.session.email = email;
+	req.session.cookie.maxAge = expireTime;
+
+	var html = "successfully created user";
+	res.redirect('/main');
 });
 
 app.post('/createBet', async (req, res) => {
-    var betTitle = req.body.betTitle;
-    var duration = req.body.duration;
-    var participants = req.body.participants;
-    var betType = req.body.betType;
-    var description = req.body.description;
-    var privateBet = req.body.privateBet ? true : false;
-    
-    await betCollection.insertOne({
-        betTitle: betTitle, duration: duration, participants: participants,
-        betType: betType, description: description, privateBet: privateBet
-    });
+	var betTitle = req.body.betTitle;
+	var duration = req.body.duration;
+	var participants = req.body.participants;
+	var betType = req.body.betType;
+	var description = req.body.description;
+	var privateBet = req.body.privateBet ? true : false;
 
-    console.log("Inserted bet")
-    res.redirect('/main')
+	await betCollection.insertOne({
+		betTitle: betTitle, duration: duration, participants: participants,
+		betType: betType, description: description, privateBet: privateBet
+	});
+
+	console.log("Inserted bet")
+	res.redirect('/main')
 })
 // END Signup authentication
 // END Rendering pages
@@ -270,11 +315,11 @@ app.use('/images', express.static(__dirname + '/images'));
 
 // 404 Page
 app.get(/(.*)/, (req, res, next) => {
-    res.status(404);
-	res.render("404", {title: "Page Not Found"});
-    next();
+	res.status(404);
+	res.render("404", { title: "Page Not Found" });
+	next();
 });
 
 app.listen(port, () => {
-	console.log("Node application listening on port "+port);
+	console.log("Node application listening on port " + port);
 }); 

@@ -1,0 +1,22 @@
+<%- include("templates/header") %>
+
+    <div class="search-container mb-4 position-relative" style="max-width: 500px; margin: auto;">
+        <input type="text" id="searchInput" class="form-control pe-5" placeholder="Search by group name...">
+        <button id="searchBtn" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%);
+                   background: none; border: none; padding: 0; cursor: pointer;">
+            <img src="/images/icons/search.svg" alt="Search Icon" style="width: 20px;">
+        </button>
+    </div>
+
+
+
+    <div id="groupContainer" class="container mt-3">
+    </div>
+
+    <div class="text-center mt-4 mb-5">
+        <div id="loader" style="display: none;">Loading...</div>
+    </div>
+
+    <script src="/scripts/groupList.js"></script>
+
+    <%- include("templates/navbar") %>
