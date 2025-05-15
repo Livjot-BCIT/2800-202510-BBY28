@@ -99,11 +99,11 @@ app.use((req, res, next) => {
 
 // Rendering pages
 app.get('/', (req, res) => {
-    res.render("main", {title: "Home", css: "/styles/main.css"});
+    res.render("main", {title: "Challenge Feed", css: "/styles/main.css"});
 });
 
 app.get('/main', (req, res) => {
-    res.render("main", {title: "Home", css: "/styles/main.css"});
+    res.render("main", {title: "Challenge Feed", css: "/styles/main.css"});
 });
 
 app.get('/shop', (req, res) => {
