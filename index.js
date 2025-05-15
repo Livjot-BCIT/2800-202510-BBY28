@@ -137,6 +137,7 @@ app.use('/styles', express.static(__dirname + '/styles'));
 app.use('/scripts', express.static(__dirname + '/scripts'));
 app.use('/images', express.static(__dirname + '/images'));
 
+// 404 Page
 app.get(/(.*)/, (req, res, next) => {
     res.status(404);
 	res.render("404", {navLinks: navLinks});
