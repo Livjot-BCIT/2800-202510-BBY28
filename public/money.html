@@ -24,30 +24,37 @@
 
         <div class="result">
             <h2>💡 Recommendation</h2>
-            <p id="recommendation"></p>
+            <div id="recommendation"></div>
         </div>
 
         <div class="stats">
-            <h2>📊 Your Allocation</h2>
+            <h2>📊 Your Spending</h2>
             <canvas id="moneyChart" width="400" height="400"></canvas>
         </div>
 
+        <div class="spending-table">
+            <h2>📝 Spending Tracker</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Recommended</th>
+                        <th>Actual</th>
+                        <th>Difference</th>
+                    </tr>
+                </thead>
+                <tbody id="spendingTable"></tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="2">Total</th>
+                        <th id="totalActual">$0.00</th>
+                        <th id="totalDifference">$0.00</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
     </div>
-    <button id="toggleReport">📝 Report Spending</button>
-
-    <div class="report-tab" id="reportTab">
-        <h2>Report Your Actual Spendings</h2>
-        <form id="reportForm">
-            <label>Food: <input type="number" name="food" step="0.01" /></label>
-            <label>Rent: <input type="number" name="rent" step="0.01" /></label>
-            <label>Health: <input type="number" name="health" step="0.01" /></label>
-            <label>Education: <input type="number" name="education" step="0.01" /></label>
-            <label>Hangout: <input type="number" name="hangout" step="0.01" /></label>
-            <button type="submit">Update Graph</button>
-        </form>
-    </div>
-
-
 
     <script src="../scripts/money.js"></script>
 </body>

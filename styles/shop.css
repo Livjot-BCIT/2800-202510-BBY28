@@ -10,63 +10,75 @@ body {
     background-color: #ffffff;
     padding: 30px;
     border-radius: 16px;
-    max-width: 600px;
+    max-width: 900px;
     margin: auto;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
 
 h1 {
     text-align: center;
     color: #7c3aed;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
+    font-size: 2.5rem;
+    font-weight: bold;
 }
 
 .balance {
-    font-size: 20px;
-    margin-bottom: 20px;
+    font-size: 24px;
+    margin-bottom: 30px;
     text-align: center;
     color: #10b981;
+    font-weight: bold;
+    background-color: #e8f5e9;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
 .inventory {
-    margin-bottom: 30px;
+    margin-bottom: 40px;
 }
 
 .item-list {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
+    justify-content: center;
 }
 
 .shop-item {
-    flex: 1 1 45%;
+    flex: 1 1 260px;
     background-color: #f3e8ff;
-    border-radius: 10px;
-    padding: 15px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
     text-align: center;
     transition: 0.3s;
+    border: 2px solid transparent;
 }
 
 .shop-item:hover {
     background-color: #d8b4fe;
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    border-color: #7c3aed;
 }
 
 .item-name {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
     color: #4c1d95;
+    margin-bottom: 10px;
 }
 
 .item-price {
-    margin: 10px 0;
+    margin-bottom: 15px;
     color: #10b981;
     font-weight: bold;
+    font-size: 18px;
 }
 
 button {
-    padding: 8px 14px;
+    padding: 10px 20px;
     background-color: #a855f7;
     color: white;
     border: none;
@@ -74,6 +86,8 @@ button {
     cursor: pointer;
     font-weight: bold;
     transition: 0.2s;
+    width: 100%;
+    font-size: 16px;
 }
 
 button:hover {
@@ -86,7 +100,62 @@ ul {
 }
 
 ul li {
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     color: #4c1d95;
     font-weight: bold;
+    background-color: #f3e8ff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    transition: 0.2s;
+}
+
+ul li:hover {
+    background-color: #d8b4fe;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+}
+
+.toast-message {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #f3e8ff;
+    color: #4c1d95;
+    padding: 15px 25px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    font-weight: bold;
+    font-family: 'Times New Roman', serif;
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+    transition: all 0.5s ease;
+    z-index: 9999;
+    border: 2px solid #7c3aed;
+    text-align: center;
+    width: 300px;
+    letter-spacing: 0.5px;
+}
+
+.toast-message.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.toast-message.danger {
+    background-color: #fbe7e7;
+    color: #b91c1c;
+    border-color: #b91c1c;
+}
+
+.toast-message::before {
+    content: '🕰️ ';
+    font-size: 24px;
+    margin-right: 5px;
+}
+
+.toast-message.danger::before {
+    content: '⚠️ ';
+    font-size: 24px;
+    margin-right: 5px;
 }
