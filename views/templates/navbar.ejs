@@ -1,0 +1,17 @@
+<link rel="stylesheet" href="/styles/navbar.css">
+
+<div class="bottom-navbar">
+<% navLinks.forEach(function(link) { 
+        var iconFile = link.name.toLowerCase().replace(/\s+/g, '') + '.svg';
+        // Check if this is the Create Bet link
+        var extraClass = (link.name === "Create Bet") ? "create-btn" : "";
+    %>
+        <a href="<%= link.link %>" class="nav-icon <%= extraClass %>">
+            <img src="/images/icons/<%= iconFile %>" alt="<%= link.name %>" />
+        </a>
+    <% }); %>
+    
+</div>
+</ul>
+</body>
+</html>

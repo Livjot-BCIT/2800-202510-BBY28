@@ -1,0 +1,21 @@
+<%- include("templates/header") %>
+
+<!-- Signup form -->
+<div id="container">
+    <img id="logo" src="/images/Logo.webp" alt="logo"/>
+
+    <form action="/createUser" method="POST">
+        <span><strong>Create an Account</strong></span>
+        <input type="text" id="firstName" name="firstName" placeholder="First name">
+        <input type="text" id="lastName" name="lastName" placeholder="Last name">
+        <input type="email" id="email" name="email" placeholder="Email">
+        <input type="password" id="password" name="password" placeholder="Password">
+        
+        <input type="submit" id="button" value="Signup">
+    </form>
+
+    <span id="signup">Already have an account? <a href="/public/login.html">Login</a></span>
+</div>
+<script src="/scripts/auth.js"></script>
+
+<%- include("templates/navbar") %>
