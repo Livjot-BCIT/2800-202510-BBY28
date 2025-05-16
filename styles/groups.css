@@ -1,0 +1,256 @@
+:root {
+    --bg: #f5f5f5;
+    --card-bg: #ffffff;
+    --btn: #6F55B6;
+    --txt: #333333;
+    --border: #6F55B6;
+    --shadow: rgba(111, 85, 182, 0.12);
+}
+
+body {
+    background-color: #fffaff !important;
+    font-family: 'Segoe UI', sans-serif;
+    color: var(--txt);
+    padding: 1.5rem;
+}
+
+
+.group-card {
+    background: var(--card-bg);
+    border: 3px solid var(--border);
+    /* ✅ 굵은 보라색 테두리 */
+    border-radius: 16px;
+    box-shadow: 0 4px 14px var(--shadow);
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.group-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(111, 85, 182, 0.18);
+}
+
+h3 {
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: var(--txt);
+}
+
+.search-container {
+    position: relative;
+    max-width: 500px;
+    margin: 0 auto 2rem auto;
+}
+
+.search-container input {
+    width: 100%;
+    padding: 0.75rem 3rem 0.75rem 1rem;
+    border-radius: 14px;
+    border: 1.5px solid var(--border);
+    background-color: white;
+    color: var(--txt);
+    font-size: 1rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.search-container input::placeholder {
+    color: #999;
+}
+
+.search-container img {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+
+
+.group-card img.group-img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+.group-content {
+    flex-grow: 1;
+}
+
+.group-title {
+    font-weight: 600;
+    font-size: 1.15rem;
+    margin-bottom: 0.25rem;
+    color: var(--txt);
+}
+
+.group-description {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 0.5rem;
+}
+
+.group-meta {
+    font-size: 0.8rem;
+    color: #777;
+    margin-bottom: 0.5rem;
+}
+
+.view-btn {
+    border: 1.5px solid var(--btn);
+    background-color: transparent;
+    color: var(--btn);
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.view-btn:hover {
+    background-color: var(--btn);
+    color: white;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    color: var(--txt);
+    padding: 2rem;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 480px;
+    border: 2px solid var(--btn);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    position: relative;
+}
+
+.modal-content img {
+    border-radius: 10px;
+    max-height: 200px;
+    object-fit: cover;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #888;
+}
+
+.modal-content p,
+.modal-content span,
+.modal-content strong {
+    color: var(--txt);
+}
+
+.modal-content .btn {
+    background-color: var(--btn);
+    color: white !important;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    margin-top: 1rem;
+    font-weight: 500;
+    transition: background 0.2s ease;
+}
+
+.modal-content .btn:hover {
+    background-color: #5a45a0;
+}
+
+#modalDescription,
+#modalTitle,
+#modalType,
+#modalMembers {
+    color: #333 !important;
+}
+
+#groupModal,
+#groupModal h2,
+#groupModal p,
+#groupModal span,
+#groupModal strong {
+    color: #333 !important;
+}
+
+/* Ensure all text inside group cards and modals are dark */
+.group-title,
+.group-description,
+.group-meta,
+.modal-content,
+.modal-content * {
+    color: #333 !important;
+}
+
+body,
+body * {
+    color: #333 !important;
+}
+
+.create-group-fixed-btn {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    background-color: #6F55B6;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    z-index: 999;
+    transition: background 0.2s ease;
+}
+
+.create-group-fixed-btn:hover {
+    background-color: #5a45a0;
+    cursor: pointer;
+}
+
+.create-group-fixed-btn {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    background-color: var(--btn);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    z-index: 999;
+    transition: background 0.2s ease;
+}
+
+.create-group-fixed-btn:hover {
+    background-color: #5a45a0;
+}

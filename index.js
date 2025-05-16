@@ -2,6 +2,8 @@
 require("./utils.js");
 
 require('dotenv').config();
+
+
 const express = require('express');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
@@ -16,6 +18,25 @@ const Joi = require("joi");
 
 
 const expireTime = 24 * 60 * 60 * 1000; //expires after 1 day  (hours * minutes * seconds * millis)
+
+// 1. import multer
+const multer = require('multer');
+const path = require('path');
+
+// 2. configure storage
+const storage = multer.diskStorage({
+	destination: function (req, file, cb) {
+		cb(null, 'public/images/uploads');
+	},
+	filename: function (req, file, cb) {
+		const ext = path.extname(file.originalname);
+		const name = Date.now() + ext;
+		cb(null, name);
+	}
+});
+
+// 3. create upload instance
+const upload = multer({ storage: storage });
 
 /* secret information section */
 const mongodb_host = process.env.MONGODB_HOST;
@@ -140,9 +161,9 @@ app.get('/stats', (req, res) => {
 	res.render("stats", { title: "Stats" });
 });
 
-app.get('/groups', (req, res) => {
-	res.render("groups", { title: "Groups" });
-});
+// app.get('/groups', (req, res) => {
+// 	res.render("groups", { title: "Groups" });
+// });
 
 //make sample data
 const sampleGroups = require('./scripts/sampleGroups.js');
@@ -162,10 +183,10 @@ app.get('/makeGroupData', async (req, res) => {
 });
 
 
-app.get('/groupList', (req, res) => {
-	res.render("groupList", {
+app.get('/groups', (req, res) => {
+	res.render("groups", {
 		title: "Groups",
-		css: "/styles/groupList.css"
+		css: "/styles/groups.css"
 	});
 });
 
@@ -178,9 +199,11 @@ app.get('/api/groups', async (req, res) => {
 
 	try {
 		const groups = await groupCollection.find({})
+			.project({ name: 1, description: 1, type: 1, memberCount: 1, image: 1 })
 			.skip(skip)
 			.limit(limit)
 			.toArray();
+
 
 		res.json(groups);
 	} catch (err) {
@@ -188,6 +211,27 @@ app.get('/api/groups', async (req, res) => {
 		res.status(500).json({ error: "Failed to fetch group data" });
 	}
 });
+
+app.post('/api/createGroup', upload.single('groupImage'), async (req, res) => {
+	try {
+		const { groupName, groupDescription, groupType } = req.body;
+		const imagePath = req.file ? '/images/uploads/' + req.file.filename : '/images/example.jpg';
+
+		await groupCollection.insertOne({
+			name: groupName,
+			description: groupDescription,
+			type: groupType,
+			image: imagePath,
+			memberCount: 0
+		});
+
+		res.sendStatus(200);
+	} catch (err) {
+		console.error('Error creating group:', err);
+		res.status(500).send('Failed to create group.');
+	}
+});
+
 
 app.get('/userprofile', (req, res) => {
 	res.render("userprofile", { title: "Profile", css: "/styles/userprofile.css" });
