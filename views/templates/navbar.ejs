@@ -1,6 +1,5 @@
 <link rel="stylesheet" href="/styles/navbar.css">
 
-<<<<<<< HEAD
 <!-- Mobile  Navbar -->
 <div class="bottom-navbar mobile-nav">
 <% navLinks.forEach(function(link) { 
@@ -43,16 +42,3 @@ function toggleMenu() {
 </script>
 </body>
 </html>
-=======
-<div class="bottom-navbar">
-    <% navLinks.forEach(link=> {
-        const iconFile = link.name.toLowerCase().replace(/\s+/g, '') + '.svg';
-        const isActive = (link.link === activeLink) ? "active" : "";
-        const extraClass = (link.name === "Create Bet") ? "create-btn" : "";
-        %>
-        <a href="<%= link.link %>" class="nav-icon <%= extraClass %> <%= isActive %>">
-            <img src="/images/icons/<%= iconFile %>" alt="<%= link.name %>" />
-        </a>
-        <% }); %>
-</div>
->>>>>>> a5f9906ee50cf406d49ea92a4fb2cbc92d5fb7ff

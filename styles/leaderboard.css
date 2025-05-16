@@ -112,8 +112,17 @@ body {
     height: auto;
     padding: 15px;
     display: flex;
+    flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    gap: 120px;
+    padding: 20px;
+
+    transition: background-color 0.3s ease;
+}
+
+#otherUsers .square #profilePic {
+    width: 40px;
 }
 
 #otherUserInfo {
@@ -325,32 +334,3 @@ body {
     }
 }
 
-/* For very small devices */
-@media (max-width: 400px) {
-    #topThree { gap: 5px; }
-    
-    .square {
-        width: 75px;
-        height: 150px;
-    }
-    
-    #first .square {
-        height: 180px;
-        width: 85px;
-    }
-    
-    #third .square {
-        height: 130px;
-        width: 70px;
-    }
-    
-    .topUser #profilePic {
-        width: 50px;
-        height: 50px;
-    }
-    
-    .userInfo {
-        gap: 15px;
-        flex-wrap: wrap;
-    }
-}

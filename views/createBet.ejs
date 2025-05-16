@@ -1,15 +1,10 @@
 <%- include("templates/header") %>
 
-<<<<<<< HEAD
 <form action="/createBet" method="POST">
-=======
-<form action="/login" method="POST">
->>>>>>> a5f9906ee50cf406d49ea92a4fb2cbc92d5fb7ff
     <span style="font-size: 20px"><strong>Create a bet</strong></span>
     <input type="text" id="bet" name="bet" placeholder="Bet">
     <input type="text" id="duration" name="duration" placeholder="Duration">
     <input type="number" id="participants" name="participants" min="1" placeholder="Participants">
-    
     <select name="betType" id="betType" placeholder="Bet Type">
         <option value="" disabled selected>Bet Type</option>
         <option value="Physical">Physical</option>
@@ -17,17 +12,10 @@
         <option value="Mental">Mental</option>
         <option value="Social">Social</option>
     </select>
-
     <textarea id="description" name="description" placeholder="Description"></textarea>
-
     <div id="checkboxContainer">
-<<<<<<< HEAD
         <input type="checkbox" id="privateBet" name="privateBet" value="Private">
         <label for="privateBet">Private bet</label>
-=======
-        <input type="checkbox" id="private" name="private" value="Private">
-        <label for="private">Private bet</label>
->>>>>>> a5f9906ee50cf406d49ea92a4fb2cbc92d5fb7ff
     </div>
 
     <input type="submit" id="button" value="Place your Bets!">
