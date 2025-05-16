@@ -7,10 +7,9 @@ const MongoStore = require('connect-mongo');
 const bcrypt = require('bcrypt');
 const saltRounds = 12;
 
-import { connectToDatabase } from "./databaseConnection.js";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import path from "path";
-import { fileURLToPath } from "url";
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+const path = require('path');
+const { fileURLToPath } = require('url');
 
 const port = process.env.PORT || 3000;
 
@@ -19,9 +18,6 @@ const app = express();
 const Joi = require("joi");
 
 const expireTime = 24 * 60 * 60 * 1000; //expires after 1 day  (hours * minutes * seconds * millis)
-
-dotenv.config();
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /* secret information section */
 const mongodb_host = process.env.MONGODB_HOST;
@@ -47,7 +43,7 @@ app.use(express.json());
 console.log("Gemini API Key:", process.env.GEMINI_API_KEY ? "Loaded" : "Missing");
 /* END secret section */
 
-const {database} = include('databaseConnection');
+const { database } = require('./databaseConnection');
 
 const userCollection = database.db(mongodb_database).collection('users');
 const betCollection = database.db(mongodb_database).collection('bets');
@@ -146,12 +142,32 @@ app.use('/images', express.static(__dirname + '/images'));
 
 // Rendering pages
 // Pages on navbar
-app.get('/', (req, res) => {
-    res.render("main", {title: "Challenge Feed", css: "/styles/main.css"});
+app.get('/', async (req, res) => {
+    try {
+        const bets = await betCollection.find({}).toArray();
+        res.render("main", {
+            title: "Challenge Feed",
+            css: "/styles/main.css",
+            bets: bets
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error loading bets");
+    }
 });
 
-app.get('/main', (req, res) => {
-    res.render("main", {title: "Challenge Feed", css: "/styles/main.css"});
+app.get('/main', async (req, res) => {
+    try {
+        const bets = await betCollection.find({}).toArray();
+        res.render("main", {
+            title: "Challenge Feed",
+            css: "/styles/main.css",
+            bets: bets
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error loading bets");
+    }
 });
 
 app.get('/shop', (req, res) => {
