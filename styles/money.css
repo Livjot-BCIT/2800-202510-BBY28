@@ -1,170 +1,208 @@
+/* Base Styles */
 body {
-    margin: 0;
     font-family: 'Segoe UI', sans-serif;
-    background: #f5e6ff;
-    color: #3a0ca3;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding: 40px 20px;
+    background-color: #f5f0fa;
+    color: #4c1d95;
+    margin: 0;
+    padding: 20px;
 }
 
+/* Container Styles */
 .container {
-    background: #fff0ff;
+    background-color: #ffffff;
     padding: 30px;
     border-radius: 16px;
-    box-shadow: 0 8px 20px rgba(128, 0, 128, 0.2);
-    max-width: 500px;
-    width: 100%;
-    animation: fadeIn 0.8s ease;
+    max-width: 100%;
+    margin: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
+/* Header Styles */
 h1,
 h2 {
     text-align: center;
-    color: #7e22ce;
+    color: #7c3aed;
+    margin-bottom: 20px;
+    font-weight: bold;
+    letter-spacing: 1px;
 }
 
+/* Input Field */
 input[type="number"] {
     width: 100%;
-    padding: 12px;
-    margin: 16px 0;
-    border: 1px solid #d8b4fe;
+    padding: 14px;
+    margin: 20px 0;
+    border: 2px solid #d8b4fe;
     border-radius: 10px;
     font-size: 16px;
     background-color: #fcf6ff;
-    transition: 0.2s;
+    transition: border-color 0.3s, background-color 0.3s;
 }
 
 input[type="number"]:focus {
     border-color: #9333ea;
+    background-color: #f3e8ff;
     outline: none;
 }
 
+/* Plan Options */
 .plan-options {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     justify-content: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 }
 
 .plan-options button {
     flex: 1 1 45%;
-    padding: 10px;
+    padding: 12px;
     border: none;
     border-radius: 10px;
     background-color: #c084fc;
-    color: white;
+    color: #ffffff;
     font-weight: bold;
     cursor: pointer;
-    transition: 0.3s;
+    transition: background-color 0.3s, transform 0.2s;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .plan-options button:hover {
     background-color: #a855f7;
+    transform: scale(1.05);
 }
 
-.result p {
-    font-size: 15px;
-    line-height: 1.6;
-}
-
-.result ul {
-    margin: 10px 0;
-    padding-left: 18px;
-}
-
-.stats {
+/* Spending Table */
+.spending-table {
     margin-top: 30px;
-    text-align: center;
+    overflow-x: auto;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
-canvas {
-    max-width: 100%;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.report {
-    margin-top: 40px;
-    padding-top: 20px;
-    border-top: 2px dashed #c084fc;
-}
-
-#reportForm {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-#reportForm label {
-    font-size: 15px;
-    color: #4c1d95;
-    display: flex;
-    justify-content: space-between;
-}
-
-#reportForm input {
-    padding: 6px 10px;
-    border-radius: 8px;
-    border: 1px solid #d1b3f0;
-    width: 120px;
-    font-size: 14px;
-    background: #faf5ff;
-}
-
-#reportForm button {
-    margin-top: 10px;
-    padding: 10px;
-    border: none;
-    background-color: #a855f7;
-    color: white;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-#toggleReport {
-    margin: 20px auto;
-    display: block;
-    padding: 10px 18px;
-    font-weight: bold;
-    color: white;
-    background: #7c3aed;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-}
-
-.report-tab {
-    display: none;
+.spending-table table {
+    width: 100%;
+    border-collapse: collapse;
     margin-top: 20px;
-    padding: 20px;
-    background: #f3e8ff;
-    border: 1px solid #d8b4fe;
+    background-color: #fdfbff;
     border-radius: 12px;
-    animation: slideDown 0.3s ease;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
+.spending-table th,
+.spending-table td {
+    padding: 16px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.spending-table th {
+    background-color: #f3e8ff;
+    color: #4c1d95;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-bottom: 2px solid #7c3aed;
+    letter-spacing: 0.5px;
+}
+
+.spending-table tfoot th {
+    background-color: #7c3aed;
+    color: #ffffff;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f9f7ff;
+}
+
+tbody tr:nth-child(odd) {
+    background-color: #fdfbff;
+}
+
+tbody tr:hover {
+    background-color: #f3e8ff;
+    transition: background-color 0.2s;
+}
+
+/* Positive, Negative, Neutral Styles */
+tbody td.negative {
+    color: #ef4444;
+    font-weight: bold;
+    background-color: #ffe4e6;
+    border-radius: 6px;
+}
+
+tbody td.positive {
+    color: #10b981;
+    font-weight: bold;
+    background-color: #dcfce7;
+    border-radius: 6px;
+}
+
+tbody td.neutral {
+    color: #6b7280;
+    font-weight: bold;
+    background-color: #f3f4f6;
+    border-radius: 6px;
+}
+
+/* Total Row Styles */
+tfoot th {
+    background-color: #7c3aed;
+    color: #ffffff;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+    .plan-options button {
+        flex: 1 1 100%;
+        margin-bottom: 10px;
     }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    .spending-table th,
+    .spending-table td {
+        padding: 12px;
+        font-size: 14px;
     }
+}
+
+.chat-message {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease-out;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: flex-start;
+}
+
+.ai-message {
+    align-self: flex-start;
+    background-color: #f3f4f6;
+    color: #333;
+    border-radius: 15px 15px 15px 5px;
+    padding: 10px 15px;
+    max-width: 80%;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
+.user-message {
+    align-self: flex-end;
+    background-color: #4c1d95;
+    color: #fff;
+    border-radius: 15px 15px 5px 15px;
+    padding: 10px 15px;
+    max-width: 80%;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
+.message-bubble {
+    font-size: 14px;
+    line-height: 1.6;
+    word-wrap: break-word;
 }
