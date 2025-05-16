@@ -7,6 +7,11 @@ const MongoStore = require('connect-mongo');
 const bcrypt = require('bcrypt');
 const saltRounds = 12;
 
+import { connectToDatabase } from "./databaseConnection.js";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import path from "path";
+import { fileURLToPath } from "url";
+
 const port = process.env.PORT || 3000;
 
 const app = express();
@@ -14,6 +19,9 @@ const app = express();
 const Joi = require("joi");
 
 const expireTime = 24 * 60 * 60 * 1000; //expires after 1 day  (hours * minutes * seconds * millis)
+
+dotenv.config();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /* secret information section */
 const mongodb_host = process.env.MONGODB_HOST;
@@ -23,6 +31,20 @@ const mongodb_database = process.env.MONGODB_DATABASE;
 const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
 
 const node_session_secret = process.env.NODE_SESSION_SECRET;
+
+const gemini_api_key = process.env.GEMINI_API_KEY;
+// At the top with other initializations
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+/* Initialize Gemini AI */
+const ai = new GoogleGenerativeAI({
+	apiKey: gemini_api_key
+});
+
+app.use(express.json());
+
+// check if Gemini API key is loadedd
+console.log("Gemini API Key:", process.env.GEMINI_API_KEY ? "Loaded" : "Missing");
 /* END secret section */
 
 const {database} = include('databaseConnection');

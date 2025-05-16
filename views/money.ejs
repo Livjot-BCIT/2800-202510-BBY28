@@ -1,51 +1,33 @@
 <%- include("templates/header") %>
 
-<div class="container">
+    <div class="container my-5">
         <h1>💸 Your Financials</h1>
 
-        <input type="number" id="moneyInput" placeholder="Enter your current money" />
+        <input type="number" id="moneyInput" placeholder="Enter your current money" class="form-control mb-4" />
 
         <div class="plan-options">
-            <button onclick="applyPlan(70, 30)">70% Spend / 30% Save</button>
-            <button onclick="applyPlan(60, 30)">60% Spend / 30% Save</button>
-            <button onclick="applyPlan(50, 50)">50% Spend / 50% Save</button>
-            <button onclick="applyPlan(80, 20)">80% Spend / 20% Save</button>
+            <input type="radio" name="plan" value="70% Spend / 30% Save" id="plan1">
+            <label for="plan1">70% Spend / 30% Save</label>
+            <input type="radio" name="plan" value="60% Spend / 40% Save" id="plan2">
+            <label for="plan2">60% Spend / 40% Save</label>
+            <input type="radio" name="plan" value="50% Spend / 50% Save" id="plan3">
+            <label for="plan3">50% Spend / 50% Save</label>
         </div>
 
-        <div class="result">
-            <h2>💡 Recommendation</h2>
-            <div id="recommendation"></div>
-        </div>
+        <button id="aiMagicTrigger" class="btn btn-warning mb-3" onclick="triggerGeminiAI()">🔮 Ask AI for Financial
+            Advice</button>
 
-        <div class="stats">
-            <h2>📊 Your Spending</h2>
+        <div id="aiResults" class="alert alert-info d-none"></div>
+
+        <div class="chart-container mb-5">
+            <h3>💡 Spending Analysis</h3>
             <canvas id="moneyChart" width="400" height="400"></canvas>
         </div>
-
-        <div class="spending-table">
-            <h2>📝 Spending Tracker</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Category</th>
-                        <th>Recommended</th>
-                        <th>Actual</th>
-                        <th>Difference</th>
-                    </tr>
-                </thead>
-                <tbody id="spendingTable"></tbody>
-                <tfoot>
-                    <tr>
-                        <th colspan="2">Total</th>
-                        <th id="totalActual">$0.00</th>
-                        <th id="totalDifference">$0.00</th>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-
     </div>
 
-    <script src="../scripts/money.js"></script>
+    <%- include("templates/footer") %>
+
+        <script src="/scripts/money.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <%- include("templates/navbar") %>

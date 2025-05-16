@@ -1,70 +1,83 @@
+/* Base Styles */
 body {
     font-family: 'Segoe UI', sans-serif;
     background-color: #f5f0fa;
+    color: #4c1d95;
     margin: 0;
     padding: 20px;
-    color: #4c1d95;
 }
 
+/* Container Styles */
 .container {
     background-color: #ffffff;
     padding: 30px;
     border-radius: 16px;
-    max-width: 1000px;
+    max-width: 100%;
     margin: auto;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
+/* Header Styles */
 h1,
 h2 {
     text-align: center;
     color: #7c3aed;
     margin-bottom: 20px;
+    font-weight: bold;
+    letter-spacing: 1px;
 }
 
+/* Input Field */
 input[type="number"] {
     width: 100%;
-    padding: 12px;
-    margin: 16px 0;
-    border: 1px solid #d8b4fe;
+    padding: 14px;
+    margin: 20px 0;
+    border: 2px solid #d8b4fe;
     border-radius: 10px;
     font-size: 16px;
     background-color: #fcf6ff;
-    transition: 0.2s;
+    transition: border-color 0.3s, background-color 0.3s;
 }
 
 input[type="number"]:focus {
     border-color: #9333ea;
+    background-color: #f3e8ff;
     outline: none;
 }
 
+/* Plan Options */
 .plan-options {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     justify-content: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 }
 
 .plan-options button {
     flex: 1 1 45%;
-    padding: 10px;
+    padding: 12px;
     border: none;
     border-radius: 10px;
     background-color: #c084fc;
-    color: white;
+    color: #ffffff;
     font-weight: bold;
     cursor: pointer;
-    transition: 0.3s;
+    transition: background-color 0.3s, transform 0.2s;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .plan-options button:hover {
     background-color: #a855f7;
+    transform: scale(1.05);
 }
 
+/* Spending Table */
 .spending-table {
     margin-top: 30px;
     overflow-x: auto;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .spending-table table {
@@ -83,6 +96,7 @@ input[type="number"]:focus {
     border-bottom: 1px solid #ddd;
     text-align: center;
     font-size: 15px;
+    font-weight: 500;
 }
 
 .spending-table th {
@@ -91,12 +105,14 @@ input[type="number"]:focus {
     font-weight: bold;
     text-transform: uppercase;
     border-bottom: 2px solid #7c3aed;
+    letter-spacing: 0.5px;
 }
 
 .spending-table tfoot th {
     background-color: #7c3aed;
-    color: white;
+    color: #ffffff;
     font-weight: bold;
+    text-transform: uppercase;
 }
 
 tbody tr:nth-child(even) {
@@ -109,35 +125,84 @@ tbody tr:nth-child(odd) {
 
 tbody tr:hover {
     background-color: #f3e8ff;
-    transition: 0.2s;
+    transition: background-color 0.2s;
 }
 
+/* Positive, Negative, Neutral Styles */
 tbody td.negative {
     color: #ef4444;
     font-weight: bold;
+    background-color: #ffe4e6;
+    border-radius: 6px;
 }
 
 tbody td.positive {
     color: #10b981;
     font-weight: bold;
+    background-color: #dcfce7;
+    border-radius: 6px;
 }
 
 tbody td.neutral {
     color: #6b7280;
     font-weight: bold;
+    background-color: #f3f4f6;
+    border-radius: 6px;
 }
 
-.positive {
-    color: #10b981;
+/* Total Row Styles */
+tfoot th {
+    background-color: #7c3aed;
+    color: #ffffff;
     font-weight: bold;
+    letter-spacing: 0.5px;
 }
 
-.negative {
-    color: #ef4444;
-    font-weight: bold;
+/* Mobile Styles */
+@media (max-width: 768px) {
+    .plan-options button {
+        flex: 1 1 100%;
+        margin-bottom: 10px;
+    }
+
+    .spending-table th,
+    .spending-table td {
+        padding: 12px;
+        font-size: 14px;
+    }
 }
 
-.neutral {
-    color: #6b7280;
-    font-weight: bold;
+.chat-message {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease-out;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: flex-start;
+}
+
+.ai-message {
+    align-self: flex-start;
+    background-color: #f3f4f6;
+    color: #333;
+    border-radius: 15px 15px 15px 5px;
+    padding: 10px 15px;
+    max-width: 80%;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
+.user-message {
+    align-self: flex-end;
+    background-color: #4c1d95;
+    color: #fff;
+    border-radius: 15px 15px 5px 15px;
+    padding: 10px 15px;
+    max-width: 80%;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
+.message-bubble {
+    font-size: 14px;
+    line-height: 1.6;
+    word-wrap: break-word;
 }

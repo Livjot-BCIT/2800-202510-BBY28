@@ -1,36 +1,48 @@
 <%- include("templates/header") %>
 
-<header class="top-bar">
-    <h1>🔥 Bet On Yourself</h1>
-    <select id="regionSelect">
-        <option value="America/Vancouver">British Columbia (Pacific Time)</option>
-        <option value="America/Edmonton">Alberta (Mountain Time)</option>
-        <option value="America/Regina">Saskatchewan (Central Time - No DST)</option>
-        <option value="America/Winnipeg">Manitoba (Central Time)</option>
-        <option value="America/Toronto">Ontario (Eastern Time)</option>
-        <option value="America/Halifax">Nova Scotia (Atlantic Time)</option>
-        <option value="America/St_Johns">Newfoundland (Newfoundland Time)</option>
-    </select>
-    <input type="text" id="search" placeholder="Search challenges..." />
+    <header class="top-bar">
+        <h1>🔥 Bet On Yourself</h1>
+        <select id="regionSelect">
+            <option value="America/Vancouver">British Columbia (Pacific Time)</option>
+            <option value="America/Edmonton">Alberta (Mountain Time)</option>
+            <option value="America/Regina">Saskatchewan (Central Time - No DST)</option>
+            <option value="America/Winnipeg">Manitoba (Central Time)</option>
+            <option value="America/Toronto">Ontario (Eastern Time)</option>
+            <option value="America/Halifax">Nova Scotia (Atlantic Time)</option>
+            <option value="America/St_Johns">Newfoundland (Newfoundland Time)</option>
+        </select>
+        <input type="text" id="search" placeholder="Search challenges..." />
 
-    <div class="summary">
-        <span id="totalChallenges">0 challenges</span> •
-        <span id="totalVotes">0 total votes</span>
-    </div>
+        <div class="summary">
+            <span id="totalChallenges">
+                <%= bets.length %> challenges
+            </span> •
+            <span id="totalVotes">
+                <%= bets.reduce((acc, bet)=> acc + (parseInt(bet.participants) || 0), 0) %> total votes
+            </span>
+        </div>
 
-    <div class="tag-filters">
-        <button onclick="filterByTag('all')">All</button>
-        <button onclick="filterByTag('physical')">Physical</button>
-        <button onclick="filterByTag('puzzle')">Puzzle</button>
-        <button onclick="filterByTag('funny')">Funny</button>
-        <button onclick="filterByTag('timed')">Timed</button>
-    </div>
-</header>
+        <div class="feed-container">
+            <% if (bets && bets.length> 0) { %>
+                <% bets.forEach(bet=> { %>
+                    <div class="bet-card">
+                        <h3>
+                            <%= bet.title || "Untitled Bet" %>
+                        </h3>
+                        <p>
+                            <%= bet.description || "No description provided." %>
+                        </p>
+                        <span>Type: <%= bet.type || "General" %></span><br>
+                        <span>Duration: <%= bet.duration || "No duration specified" %></span><br>
+                        <span>Participants: <%= bet.participants || "0" %></span>
+                    </div>
+                    <% }) %>
+                        <% } else { %>
+                            <p>No bets available. Create the first one!</p>
+                            <% } %>
+        </div>
+    </header>
 
-<div class="feed-container" id="feed"></div>
+    <%- include("templates/navbar") %>
 
-<button class="create-btn" onclick="alert('Redirect to create challenge page')">＋ Challenge</button>
-
-<script src="/scripts/main.js"></script>
-
-<%- include("templates/navbar") %>
+        <script src="/scripts/main.js"></script>
