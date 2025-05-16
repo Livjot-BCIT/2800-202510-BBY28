@@ -1,3 +1,51 @@
 <%- include("templates/header") %>
 
+<div class="container">
+        <h1>💸 Your Financials</h1>
+
+        <input type="number" id="moneyInput" placeholder="Enter your current money" />
+
+        <div class="plan-options">
+            <button onclick="applyPlan(70, 30)">70% Spend / 30% Save</button>
+            <button onclick="applyPlan(60, 30)">60% Spend / 30% Save</button>
+            <button onclick="applyPlan(50, 50)">50% Spend / 50% Save</button>
+            <button onclick="applyPlan(80, 20)">80% Spend / 20% Save</button>
+        </div>
+
+        <div class="result">
+            <h2>💡 Recommendation</h2>
+            <div id="recommendation"></div>
+        </div>
+
+        <div class="stats">
+            <h2>📊 Your Spending</h2>
+            <canvas id="moneyChart" width="400" height="400"></canvas>
+        </div>
+
+        <div class="spending-table">
+            <h2>📝 Spending Tracker</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Recommended</th>
+                        <th>Actual</th>
+                        <th>Difference</th>
+                    </tr>
+                </thead>
+                <tbody id="spendingTable"></tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="2">Total</th>
+                        <th id="totalActual">$0.00</th>
+                        <th id="totalDifference">$0.00</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+    </div>
+
+    <script src="../scripts/money.js"></script>
+
 <%- include("templates/navbar") %>
