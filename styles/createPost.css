@@ -1,119 +1,311 @@
+:root {
+  --bg: #676279; 
+  --container: #2B2738; 
+  --btn: #6F55B6; 
+  --txt: #FEFCFF; 
+  --active-txt: #FDF6FE; 
+  --active-bg: #5B566C;
+}
+
 * {
     box-sizing: border-box;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-body {
-    width: 393px;
-    height: 852px;
-    margin: 0;
-    padding: 0;
-    border: 2px;
-    border-style: solid;
-
-    display: flex;
-    justify-content: center;
+html {
+    font-size: 16px; /* Base font size for rem calculations */
 }
 
-#container {
-    height: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+/* MOBILE STYLES */
+@media (max-width: 48rem) { /* 768px ÷ 16 = 48rem */
+    body {
+        max-width: 24.5rem; /* 393px ÷ 16 = 24.5625rem, rounded to 24.5rem */
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        background-color: var(--bg);
+        color: var(--txt);
+    }
+    
+    #container {
+        height: 0.625rem; /* 10px ÷ 16 = 0.625rem */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+    
+    /* Form styling */
+    form {
+        height: 47.5rem; /* 760px ÷ 16 = 47.5rem */
+        display: flex;
+        flex-direction: column;
+        align-items: center;   
+        justify-content: center;
+        gap: 1.5rem; /* 24px ÷ 16 = 1.5rem */
+        background-color: var(--container);
+        padding: 1.25rem; /* 20px ÷ 16 = 1.25rem */
+        border-radius: 0.625rem; /* 10px ÷ 16 = 0.625rem */
+        width: 100%;
+    }
+    
+    form:focus, input:focus {
+        outline: none;
+        border: none;
+    }
+    
+    form span {
+        width: 100%;
+        text-align: left;
+    }
+    
+    input {
+        width: 19.875rem; /* 318px ÷ 16 = 19.875rem */
+        height: 3.25rem; /* 52px ÷ 16 = 3.25rem */
+        border-radius: 0.5rem; /* 8px ÷ 16 = 0.5rem */
+        padding: 0.625rem; /* 10px ÷ 16 = 0.625rem */
+        box-shadow: 0 0 0.4375rem rgba(0, 0, 0, 0.4); /* 7px ÷ 16 = 0.4375rem */
+        border-style: none;
+        background-color: var(--active-bg);
+        color: var(--txt);
+    }
+    
+    select {
+        width: 19.875rem; /* 318px ÷ 16 = 19.875rem */
+        height: 3.25rem; /* 52px ÷ 16 = 3.25rem */
+        border-radius: 0.5rem; /* 8px ÷ 16 = 0.5rem */
+        padding: 0.625rem; /* 10px ÷ 16 = 0.625rem */
+        box-shadow: 0 0 0.4375rem rgba(0, 0, 0, 0.4); /* 7px ÷ 16 = 0.4375rem */
+        border-style: none;
+        background-color: var(--active-bg);
+        color: var(--txt);
+    }
+    
+    #bet, #duration, #participants, #button {
+        font-size: 0.9375rem; /* 15px ÷ 16 = 0.9375rem */
+    }
+    
+    #button {
+        margin-top: 1.875rem; /* 30px ÷ 16 = 1.875rem */
+        font-weight: bold;
+        background-color: var(--btn);
+        color: var(--txt);
+    }
+    
+    textarea {
+        width: 100%;
+        height: 10.125rem; /* 162px ÷ 16 = 10.125rem */
+        border-radius: 0.5rem; /* 8px ÷ 16 = 0.5rem */
+        padding: 0.625rem; /* 10px ÷ 16 = 0.625rem */
+        box-shadow: 0 0 0.4375rem rgba(0, 0, 0, 0.4); /* 7px ÷ 16 = 0.4375rem */
+        border-style: none;
+        font-size: 0.9375rem; /* 15px ÷ 16 = 0.9375rem */
+        resize: none;
+        background-color: var(--active-bg);
+        color: var(--txt);
+    }
+    
+    #checkboxContainer {
+        width: 100%;
+        display: flex;
+        justify-content: right;
+        gap: 0.3125rem; /* 5px ÷ 16 = 0.3125rem */
+    }
+    
+    input[type="checkbox"] {
+        width: 1.25rem; /* 20px ÷ 16 = 1.25rem */
+        height: 1.25rem; /* 20px ÷ 16 = 1.25rem */
+        box-shadow: 0 0 0 rgba(0, 0, 0, 0.0);
+        border-style: solid;
+        border-width: 0.125rem; /* 2px ÷ 16 = 0.125rem */
+    }
 }
 
-/* Form styling */
-form {
-    height: 760px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;   
-    justify-content: center;
-    gap: 24px;
+/* DESKTOP STYLES */
+@media (min-width: 48.0625rem) { /* 769px ÷ 16 = 48.0625rem */
+    body {
+        background-color: var(--bg);
+        color: var(--txt);
+        margin: 0;
+        padding: 1.25rem; /* 20px ÷ 16 = 1.25rem */
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        border: none;
+    }
+    
+    #container {
+        width: 100%;
+        max-width: 50rem; /* 800px ÷ 16 = 50rem */
+        margin: 1.25rem auto; /* 20px ÷ 16 = 1.25rem */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    /* Form styling */
+    form {
+        width: 100%;
+        max-width: 43.75rem; /* 700px ÷ 16 = 43.75rem */
+        background-color: var(--container);
+        padding: 2.5rem; /* 40px ÷ 16 = 2.5rem */
+        border-radius: 0.9375rem; /* 15px ÷ 16 = 0.9375rem */
+        box-shadow: 0 0.625rem 1.5625rem rgba(0, 0, 0, 0.2); /* 10px 25px ÷ 16 */
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem; /* 24px ÷ 16 = 1.5rem */
+        margin-bottom: 5rem; /* 80px ÷ 16 = 5rem */
+    }
+    
+    form:focus, input:focus, select:focus, textarea:focus {
+        outline: none;
+    }
+    
+    form h2 {
+        color: var(--txt);
+        text-align: center;
+        margin-top: 0;
+        font-size: 1.75rem; /* 28px ÷ 16 = 1.75rem */
+    }
+    
+    .form-group {
+        width: 100%;
+    }
+    
+    form span {
+        width: 100%;
+        display: block;
+        margin-bottom: 0.5rem; /* 8px ÷ 16 = 0.5rem */
+        color: var(--txt);
+        font-weight: 500;
+    }
+    
+    input, select, textarea {
+        width: 100%;
+        padding: 0.75rem; /* 12px ÷ 16 = 0.75rem */
+        border-radius: 0.5rem; /* 8px ÷ 16 = 0.5rem */
+        background-color: var(--active-bg);
+        border: none;
+        color: var(--txt);
+        font-size: 1rem; /* 16px ÷ 16 = 1rem */
+        transition: all 0.3s ease;
+        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1); /* 4px 8px ÷ 16 */
+    }
+    
+    input:hover, select:hover, textarea:hover {
+        background-color: #4a4658;
+    }
+    
+    input {
+        height: 3.25rem; /* 52px ÷ 16 = 3.25rem */
+    }
+    
+    select {
+        height: 3.25rem; /* 52px ÷ 16 = 3.25rem */
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center; /* 12px ÷ 16 = 0.75rem */
+        background-size: 0.75rem auto; /* 12px ÷ 16 = 0.75rem */
+        padding-right: 1.875rem; /* 30px ÷ 16 = 1.875rem */
+    }
+    
+    textarea {
+        height: 11.25rem; /* 180px ÷ 16 = 11.25rem */
+        resize: none;
+    }
+    
+    #checkboxContainer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.625rem; /* 10px ÷ 16 = 0.625rem */
+    }
+    
+    input[type="checkbox"] {
+        width: 1.25rem; /* 20px ÷ 16 = 1.25rem */
+        height: 1.25rem; /* 20px ÷ 16 = 1.25rem */
+        cursor: pointer;
+        box-shadow: none;
+    }
+    
+    #button {
+        background-color: var(--btn);
+        color: var(--txt);
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1.25rem; /* 20px ÷ 16 = 1.25rem */
+        height: 3.375rem; /* 54px ÷ 16 = 3.375rem */
+        font-size: 1rem; /* 16px ÷ 16 = 1rem */
+    }
+    
+    #button:hover {
+        background-color: #8669c9;
+        transform: translateY(-0.125rem); /* 2px ÷ 16 = 0.125rem */
+        box-shadow: 0 0.375rem 0.75rem rgba(0, 0, 0, 0.2); /* 6px 12px ÷ 16 */
+    }
+    
+    /* Link styling */
+    a {
+        color: var(--txt);
+        text-decoration: none;
+        font-weight: bold;
+        transition: color 0.2s ease;
+    }
+    
+    a:visited {
+        color: var(--txt);
+    }
+    
+    a:hover, a:active {
+        color: #b8a0e9;
+    }
+    
+    /* Additional desktop styling */
+    .header-section {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 1.875rem; /* 30px ÷ 16 = 1.875rem */
+    }
+    
+    .header-section h1 {
+        font-size: 2.25rem; /* 36px ÷ 16 = 2.25rem */
+        margin: 0;
+        color: var(--txt);
+    }
+    
+    .header-section p {
+        font-size: 1.125rem; /* 18px ÷ 16 = 1.125rem */
+        opacity: 0.8;
+        margin-top: 0.625rem; /* 10px ÷ 16 = 0.625rem */
+        color: var(--txt);
+    }
 }
 
+/* Global form styles that apply to both mobile and desktop */
 form:focus, input:focus {
-    outline: none; /* Removes the default focus outline */
-    border: none; /* Ensures no border appears */
+    outline: none;
 }
 
-form span {
-    width: 100%;
-    text-align: left;
-}
-
-input {
-    width: 318px;
-    height: 52px;
-    border-radius: 8px;
-    padding: 10px;
-    box-shadow: 0px 0px 7px rgba(0, 0, 0, 0.4);
-    border-style: none;
-}
-
-select {
-    width: 318px;
-    height: 52px;
-    border-radius: 8px;
-    padding: 10px;
-    box-shadow: 0px 0px 7px rgba(0, 0, 0, 0.4);
-    border-style: none;
-}
-
-#bet, #duration, #participants, #button {
-    font-size: 15px;
-}
-
-#button {
-    margin-top: 30px;
-    font-weight: bold;
-}
-
-textarea {
-    width: 100%;
-    height: 162px;
-    border-radius: 8px;
-    padding: 10px;
-    box-shadow: 0px 0px 7px rgba(0, 0, 0, 0.4);
-    border-style: none;
-    font-size: 15px;
-    resize: none; /* Prevents resizing of the text box */
-}
-
-#checkboxContainer {
-    width: 100%;
-    display: flex;
-    justify-content: right;
-    gap: 5px;
-}
-
-input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.0);
-    border-style: solid;
-    border-width: 2px;
-}
-/* Form styling */
-
-/* unvisited link */
+/* Global link styles */
 a:link {
-    color: black;
+    color: var(--txt);
     text-decoration: none;
     font-weight: bold;
-  }
+}
   
-/* visited link */
 a:visited {
-color: black;
+    color: var(--txt);
 }
 
-/* mouse over link */
 a:hover {
-color: purple;
+    color: var(--btn);
 }
 
-/* selected link */
 a:active {
-color: purple;
+    color: var(--btn);
 }

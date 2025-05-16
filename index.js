@@ -359,6 +359,201 @@ app.post('/create-group', (req, res) => {
     res.redirect('/groups');
 });
 
+// Match leaderboard - View results of a specific bet
+app.get('/match-leaderboard/:id', async (req, res) => {
+    try {
+        const betId = req.params.id;
+        
+        // Find the bet in the database
+        const bet = await betCollection.findOne({_id: new ObjectId(betId)});
+        
+        if (!bet) {
+            return res.status(404).send("Bet not found");
+        }
+        
+        // For this example, I'll create mock results
+        // In a real implementation, you would fetch actual results from your database
+        const results = [
+            {
+                userId: '1',
+                username: 'Champion123',
+                points: 200,
+                pointsGained: 600, // x3 multiplier
+                position: 1,
+                profilePic: '/images/profilePic.jpg'
+            },
+            {
+                userId: '2',
+                username: 'SilverPlayer',
+                points: 150,
+                pointsGained: 300, // x2 multiplier
+                position: 2,
+                profilePic: '/images/profilePic.jpg'
+            },
+            {
+                userId: '3',
+                username: 'BronzeStar',
+                points: 120,
+                pointsGained: 180, // x1.5 multiplier
+                position: 3,
+                profilePic: '/images/profilePic.jpg'
+            },
+            {
+                userId: '4',
+                username: 'FourthPlace',
+                points: 100,
+                pointsGained: 100,
+                position: 4,
+                profilePic: '/images/profilePic.jpg'
+            },
+            {
+                userId: '5',
+                username: 'FifthUser',
+                points: 80,
+                pointsGained: 80,
+                position: 5,
+                profilePic: '/images/profilePic.jpg'
+            }
+        ];
+        
+        // In a real app, check if the current user participated
+        // and get their result
+        let userResult = null;
+        if (req.session.authenticated) {
+            // This is where you would find the user's result
+            // For this example, let's assume the user is the 4th place participant
+            userResult = results[3]; // Fourth place user
+        }
+        
+        res.render("match_leaderboard", {
+            title: `Results - ${bet.betTitle}`,
+            css: "/styles/match_leaderboard.css",
+            bet,
+            results,
+            userResult
+        });
+    } catch (error) {
+        console.error("Error fetching bet results:", error);
+        res.status(500).send("Error loading bet results");
+    }
+});
+
+// In a real app, you'd also want an API endpoint to fetch results dynamically
+app.get('/api/bet-results/:id', async (req, res) => {
+    try {
+        const betId = req.params.id;
+        
+        // Here you would fetch real results from your database
+        // For this example, we'll return mock data
+        
+        const results = [
+            // Same mock data as above
+        ];
+        
+        res.json({ success: true, results });
+    } catch (error) {
+        console.error("API error:", error);
+        res.status(500).json({ success: false, error: "Failed to fetch results" });
+    }
+});
+
+// Add this before your 404 route handler
+app.get('/mockup-leaderboard', async (req, res) => {
+    try {
+        // Create a mock bet object
+        const mockBet = {
+            _id: 'mockup123',
+            betTitle: 'Weekly Weight Loss Challenge',
+            description: 'Participants compete to lose the most weight percentage in 7 days. The winner gets triple points!',
+            duration: '7 days',
+            betType: 'Fitness',
+            participants: 12,
+            privateBet: false
+        };
+        
+        // Mock results data
+        const mockResults = [
+            {
+                userId: '1',
+                username: 'FitnessFanatic',
+                points: 350,
+                pointsGained: 1050, // x3 multiplier
+                position: 1,
+                profilePic: '/images/icons/profilePic.jpg'
+            },
+            {
+                userId: '2',
+                username: 'GymRat1992',
+                points: 280,
+                pointsGained: 560, // x2 multiplier
+                position: 2,
+                profilePic: '/images/icons/profilePic.jpg'
+            },
+            {
+                userId: '3',
+                username: 'HealthyEater',
+                points: 220,
+                pointsGained: 330, // x1.5 multiplier
+                position: 3,
+                profilePic: '/images/icons/profilePic.jpg'
+            },
+            {
+                userId: '4',
+                username: 'WeightDropper',
+                points: 190,
+                pointsGained: 190,
+                position: 4,
+                profilePic: '/images/icons/profilePic.jpg'
+            },
+            {
+                userId: '5',
+                username: 'JoggingJunkie',
+                points: 170,
+                pointsGained: 170,
+                position: 5,
+                profilePic: '/images/icons/profilePic.jpg'
+            },
+            {
+                userId: '6',
+                username: 'SlimmerNow',
+                points: 150,
+                pointsGained: 150,
+                position: 6,
+                profilePic: '/images/icons/profilePic.jpg'
+            },
+            {
+                userId: '7',
+                username: 'GettingHealthy',
+                points: 130,
+                pointsGained: 130,
+                position: 7,
+                profilePic: '/images/icons/profilePic.jpg'
+            }
+        ];
+        
+        // Mock current user's result (assume they are logged in)
+        const mockUserResult = {
+            userId: '4',
+            username: 'WeightDropper',
+            points: 190,
+            pointsGained: 190,
+            position: 4,
+            profilePic: '/images/icons/profilePic.jpg'
+        };
+        
+        res.render("match_leaderboard", {
+            title: "Mockup Leaderboard",
+            css: "/styles/match_leaderboard.css",
+            bet: mockBet,
+            results: mockResults,
+            userResult: mockUserResult
+        });
+    } catch (error) {
+        console.error("Error showing mockup leaderboard:", error);
+        res.status(500).send("Error showing mockup");
+    }
+});
+
 // Absolute routes
 app.use(express.static(__dirname + "/public"));
 app.use('/styles', express.static(__dirname + '/styles'));

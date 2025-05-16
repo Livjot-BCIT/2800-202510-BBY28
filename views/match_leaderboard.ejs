@@ -1,0 +1,100 @@
+<%- include("templates/header") %>
+
+<div class="bet-details">
+    <h1 class="bet-title"><%= bet.betTitle %></h1>
+    <p class="bet-description"><%= bet.description %></p>
+</div>
+
+<!-- Top three user display -->
+<div id="topThree">
+    <% if (results && results.length > 0) { %>
+        <% if (results.length > 1) { %>
+            <div class="topUser" id="second" style="opacity: 0;"> <!-- left bar -->
+                <img id="profilePic" src="<%= results[1].profilePic || '/images/profilePic.jpg' %>" alt="profile pic"/>
+                <span><%= results[1].username %></span>
+                <div class="square">
+                    <span>2</span>
+                </div>
+                <div class="points-gained" style="opacity: 0;">
+                    <span>+<%= results[1].pointsGained %> Points</span>
+                    <span class="multiplier">x2</span>
+                </div>
+            </div>
+        <% } %>
+        
+        <% if (results.length > 0) { %>
+            <div class="topUser" id="first" style="opacity: 0;"> <!-- middle bar -->
+                <img id="profilePic" src="<%= results[0].profilePic || '/images/profilePic.jpg' %>" alt="profile pic"/>
+                <span><%= results[0].username %></span>
+                <div class="square">
+                    <span>1</span>
+                </div>
+                <div class="points-gained" style="opacity: 0;">
+                    <span>+<%= results[0].pointsGained %> Points</span>
+                    <span class="multiplier">x3</span>
+                </div>
+            </div>
+        <% } %>
+        
+        <% if (results.length > 2) { %>
+            <div class="topUser" id="third" style="opacity: 0;"> <!-- right bar -->
+                <img id="profilePic" src="<%= results[2].profilePic || '/images/profilePic.jpg' %>" alt="profile pic"/>
+                <span><%= results[2].username %></span>
+                <div class="square">
+                    <span>3</span>
+                </div>
+                <div class="points-gained" style="opacity: 0;">
+                    <span>+<%= results[2].pointsGained %> Points</span>
+                    <span class="multiplier">x1.5</span>
+                </div>
+            </div>
+        <% } %>
+    <% } else { %>
+        <p class="no-results">No results available for this bet yet.</p>
+    <% } %>
+</div>
+
+<!-- User's own position (if they participated) -->
+<% if (userResult) { %>
+    <div class="userInfo">
+        <div class="userCols">
+            <img id="profilePic" src="<%= userResult.profilePic || '/images/profilePic.jpg' %>" alt="profile pic"/>
+            <span><%= userResult.username %></span>
+        </div>
+
+        <div class="userCols">
+            <span><strong>Points</strong></span>
+            <span><%= userResult.points %></span>
+        </div>
+
+        <div class="userCols">
+            <span><strong>Position</strong></span>
+            <span><%= userResult.position %></span>
+        </div>
+    </div>
+<% } %>
+
+<!-- Other participants -->
+<div id="otherUsers">
+    <% if (results && results.length > 3) { %>
+        <% for(let i = 3; i < results.length; i++) { %>
+            <div class="square">
+                <span id="otherUserInfo">
+                    <%= i+1 %>
+                    <img id="profilePic" src="<%= results[i].profilePic || '/images/profilePic.jpg' %>" alt="profile pic"/>
+                    <%= results[i].username %>
+                </span>
+                <span><%= results[i].points %> Points</span>
+            </div>
+        <% } %>
+    <% } %>
+</div>
+
+<div class="actions">
+    <a href="/bet-details/<%= bet._id %>" class="action-btn">View Bet Details</a>
+    <a href="/groups" class="action-btn">Back to Groups</a>
+</div>
+
+<script src="/scripts/match_leaderboard.js"></script>
+
+<%- include("templates/navbar") %>
