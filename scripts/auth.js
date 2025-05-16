@@ -48,9 +48,9 @@ async function signup() {
     });
 
     if (response.ok) {
-        alert("Signup successful!");
+        Swal.fire("Signup successful!");
     } else {
         const errorMessage = await response.text();
-        alert(`Signup failed: ${errorMessage}`);
+        Swal.fire(`Signup failed: ${errorMessage}`);
     }
 }

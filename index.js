@@ -1,4 +1,3 @@
-
 require("./utils.js");
 
 require('dotenv').config();
@@ -140,10 +139,6 @@ app.get('/stats', (req, res) => {
     res.render("stats", {title: "Stats"});
 });
 
-app.get('/groups', (req, res) => {
-    res.render("groups", {title: "Groups"});
-});
-
 app.get('/userprofile', (req, res) => {
     res.render("userprofile", {title: "Profile", css: "/styles/userprofile.css"});
 });
@@ -262,6 +257,108 @@ app.post('/createBet', async (req, res) => {
 // END Signup authentication
 // END Rendering pages
 
+// Mock groups data (replace with database query later)
+const mockGroups = [
+    { 
+        _id: '1', 
+        title: 'Group Title #1', 
+        description: 'A group for people who love sports betting and want to share tips.',
+        members: 42,
+        type: 'Sports'
+    },
+    { 
+        _id: '2', 
+        title: 'Group Title #2', 
+        description: 'A group for people who want to save money and share tips on budgeting and cutting expenses. Let\'s support each other in reaching our financial goals!',
+        members: 35,
+        type: 'Financial'
+    },
+    { 
+        _id: '3', 
+        title: 'Group Title #3', 
+        description: 'Discussion group for cryptocurrency enthusiasts and investors.',
+        members: 28,
+        type: 'Crypto'
+    }
+];
+
+// Groups page - List all available groups
+app.get('/groups', (req, res) => {
+    // In a real app, you would fetch groups from your database
+    res.render("groups", {
+        title: "Groups", 
+        css: "/styles/groups.css",
+        groups: mockGroups
+    });
+});
+
+// View group details
+app.get('/group-details/:id', (req, res) => {
+    const groupId = req.params.id;
+    const group = mockGroups.find(g => g._id === groupId);
+    
+    if (!group) {
+        return res.status(404).send("Group not found");
+    }
+    
+    res.render("group-details", {
+        title: group.title,
+        css: "/styles/groupDescription.css",
+        group
+    });
+});
+
+// Join a group
+app.get('/join-group/:id', (req, res) => {
+    const groupId = req.params.id;
+    const group = mockGroups.find(g => g._id === groupId);
+    
+    if (!group) {
+        return res.status(404).send("Group not found");
+    }
+    
+    // In a real app, you would add the user to the group members in the database
+    // For now, we'll just redirect to the group chat page
+    
+    // Store the group ID in the session so we know which group the user is in
+    req.session.currentGroupId = groupId;
+    
+    res.redirect(`/group-chat/${groupId}`);
+});
+
+// Group chat page - After joining a group
+app.get('/group-chat/:id', (req, res) => {
+    const groupId = req.params.id;
+    const group = mockGroups.find(g => g._id === groupId);
+    
+    if (!group) {
+        return res.status(404).send("Group not found");
+    }
+    
+    // In a real app, check if the user is actually a member of this group
+    
+    res.render("group_chat", {
+        title: `Chat - ${group.title}`,
+        css: "/styles/style-group-chat.css",
+        group
+    });
+});
+
+// Create group page
+app.get('/create-group', (req, res) => {
+    res.render("create-group", {
+        title: "Create a Group",
+        css: "/styles/createGroup.css"
+    });
+});
+
+// Process group creation
+app.post('/create-group', (req, res) => {
+    // In a real app, you would save the new group to your database
+    // For now, we'll just redirect back to the groups page
+    res.redirect('/groups');
+});
+
 // Absolute routes
 app.use(express.static(__dirname + "/public"));
 app.use('/styles', express.static(__dirname + '/styles'));
@@ -277,4 +374,4 @@ app.get(/(.*)/, (req, res, next) => {
 
 app.listen(port, () => {
 	console.log("Node application listening on port "+port);
-}); 
+});

@@ -34,9 +34,9 @@ function buyItem(name, price) {
         inventory.push(name);
         updateInventory();
         updateBalance();
-        alert(`You bought a ${name} for $${price}!`);
+        Swal.fire(`You bought a ${name} for $${price}!`);
     } else {
-        alert("Not enough money!");
+        Swal.fire("Not enough money!");
     }
 }
 

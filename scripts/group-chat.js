@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/api/group-chat/messages'); 
             if (!response.ok) {
                 // If the server response is not OK throw an error.
-                throw new Error(`HTTP error! status: ${response.status}`);
+                Swal.fire(`HTTP error! status: ${response.status}`);
             }
             const messages = await response.json(); // Parse the JSON response from the server.
    

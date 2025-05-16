@@ -1,7 +1,11 @@
 function applyPlan(spendPercent, savePercent) {
     const amount = parseFloat(document.getElementById('moneyInput').value);
     if (isNaN(amount) || amount <= 0) {
-        alert("Please enter a valid amount!");
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Input',
+            text: 'Please enter a valid amount!'
+        });
         return;
     }
 
@@ -97,7 +101,7 @@ document.getElementById("reportForm").addEventListener("submit", function (e) {
 
     const total = food + rent + health + education + hangout;
     if (total === 0) {
-        alert("Please enter at least one amount.");
+        Swal.fire("Please enter at least one amount.");
         return;
     }
 
