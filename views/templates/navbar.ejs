@@ -1,18 +1,6 @@
 <link rel="stylesheet" href="/styles/navbar.css">
 
 <div class="bottom-navbar">
-<<<<<<< HEAD
-    <% navLinks.forEach(link=> {
-        const iconFile = link.name.toLowerCase().replace(/\s+/g, '') + '.svg';
-        const isActive = (link.link === activeLink) ? "active" : "";
-        const extraClass = (link.name === "Create Bet") ? "create-btn" : "";
-        %>
-        <a href="<%= link.link %>" class="nav-icon <%= extraClass %> <%= isActive %>">
-            <img src="/images/icons/<%= iconFile %>" alt="<%= link.name %>" />
-        </a>
-        <% }); %>
-</div>
-=======
 <% navLinks.forEach(function(link) { 
         var iconFile = link.name.toLowerCase().replace(/\s+/g, '') + '.svg';
         // Check if this is the Create Bet link
@@ -27,4 +15,3 @@
 </ul>
 </body>
 </html>
->>>>>>> trey_tarrayo_login
