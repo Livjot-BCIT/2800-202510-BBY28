@@ -1,162 +1,133 @@
+// Chart initialization
+if (typeof window.moneyChart === "undefined") {
+    window.moneyChart = null;
+}
+
+// Apply selected plan to chart
 function applyPlan(spendPercent, savePercent) {
-    const amount = parseFloat(document.getElementById('moneyInput').value);
+    const amount = parseFloat(document.getElementById("moneyInput").value);
     if (isNaN(amount) || amount <= 0) {
         alert("Please enter a valid amount!");
         return;
     }
 
-    const spend = (amount * spendPercent) / 100;
-    const save = (amount * savePercent) / 100;
+    // Ensure chart canvas exists
+    const canvas = document.getElementById("moneyChart");
+    if (!canvas) {
+        console.error("Chart canvas not found!");
+        return;
+    }
 
-    const recommendations = getRecommendations(spend);
-
-    // Build the spending table
-    document.getElementById('recommendation').innerHTML = `
-        <p>
-            Based on your choice, you can spend <b style="color:#6d28d9;">$${spend.toFixed(2)}</b>
-            and save <b style="color:#10b981;">$${save.toFixed(2)}</b>.
-        </p>
-        <p>👉 Here's how you should allocate your spending:</p>
-        <table>
-            <thead>
-                <tr>
-                    <th>Category</th>
-                    <th>Recommended</th>
-                    <th>Actual</th>
-                    <th>Difference</th>
-                </tr>
-            </thead>
-            <tbody id="spendingTable">
-                ${recommendations.map((item, index) => `
-                    <tr>
-                        <td>${item.label}</td>
-                        <td>$${item.recommended.toFixed(2)}</td>
-                        <td>
-                            <input type="number" min="0" step="0.01" 
-                                   data-index="${index}" 
-                                   data-recommended="${item.recommended.toFixed(2)}"
-                                   placeholder="Enter amount" 
-                                   oninput="updateSpending(${index}, ${item.recommended.toFixed(2)})" />
-                        </td>
-                        <td id="diff-${index}" class="neutral">$0.00</td>
-                    </tr>
-                `).join("")}
-            </tbody>
-            <tfoot>
-                <tr>
-                    <th colspan="2">Total</th>
-                    <th id="total-actual">$0.00</th>
-                    <th id="total-diff" class="neutral">$0.00</th>
-                </tr>
-            </tfoot>
-        </table>
-    `;
+    const spend = amount * (spendPercent / 100);
+    const save = amount * (savePercent / 100);
 
     renderChart(spend, save);
 }
 
-function getRecommendations(spend) {
-    const tasks = [
-        { label: "Food (Groceries & Meals)", percent: 20 },
-        { label: "Rent / Utilities", percent: 60 },
-        { label: "Health (Insurance, Checkups)", percent: 5 },
-        { label: "Education (Courses & Supplies)", percent: 10 },
-        { label: "Hangout (Friends, Entertainment)", percent: 5 }
-    ];
+// Generate AI financial advice
+async function triggerGeminiAI() {
+    const amountInput = document.getElementById("moneyInput");
+    const amount = parseFloat(amountInput.value);
+    const plan = document.querySelector('input[name="plan"]:checked')?.value;
+    const aiResults = document.getElementById("aiResults");
+    const aiButton = document.getElementById("aiMagicTrigger");
 
-    return tasks.map(task => ({
-        label: task.label,
-        recommended: (spend * task.percent) / 100,
-        actual: 0
-    }));
-}
+    if (isNaN(amount) || amount <= 0) {
+        alert("Please enter a valid amount!");
+        amountInput.focus();
+        return;
+    }
 
-function updateSpending(index, recommended) {
-    const input = document.querySelector(`input[data-index="${index}"]`);
-    const actual = parseFloat(input.value) || 0;
-    const difference = actual - recommended;
+    if (!plan) {
+        alert("Please select a financial plan!");
+        return;
+    }
 
-    // Set color based on difference
-    let colorClass = "neutral";
-    if (difference > 0) colorClass = "negative"; // Overspent
-    else if (difference < 0) colorClass = "positive"; // Saved
+    // UI updates
+    aiButton.disabled = true;
+    aiButton.innerHTML = "⏳ Generating Advice...";
+    aiResults.classList.remove("d-none");
+    aiResults.innerHTML = '<div class="spinner-border text-warning" role="status"></div>';
 
-    // Update the row difference
-    const diffCell = document.getElementById(`diff-${index}`);
-    diffCell.textContent = `$${difference.toFixed(2)}`;
-    diffCell.className = colorClass;
+    try {
+        const response = await fetch("/api/financial-advice", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                amount: amount.toFixed(2),
+                plan
+            })
+        });
 
-    // Update total amounts
-    updateTotals();
-}
+        const data = await response.json();
 
-function updateTotals() {
-    const inputs = document.querySelectorAll("input[data-index]");
-    let totalActual = 0;
-    let totalRecommended = 0;
-    let totalDifference = 0;
+        if (!response.ok) {
+            throw new Error(data.error || "Failed to get financial advice");
+        }
 
-    inputs.forEach((input, index) => {
-        const actual = parseFloat(input.value) || 0;
-        const recommended = parseFloat(input.getAttribute("data-recommended")) || 0;
-        totalActual += actual;
-        totalDifference += actual - recommended;
-    });
+        // Update UI with advice
+        aiResults.innerHTML = `
+            <h4>✨ AI Financial Advice</h4>
+            <p>${data.advice}</p>
+            <small class="text-muted">Based on your $${amount} and ${plan} plan</small>
+        `;
 
-    // Set total colors
-    const totalDiffCell = document.getElementById("total-diff");
-    const totalActualCell = document.getElementById("total-actual");
+        // Apply the plan to chart
+        const percentages = plan.match(/(\d+)% Spend \/ (\d+)% Save/);
+        if (percentages) {
+            applyPlan(parseInt(percentages[1]), parseInt(percentages[2]));
+        }
 
-    totalActualCell.textContent = `$${totalActual.toFixed(2)}`;
-
-    if (totalDifference > 0) {
-        totalDiffCell.textContent = `Overspent by $${totalDifference.toFixed(2)}`;
-        totalDiffCell.className = "negative";
-    } else if (totalDifference < 0) {
-        totalDiffCell.textContent = `Saved $${Math.abs(totalDifference).toFixed(2)}`;
-        totalDiffCell.className = "positive";
-    } else {
-        totalDiffCell.textContent = "Perfect Balance ($0.00)";
-        totalDiffCell.className = "neutral";
+    } catch (error) {
+        console.error("Error:", error);
+        aiResults.innerHTML = `
+            <div class="alert alert-danger">
+                <strong>Error:</strong> ${error.message}
+                <button onclick="triggerGeminiAI()" class="btn btn-sm btn-warning mt-2">Try Again</button>
+            </div>
+        `;
+    } finally {
+        aiButton.disabled = false;
+        aiButton.innerHTML = "🔮 Ask AI for Financial Advice";
     }
 }
 
-function renderChart(spend, save, labels = ['Spend', 'Save'], data = [spend, save]) {
-    const ctx = document.getElementById('moneyChart').getContext('2d');
+// Render chart function
+function renderChart(spend, save) {
+    const ctx = document.getElementById("moneyChart").getContext("2d");
 
-    if (window.moneyChart) {
+    // Safely destroy previous chart if it exists
+    if (window.moneyChart instanceof Chart) {
         window.moneyChart.destroy();
+    } else if (window.moneyChart) {
+        console.warn("moneyChart exists but isn't a valid Chart instance");
+        window.moneyChart = null;
     }
 
+    // Create new chart
     window.moneyChart = new Chart(ctx, {
-        type: 'doughnut',
+        type: "doughnut",
         data: {
-            labels: labels,
+            labels: ["Spend", "Save"],
             datasets: [{
-                label: 'Money Allocation',
-                data: data,
-                backgroundColor: [
-                    '#f97316', // Food
-                    '#4f46e5', // Rent
-                    '#10b981', // Health
-                    '#ec4899', // Education
-                    '#facc15'  // Hangout
-                ],
-                hoverOffset: 12,
-                borderWidth: 1,
-                borderColor: "#fff"
+                data: [spend, save],
+                backgroundColor: ["#FF6384", "#36A2EB"],
+                borderWidth: 1
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'bottom',
-                    labels: {
-                        color: '#4c1d95',
-                        font: {
-                            weight: 'bold',
-                            size: 14
+                    position: "bottom",
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            return `${context.label}: $${context.raw.toFixed(2)}`;
                         }
                     }
                 }
@@ -164,3 +135,33 @@ function renderChart(spend, save, labels = ['Spend', 'Save'], data = [spend, sav
         }
     });
 }
+
+
+// Event listeners
+document.addEventListener("DOMContentLoaded", () => {
+    // Initialize with default values (optional)
+    const defaultAmount = 100; // or whatever default you prefer
+    document.getElementById("moneyInput").value = defaultAmount;
+
+    // Apply default plan on load
+    const defaultPlan = document.querySelector('input[name="plan"]:checked');
+    if (defaultPlan) {
+        const percentages = defaultPlan.value.match(/(\d+)% Spend \/ (\d+)% Save/);
+        if (percentages) {
+            applyPlan(parseInt(percentages[1]), parseInt(percentages[2]));
+        }
+    }
+
+    // Other event listeners...
+    document.querySelectorAll('input[name="plan"]').forEach(radio => {
+        radio.addEventListener("change", function () {
+            if (this.checked) {
+                const percentages = this.value.match(/(\d+)% Spend \/ (\d+)% Save/);
+                if (percentages) {
+                    applyPlan(parseInt(percentages[1]), parseInt(percentages[2]));
+                }
+            }
+        });
+    });
+});
+

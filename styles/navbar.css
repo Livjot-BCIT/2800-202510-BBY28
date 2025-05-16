@@ -25,7 +25,7 @@ section within your own page css file, thank you! */
 }
 
 /* Styles for the navigation icon links */
-.nav-icon {
+.bottom-navbar .nav-icon {
   text-decoration: none; /* removed underline from links */
   background: none; 
   border: none; 
@@ -39,15 +39,15 @@ section within your own page css file, thank you! */
   -webkit-tap-highlight-color: transparent; /* disable the tap highlight color on mobile devices */
 }
 
-.nav-icon:focus {
+.bottom-navbar .nav-icon:focus {
   outline: none; /* remove the outline when an item is focused */
 }
 
-.nav-icon:active {
+.bottom-navbar .nav-icon:active {
   background-color: rgba(255, 255, 255, 0.08); /* adding a background effect when the button is active */
 }
 
-.nav-icon img {
+.bottom-navbar .nav-icon img {
   width: 28px; 
   height: 28px; 
   transition: transform 0.2s ease, filter 0.2s ease; /* applies transition for transform and filter */
@@ -56,7 +56,7 @@ section within your own page css file, thank you! */
 }
 
 /* Hover effect for the icons */
-.nav-icon:hover img {
+.bottom-navbar .nav-icon:hover img {
   transform: scale(1.15); /* slightly enlarge the icon on hover */
   filter: brightness(0) saturate(100%) invert(100%) sepia(10%) saturate(200%) 
   hue-rotate(10deg) brightness(120%) contrast(100%); /* change the icon color on hover */
@@ -68,12 +68,12 @@ section within your own page css file, thank you! */
   hue-rotate(211deg) brightness(102%) contrast(97%);  change the icon color when active 
 } */
 
-.create-btn {
+.bottom-navbar .create-btn {
   background-color: var(--btn); 
   border-radius: 60%; /* change this if you want to make the purple bg bigger/smaller */
 }
 
-.create-btn img {
+.bottom-navbar .create-btn img {
   width: 34px; 
   height: 34px; 
   filter: brightness(0) saturate(100%) invert(100%) sepia(10%) saturate(200%) 
@@ -81,7 +81,7 @@ section within your own page css file, thank you! */
 }
 
 
-.create-btn:hover img {
+.bottom-navbar .create-btn:hover img {
   transform: scale(1.2); /* slightly enlarge the "Create" button icon on hover */
   filter: brightness(0) saturate(100%) invert(100%) sepia(30%) saturate(300%) 
   hue-rotate(10deg) brightness(130%) contrast(100%); /* applies a stronger color change when hovering */
