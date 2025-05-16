@@ -127,7 +127,7 @@ const navLinks = [
 	{name: "Shop", link: "/shop"},
     {name: "Leaderboard", link: "/leaderboard"},
     {name: "Create Bet", link: "/createBet"},
-    {name: "Stats", link: "/stats"},
+    {name: "Money", link: "/money"},
     {name: "Groups", link: "/groups"},
     {name: "userprofile", link: "/userprofile"}
 ]
@@ -207,8 +207,8 @@ app.get('/createBet', (req, res) => {
     res.render("createBet", {title: "Create a Bet", css: "/styles/createPost.css"});
 });
 
-app.get('/stats', (req, res) => {
-    res.render("stats", {title: "Stats"});
+app.get('/money', (req, res) => {
+    res.render("money", {title: "Money", css: "/styles/money.css"});
 });
 
 app.get('/groups', (req, res) => {
@@ -304,7 +304,7 @@ app.post('/createUser', async (req,res) => {
 
     var hashedPassword = await bcrypt.hash(password, saltRounds);
 	
-	await userCollection.insertOne({firstName: firstName, lastName: lastName, email: email, password: hashedPassword});
+	const insertResult = await userCollection.insertOne({firstName, lastName, email, password: hashedPassword});
 	console.log("Inserted user");
 	
 	req.session.authenticated = true;
@@ -318,6 +318,7 @@ app.post('/createUser', async (req,res) => {
 
 // Create a new bet (post)
 app.post('/createBet', async (req, res) => {
+	var betPoster = req.session.userId;
     var betTitle = req.body.betTitle;
     var duration = req.body.duration;
     var participants = req.body.participants;
@@ -326,7 +327,7 @@ app.post('/createBet', async (req, res) => {
     var privateBet = req.body.privateBet ? true : false;
     
     await betCollection.insertOne({
-        betTitle: betTitle, duration: duration, participants: participants,
+        betPoster: betPoster, betTitle: betTitle, duration: duration, participants: participants,
         betType: betType, description: description, privateBet: privateBet
     });
 
