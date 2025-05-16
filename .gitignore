@@ -1,3 +1,7 @@
 /node_modules
+<<<<<<< HEAD
 .env
 /keys/*.json
+=======
+.env
+>>>>>>> trey_tarrayo_login

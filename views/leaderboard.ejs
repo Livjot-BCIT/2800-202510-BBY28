@@ -2,29 +2,55 @@
 
 <!-- Top three user display -->
 <div id="topThree">
+<<<<<<< HEAD
     <div class="topUser" id="second"> <!-- left bar -->
         <img id="profilePic" src="/images/profilePic.jpg" alt="profile pic"/>
         <span>Username</span>
+=======
+    <% if (topThree[1]) { %>
+    <div class="topUser" id="second"> <!-- left bar -->
+        <img id="profilePic" src="/images/profilePic.jpg" alt="profile pic"/>
+        <span><%= topThree[1].firstName %> <%= topThree[1].lastName %></span>
+>>>>>>> trey_tarrayo_login
         <div class="square">
             <span>2</span>
         </div>
     </div>
+<<<<<<< HEAD
     
     <div class="topUser" id="first"> <!-- middle bar -->
         <img id="profilePic" src="/images/profilePic.jpg" alt="profile pic"/>
         <span>Chipilon123</span>
+=======
+    <% } %>
+    
+    <% if (topThree[0]) { %>
+    <div class="topUser" id="first"> <!-- middle bar -->
+        <img id="profilePic" src="/images/profilePic.jpg" alt="profile pic"/>
+        <span><%= topThree[0].firstName %> <%= topThree[0].lastName %></span>
+>>>>>>> trey_tarrayo_login
         <div class="square">
             <span>1</span>
         </div>
     </div>
+<<<<<<< HEAD
 
     <div class="topUser" id="third"> <!-- right bar -->
         <img id="profilePic" src="/images/profilePic.jpg" alt="profile pic"/>
         <span>Username</span>
+=======
+    <% } %>
+
+    <% if (topThree[2]) { %>
+    <div class="topUser" id="third"> <!-- right bar -->
+        <img id="profilePic" src="/images/profilePic.jpg" alt="profile pic"/>
+        <span><%= topThree[2].firstName %> <%= topThree[2].lastName %></span>
+>>>>>>> trey_tarrayo_login
         <div class="square">
             <span>3</span>
         </div>
     </div>
+<<<<<<< HEAD
 </div>
 
 <!-- User information under top three -->
@@ -32,21 +58,46 @@
     <div class="userCols">
         <img id="profilePic" src="/images/profilePic.jpg" alt="profile pic"/>
         <span>Username</span>
+=======
+    <% } %>
+</div>
+
+<!-- Logged in user information under top three -->
+
+<div class="userInfo">
+    <% if (currentUser) { %>
+    <div class="userCols">
+        <img id="profilePic" src="/images/profilePic.jpg" alt="profile pic"/>
+        <span><%= currentUser.firstName %> <%= currentUser.lastName %></span>
+>>>>>>> trey_tarrayo_login
     </div>
 
     <div class="userCols">
         <span><strong>Points</strong></span>
+<<<<<<< HEAD
         <span>100</span>
+=======
+        <span><%= currentUser.points %></span>
+>>>>>>> trey_tarrayo_login
     </div>
 
     <div class="userCols">
         <span><strong>Position</strong></span>
+<<<<<<< HEAD
         <span>30</span>
     </div>
+=======
+        <span><%= currentPosition %></span>
+    </div>
+    <% } else { %>
+    <p>No logged in user info available.</p>
+<% } %>
+>>>>>>> trey_tarrayo_login
 </div>
 
 <!-- Other users -->
 <!-- use javascript to populate, copy paste for now -->
+<<<<<<< HEAD
 <div id="otherUsers">
     <div class="square">
         <span id="otherUserInfo">
@@ -100,6 +151,35 @@
 </div>
 
 <div id="leaderboardContainer">
+=======
+<!-- <table>
+    <tr>
+        <th>Name</th>
+        <th>Email</th> -->
+        <!-- Add more columns as needed -->
+    <!-- </tr> -->
+    <!-- <% users.forEach(function(user) { %> -->
+        <!-- <tr>
+            <td><%= user.firstName %> <%= user.lastName %></td>
+             -->
+            <!-- Add more fields as needed -->
+        <!-- </tr> -->
+    <!-- <% }); %>
+</table> -->
+
+<div id="otherUsers">
+    <% users.forEach(function(user, index) { %>
+    <div class="square">
+        <span id="otherUserInfo">
+            <%= index + 4 %>
+            <img id="profilePic" src="/images/profilePic.jpg" alt="profile pic"/>
+            <span><%= user.firstName %> <%= user.lastName %></span>
+        </span>
+
+        <span><%= user.points %></span>
+    </div>
+    <% }); %>
+>>>>>>> trey_tarrayo_login
 </div>
 
 <script src="/scripts/leaderboard.js"></script>

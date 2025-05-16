@@ -82,9 +82,33 @@ body {
     color: #ffffff;
     padding: 8px 15px;
     border: none;
+<<<<<<< HEAD
     border-radius: 10px;
     margin: 5px;
     font-weight: bold;
+=======
+    border-radius: 8px;
+    margin-right: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+/* Floating Create Button */
+/* .create-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background-color: #b76df1;
+    color: white;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+>>>>>>> trey_tarrayo_login
     cursor: pointer;
     transition: background-color 0.3s;
 }
@@ -109,8 +133,13 @@ body {
 }
 
 .create-btn:hover {
+<<<<<<< HEAD
     transform: scale(1.1);
 }
+=======
+    background-color: #9b59b6;
+} */
+>>>>>>> trey_tarrayo_login
 
 .feed-container {
     display: flex;
