@@ -98,15 +98,13 @@ async function triggerGeminiAI() {
 function renderChart(spend, save) {
     const ctx = document.getElementById("moneyChart").getContext("2d");
 
-    // Safely destroy previous chart if it exists
+    // Destroy the previous chart if it exists
     if (window.moneyChart instanceof Chart) {
         window.moneyChart.destroy();
-    } else if (window.moneyChart) {
-        console.warn("moneyChart exists but isn't a valid Chart instance");
-        window.moneyChart = null;
+        window.moneyChart = null; // Reset the chart instance
     }
 
-    // Create new chart
+    // Create a new chart
     window.moneyChart = new Chart(ctx, {
         type: "doughnut",
         data: {
@@ -114,12 +112,12 @@ function renderChart(spend, save) {
             datasets: [{
                 data: [spend, save],
                 backgroundColor: ["#FF6384", "#36A2EB"],
+                hoverBackgroundColor: ["#FF6384", "#36A2EB"],
                 borderWidth: 1
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     position: "bottom",
@@ -135,6 +133,7 @@ function renderChart(spend, save) {
         }
     });
 }
+
 
 
 // Event listeners
