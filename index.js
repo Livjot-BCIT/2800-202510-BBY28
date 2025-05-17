@@ -1,4 +1,3 @@
-
 require("./utils.js");
 
 require('dotenv').config();
@@ -10,18 +9,20 @@ const MongoStore = require('connect-mongo');
 const bcrypt = require('bcrypt');
 const saltRounds = 12;
 
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+const path = require('path');
+const { fileURLToPath } = require('url');
+
 const port = process.env.PORT || 3000;
 
 const app = express();
 
 const Joi = require("joi");
 
-
 const expireTime = 24 * 60 * 60 * 1000; //expires after 1 day  (hours * minutes * seconds * millis)
 
 // 1. import multer
 const multer = require('multer');
-const path = require('path');
 
 // 2. configure storage
 const storage = multer.diskStorage({
@@ -46,9 +47,23 @@ const mongodb_database = process.env.MONGODB_DATABASE;
 const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
 
 const node_session_secret = process.env.NODE_SESSION_SECRET;
+
+const gemini_api_key = process.env.GEMINI_API_KEY;
+// At the top with other initializations
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+/* Initialize Gemini AI */
+const ai = new GoogleGenerativeAI({
+	apiKey: gemini_api_key
+});
+
+app.use(express.json());
+
+// check if Gemini API key is loadedd
+console.log("Gemini API Key:", process.env.GEMINI_API_KEY ? "Loaded" : "Missing");
 /* END secret section */
 
-const { database } = include('databaseConnection');
+const { database } = require('./databaseConnection');
 
 const userCollection = database.db(mongodb_database).collection('users');
 const betCollection = database.db(mongodb_database).collection('bets');
@@ -58,12 +73,15 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: false }));
 
 var mongoStore = MongoStore.create({
-	mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/?retryWrites=true&w=majority&tls=true`,
+	mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_database}?retryWrites=true&w=majority&tls=true`,
 	crypto: {
 		secret: mongodb_session_secret
-	}
+	},
+	dbName: mongodb_database,
+	collectionName: 'sessions'
 })
 
+// Session creation and validation
 app.use(session({
 	secret: node_session_secret,
 	store: mongoStore, //default is memory store 
@@ -87,6 +105,7 @@ function sessionValidation(req, res, next) {
 		res.redirect('/login');
 	}
 }
+// END Session creation and validation
 
 app.get('/nosql-injection', async (req, res) => {
 	var username = req.query.user;
@@ -124,7 +143,7 @@ const navLinks = [
 	{ name: "Shop", link: "/shop" },
 	{ name: "Leaderboard", link: "/leaderboard" },
 	{ name: "Create Bet", link: "/createBet" },
-	{ name: "Stats", link: "/stats" },
+	{ name: "Money", link: "/money" },
 	{ name: "Groups", link: "/groups" },
 	{ name: "userprofile", link: "/userprofile" }
 ]
@@ -135,30 +154,97 @@ app.use((req, res, next) => {
 	next();
 });
 
+// Absolute routes
+app.use(express.static(__dirname + "/public"));
+app.use('/styles', express.static(__dirname + '/styles'));
+app.use('/scripts', express.static(__dirname + '/scripts'));
+app.use('/images', express.static(__dirname + '/images'));
+
 // Rendering pages
 // Pages on navbar
-app.get('/', (req, res) => {
-	res.render("main", { title: "Challenge Feed", css: "/styles/main.css" });
+app.get('/', async (req, res) => {
+	try {
+		const bets = await betCollection.find({}).toArray();
+		res.render("main", {
+			title: "Challenge Feed",
+			css: "/styles/main.css",
+			bets: bets
+		});
+	} catch (err) {
+		console.error(err);
+		res.status(500).send("Error loading bets");
+	}
 });
 
-app.get('/main', (req, res) => {
-	res.render("main", { title: "Challenge Feed", css: "/styles/main.css" });
+app.get('/main', async (req, res) => {
+	try {
+		const bets = await betCollection.find({}).toArray();
+		res.render("main", {
+			title: "Challenge Feed",
+			css: "/styles/main.css",
+			bets: bets
+		});
+	} catch (err) {
+		console.error(err);
+		res.status(500).send("Error loading bets");
+	}
 });
 
 app.get('/shop', (req, res) => {
 	res.render("shop", { title: "In-Game Shop", css: "/styles/shop.css" });
 });
 
-app.get('/leaderboard', (req, res) => {
-	res.render("leaderboard", { title: "Leaderboard", css: "/styles/leaderboard.css" });
+const { ObjectId } = require('mongodb');
+
+app.get('/leaderboard', async (req, res) => {
+	try {
+		// Adjust the projection and sorting as needed for your leaderboard
+		const users = await userCollection.find({})
+			.project({ firstName: 1, lastName: 1, points: 1, _id: 0 }) // Add fields you want to show
+			.sort({ points: -1 })
+			.toArray();
+
+		const topThree = users.slice(0, 3);
+		const otherUsers = users.slice(3);
+
+		const userId = req.session.userId;
+		let currentUser = null;
+		let position = null;
+
+		if (userId) {
+			currentUser = await userCollection.findOne(
+				{ _id: new ObjectId(userId) },
+				{ projection: { firstName: 1, lastName: 1, points: 1 } }
+			);
+
+			if (currentUser) {
+				position = await userCollection.countDocuments({ points: { $gt: currentUser.points } });
+				position = position + 1;
+			}
+		}
+
+		console.log("Session data:", req.session);
+
+		res.render("leaderboard", {
+			title: "Leaderboard",
+			css: "/styles/leaderboard.css",
+			topThree: topThree,
+			users: otherUsers,
+			currentUser: currentUser,
+			currentPosition: position
+		});
+	} catch (err) {
+		console.error(err);
+		res.status(500).send("Error loading leaderboard");
+	}
 });
 
 app.get('/createBet', (req, res) => {
 	res.render("createBet", { title: "Create a Bet", css: "/styles/createPost.css" });
 });
 
-app.get('/stats', (req, res) => {
-	res.render("stats", { title: "Stats" });
+app.get('/money', (req, res) => {
+	res.render("money", { title: "Money", css: "/styles/money.css" });
 });
 
 // app.get('/groups', (req, res) => {
@@ -273,6 +359,7 @@ app.post('/loggingin', async (req, res) => {
 		console.log("correct password");
 		req.session.authenticated = true;
 		req.session.email = email;
+		req.session.userId = result[0]._id;
 		req.session.cookie.maxAge = expireTime;
 
 		res.redirect('/main');
@@ -321,18 +408,21 @@ app.post('/createUser', async (req, res) => {
 
 	var hashedPassword = await bcrypt.hash(password, saltRounds);
 
-	await userCollection.insertOne({ firstName: firstName, lastName: lastName, email: email, password: hashedPassword });
+	const insertResult = await userCollection.insertOne({ firstName, lastName, email, password: hashedPassword });
 	console.log("Inserted user");
 
 	req.session.authenticated = true;
 	req.session.email = email;
+	req.session.userId = insertResult.insertedId;
 	req.session.cookie.maxAge = expireTime;
 
 	var html = "successfully created user";
 	res.redirect('/main');
 });
 
+// Create a new bet (post)
 app.post('/createBet', async (req, res) => {
+	var betPoster = req.session.userId;
 	var betTitle = req.body.betTitle;
 	var duration = req.body.duration;
 	var participants = req.body.participants;
@@ -341,21 +431,15 @@ app.post('/createBet', async (req, res) => {
 	var privateBet = req.body.privateBet ? true : false;
 
 	await betCollection.insertOne({
-		betTitle: betTitle, duration: duration, participants: participants,
+		betPoster: betPoster, betTitle: betTitle, duration: duration, participants: participants,
 		betType: betType, description: description, privateBet: privateBet
 	});
 
 	console.log("Inserted bet")
 	res.redirect('/main')
-})
+});
 // END Signup authentication
 // END Rendering pages
-
-// Absolute routes
-app.use(express.static(__dirname + "/public"));
-app.use('/styles', express.static(__dirname + '/styles'));
-app.use('/scripts', express.static(__dirname + '/scripts'));
-app.use('/images', express.static(__dirname + '/images'));
 
 // 404 Page
 app.get(/(.*)/, (req, res, next) => {

@@ -2,104 +2,73 @@
 
 <!-- Top three user display -->
 <div id="topThree">
+    <% if (topThree[1]) { %>
     <div class="topUser" id="second"> <!-- left bar -->
         <img id="profilePic" src="/images/profilePic.jpg" alt="profile pic"/>
-        <span>Username</span>
+        <span><%= topThree[1].firstName %> <%= topThree[1].lastName %></span>
         <div class="square">
             <span>2</span>
         </div>
     </div>
+    <% } %>
     
+    <% if (topThree[0]) { %>
     <div class="topUser" id="first"> <!-- middle bar -->
         <img id="profilePic" src="/images/profilePic.jpg" alt="profile pic"/>
-        <span>Chipilon123</span>
+        <span><%= topThree[0].firstName %> <%= topThree[0].lastName %></span>
         <div class="square">
             <span>1</span>
         </div>
     </div>
+    <% } %>
 
+    <% if (topThree[2]) { %>
     <div class="topUser" id="third"> <!-- right bar -->
         <img id="profilePic" src="/images/profilePic.jpg" alt="profile pic"/>
-        <span>Username</span>
+        <span><%= topThree[2].firstName %> <%= topThree[2].lastName %></span>
         <div class="square">
             <span>3</span>
         </div>
     </div>
+    <% } %>
 </div>
 
-<!-- User information under top three -->
+<!-- Logged in user information under top three -->
+
 <div class="userInfo">
+    <% if (currentUser) { %>
     <div class="userCols">
         <img id="profilePic" src="/images/profilePic.jpg" alt="profile pic"/>
-        <span>Username</span>
+        <span><%= currentUser.firstName %> <%= currentUser.lastName %></span>
     </div>
 
     <div class="userCols">
         <span><strong>Points</strong></span>
-        <span>100</span>
+        <span><%= currentUser.points %></span>
     </div>
 
     <div class="userCols">
         <span><strong>Position</strong></span>
-        <span>30</span>
+        <span><%= currentPosition %></span>
     </div>
+    <% } else { %>
+    <p>No logged in user info available.</p>
+<% } %>
 </div>
 
 <!-- Other users -->
-<!-- use javascript to populate, copy paste for now -->
 <div id="otherUsers">
+    <% users.forEach(function(user, index) { %>
     <div class="square">
         <span id="otherUserInfo">
-            4
+            <%= index + 4 %>
             <img id="profilePic" src="/images/profilePic.jpg" alt="profile pic"/>
-            Username
+            <span><%= user.firstName %> <%= user.lastName %></span>
         </span>
 
-        <span>300 Points</span>
+        <span><%= user.points %></span>
     </div>
-
-    <div class="square">
-        <span id="otherUserInfo">
-            4
-            <img id="profilePic" src="/images/profilePic.jpg" alt="profile pic"/>
-            Username
-        </span>
-
-        <span>300 Points</span>
-    </div>
-
-    <div class="square">
-        <span id="otherUserInfo">
-            4
-            <img id="profilePic" src="/images/profilePic.jpg" alt="profile pic"/>
-            Username
-        </span>
-
-        <span>300 Points</span>
-    </div>
-    
-    <div class="square">
-        <span id="otherUserInfo">
-            4
-            <img id="profilePic" src="/images/profilePic.jpg" alt="profile pic"/>
-            Username
-        </span>
-
-        <span>300 Points</span>
-    </div>
-
-    <div class="square">
-        <span id="otherUserInfo">
-            4
-            <img id="profilePic" src="/images/profilePic.jpg" alt="profile pic"/>
-            Username
-        </span>
-
-        <span>300 Points</span>
-    </div>
-</div>
-
-<div id="leaderboardContainer">
+    <% }); %>
 </div>
 
 <script src="/scripts/leaderboard.js"></script>

@@ -1,80 +1,131 @@
+// Chart initialization
+if (typeof window.moneyChart === "undefined") {
+    window.moneyChart = null;
+}
+
+// Apply selected plan to chart
 function applyPlan(spendPercent, savePercent) {
-    const amount = parseFloat(document.getElementById('moneyInput').value);
+    const amount = parseFloat(document.getElementById("moneyInput").value);
     if (isNaN(amount) || amount <= 0) {
         alert("Please enter a valid amount!");
         return;
     }
 
-    const spend = (amount * spendPercent) / 100;
-    const save = (amount * savePercent) / 100;
+    // Ensure chart canvas exists
+    const canvas = document.getElementById("moneyChart");
+    if (!canvas) {
+        console.error("Chart canvas not found!");
+        return;
+    }
 
-    const categories = getRecommendations(spend);
-
-    document.getElementById('recommendation').innerHTML = `
-      <p>
-        Based on your choice, you can spend <b style="color:#6d28d9;">$${spend.toFixed(2)}</b>
-        and save <b style="color:#10b981;">$${save.toFixed(2)}</b>.
-      </p>
-      <p>👉 Here's how you can manage your spending wisely as a student:</p>
-      <ul>
-        ${categories.map(c => `<li style="margin-bottom: 8px;">${c}</li>`).join("")}
-      </ul>
-    `;
+    const spend = amount * (spendPercent / 100);
+    const save = amount * (savePercent / 100);
 
     renderChart(spend, save);
 }
 
-function getRecommendations(spend) {
-    const tasks = [
-        { label: "Food (Groceries & Meals)", percent: 20 },
-        { label: "Rent / Utilities", percent: 60 },
-        { label: "Health (Insurance, Checkups)", percent: 5 },
-        { label: "Education (Courses & Supplies)", percent: 10 },
-        { label: "Hangout (Friends, Entertainment)", percent: 5 }
-    ];
+// Generate AI financial advice
+async function triggerGeminiAI() {
+    const amountInput = document.getElementById("moneyInput");
+    const amount = parseFloat(amountInput.value);
+    const plan = document.querySelector('input[name="plan"]:checked')?.value;
+    const aiResults = document.getElementById("aiResults");
+    const aiButton = document.getElementById("aiMagicTrigger");
 
-    return tasks.map(task => {
-        const amount = (spend * task.percent) / 100;
-        return `<b>${task.label}</b> — $${amount.toFixed(2)} (${task.percent}%)`;
-    });
-}
-
-function renderChart(spend, save, labels = ['Spend', 'Save'], data = [spend, save]) {
-    const ctx = document.getElementById('moneyChart').getContext('2d');
-
-    if (window.moneyChart) {
-        window.moneyChart.destroy();
+    if (isNaN(amount) || amount <= 0) {
+        alert("Please enter a valid amount!");
+        amountInput.focus();
+        return;
     }
 
+    if (!plan) {
+        alert("Please select a financial plan!");
+        return;
+    }
+
+    // UI updates
+    aiButton.disabled = true;
+    aiButton.innerHTML = "⏳ Generating Advice...";
+    aiResults.classList.remove("d-none");
+    aiResults.innerHTML = '<div class="spinner-border text-warning" role="status"></div>';
+
+    try {
+        const response = await fetch("/api/financial-advice", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                amount: amount.toFixed(2),
+                plan
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || "Failed to get financial advice");
+        }
+
+        // Update UI with advice
+        aiResults.innerHTML = `
+            <h4>✨ AI Financial Advice</h4>
+            <p>${data.advice}</p>
+            <small class="text-muted">Based on your $${amount} and ${plan} plan</small>
+        `;
+
+        // Apply the plan to chart
+        const percentages = plan.match(/(\d+)% Spend \/ (\d+)% Save/);
+        if (percentages) {
+            applyPlan(parseInt(percentages[1]), parseInt(percentages[2]));
+        }
+
+    } catch (error) {
+        console.error("Error:", error);
+        aiResults.innerHTML = `
+            <div class="alert alert-danger">
+                <strong>Error:</strong> ${error.message}
+                <button onclick="triggerGeminiAI()" class="btn btn-sm btn-warning mt-2">Try Again</button>
+            </div>
+        `;
+    } finally {
+        aiButton.disabled = false;
+        aiButton.innerHTML = "🔮 Ask AI for Financial Advice";
+    }
+}
+
+// Render chart function
+function renderChart(spend, save) {
+    const ctx = document.getElementById("moneyChart").getContext("2d");
+
+    // Destroy the previous chart if it exists
+    if (window.moneyChart instanceof Chart) {
+        window.moneyChart.destroy();
+        window.moneyChart = null; // Reset the chart instance
+    }
+
+    // Create a new chart
     window.moneyChart = new Chart(ctx, {
-        type: 'doughnut',
+        type: "doughnut",
         data: {
-            labels: labels,
+            labels: ["Spend", "Save"],
             datasets: [{
-                label: 'Money Allocation',
-                data: data,
-                backgroundColor: [
-                    '#f97316', // Food
-                    '#4f46e5', // Rent
-                    '#10b981', // Health
-                    '#ec4899', // Education
-                    '#facc15'  // Hangout
-                ],
-                hoverOffset: 12,
-                borderWidth: 1,
-                borderColor: "#fff"
+                data: [spend, save],
+                backgroundColor: ["#FF6384", "#36A2EB"],
+                hoverBackgroundColor: ["#FF6384", "#36A2EB"],
+                borderWidth: 1
             }]
         },
         options: {
             responsive: true,
             plugins: {
                 legend: {
-                    position: 'bottom',
-                    labels: {
-                        color: '#4c1d95',
-                        font: {
-                            weight: 'bold',
-                            size: 14
+                    position: "bottom",
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            return `${context.label}: $${context.raw.toFixed(2)}`;
                         }
                     }
                 }
@@ -84,29 +135,32 @@ function renderChart(spend, save, labels = ['Spend', 'Save'], data = [spend, sav
 }
 
 
-// Report actual spending and update graph
-document.getElementById("reportForm").addEventListener("submit", function (e) {
-    e.preventDefault();
 
-    const form = e.target;
-    const food = parseFloat(form.food.value) || 0;
-    const rent = parseFloat(form.rent.value) || 0;
-    const health = parseFloat(form.health.value) || 0;
-    const education = parseFloat(form.education.value) || 0;
-    const hangout = parseFloat(form.hangout.value) || 0;
+// Event listeners
+document.addEventListener("DOMContentLoaded", () => {
+    // Initialize with default values (optional)
+    const defaultAmount = 100; // or whatever default you prefer
+    document.getElementById("moneyInput").value = defaultAmount;
 
-    const total = food + rent + health + education + hangout;
-    if (total === 0) {
-        alert("Please enter at least one amount.");
-        return;
+    // Apply default plan on load
+    const defaultPlan = document.querySelector('input[name="plan"]:checked');
+    if (defaultPlan) {
+        const percentages = defaultPlan.value.match(/(\d+)% Spend \/ (\d+)% Save/);
+        if (percentages) {
+            applyPlan(parseInt(percentages[1]), parseInt(percentages[2]));
+        }
     }
 
-    const labels = ["Food", "Rent", "Health", "Education", "Hangout"];
-    const data = [food, rent, health, education, hangout];
+    // Other event listeners...
+    document.querySelectorAll('input[name="plan"]').forEach(radio => {
+        radio.addEventListener("change", function () {
+            if (this.checked) {
+                const percentages = this.value.match(/(\d+)% Spend \/ (\d+)% Save/);
+                if (percentages) {
+                    applyPlan(parseInt(percentages[1]), parseInt(percentages[2]));
+                }
+            }
+        });
+    });
+});
 
-    renderChart(0, 0, labels, data);
-});
-document.getElementById("toggleReport").addEventListener("click", () => {
-    const tab = document.getElementById("reportTab");
-    tab.style.display = tab.style.display === "block" ? "none" : "block";
-});
