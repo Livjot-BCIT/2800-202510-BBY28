@@ -463,6 +463,11 @@ app.post('/createUser', async (req, res) => {
 	req.session.userId = insertResult.insertedId;
 	req.session.cookie.maxAge = expireTime;
 
+	req.session.authenticated = true;
+	req.session.email = email;
+	req.session.userId = insertResult.insertedId;
+	req.session.cookie.maxAge = expireTime;
+
 	var html = "successfully created user";
 	res.redirect('/main');
 });
@@ -497,4 +502,4 @@ app.get(/(.*)/, (req, res, next) => {
 
 app.listen(port, () => {
 	console.log("Node application listening on port " + port);
-}); 
+});

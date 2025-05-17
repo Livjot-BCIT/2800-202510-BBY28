@@ -7,7 +7,11 @@ if (typeof window.moneyChart === "undefined") {
 function applyPlan(spendPercent, savePercent) {
     const amount = parseFloat(document.getElementById("moneyInput").value);
     if (isNaN(amount) || amount <= 0) {
-        alert("Please enter a valid amount!");
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Input',
+            text: 'Please enter a valid amount!'
+        });
         return;
     }
 

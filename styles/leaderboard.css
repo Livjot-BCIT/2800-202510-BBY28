@@ -1,79 +1,91 @@
+:root {
+  --bg: #676279; 
+  --container: #2B2738; 
+  --btn: #6F55B6; 
+  --txt: #FEFCFF; 
+  --active-bg: #5B566C; 
+  --gold: #FFD700;
+  --silver: #C0C0C0;
+  --bronze: #CD7F32;
+}
+
 * {
     box-sizing: border-box;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-    width: 393px;
-    height: 852px;
+    background-color: var(--bg);
+    color: var(--txt);
     margin: 0;
     padding: 0;
-    border: 2px;
-    border-style: solid;
+}
+
+/* MOBILE STYLES */
+@media (max-width: 768px) {
+    body {
+        max-width: 100%;
+    }
 }
 
 #profilePic {
-    width: 81px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--active-bg);
 }
 
 /* Top three */
 #topThree {
     display: flex;
-    flex-direction: row;
-    gap: 11px;
     justify-content: center;
     position: relative;
     top: 30px;
+    padding: 0 15px;
+    gap: 11px;
 }
 
 .square {
-    width: 89px;
-    height: 204px; 
-    flex-shrink: 0;
-    background-color: #555;
+    background-color: var(--container);
     text-align: center;
-    padding-top: 4px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s;
 }
 
-#second {
-    transform: translateY(55px);
+#first .square {
+    background-color: var(--btn);
+    position: relative;
 }
 
-#third {
-    transform: translateY(80px);
+#first .square::after {
+    content: '👑';
+    position: absolute;
+    top: -20px;
+    font-size: 28px;
 }
 
-#third .square {
-    height: 170px;
-}
+#second { transform: translateY(55px); }
+#third { transform: translateY(80px); }
 
 .topUser {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
 }
-
-.topUser > .square > span {
-    justify-content: center;
-    font-size: 40px;
-}
-/* Top three */
 
 /* User info */
 .userInfo {
     display: flex;
     justify-content: center;
     align-items: center;
-    position: relative;
-
-    background-color: #D9D9D9;
-    margin-left: 16px;
-    margin-right: 16px;
+    background-color: var(--container);
+    margin: 70px 16px 30px;
     padding: 12px;
     border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
-
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     gap: 70px;
 }
 
@@ -83,37 +95,22 @@ body {
     align-items: center;
 }
 
-.userCols #profilePic {
-    width: 55px;
-    height: 55px;
-}
-
-.userInfo .square {
-    width: 362px;
-    height: 111px;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-}
-/* User info */
-
 /* Other users */
 #otherUsers {
     display: flex;
     flex-direction: column;
     align-items: center;
     margin-top: 50px;
-    gap: 4px;
+    gap: 8px;
+    padding: 0 16px;
+    margin-bottom: 80px;
 }
 
 #otherUsers .square {
-    width: 362px;
-    height: 59px;
-    border-radius: 10px;
-    background-color: transparent;
-
+    width: 100%;
+    max-width: 362px;
+    height: auto;
+    padding: 15px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -130,12 +127,210 @@ body {
 
 #otherUserInfo {
     display: flex;
-    flex-direction: row;
-    justify-content: center;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
 }
 
-#otherUsers .square:hover {
-    background-color: #C0C0C0;
+/* MOBILE STYLES */
+@media (max-width: 768px) {
+    /* Base styles for mobile */
+    .square {
+        width: 89px;
+        height: 204px;
+    }
+    
+    #third .square { height: 170px; }
+    
+    .topUser > .square > span {
+        font-size: 40px;
+    }
+    
+    .userCols #profilePic {
+        width: 55px;
+        height: 55px;
+    }
+    
+    #profilePic { width: 81px; }
+    
+    #otherUsers .square:hover {
+        transform: translateY(-3px);
+    }
+    
+    #otherUsers .square #profilePic {
+        width: 40px;
+        height: 40px;
+    }
 }
+
+/* DESKTOP STYLES */
+@media (min-width: 769px) {
+    body {
+        padding: 20px;
+    }
+    
+    .leaderboard-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 30px;
+    }
+    
+    .leaderboard-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .leaderboard-header h1 {
+        font-size: 32px;
+        margin: 0;
+    }
+    
+    /* Top three adjustments */
+    #topThree {
+        margin: 0 auto 150px;
+        gap: 60px;
+        padding: 40px 0;
+    }
+    
+    .topUser #profilePic {
+        width: 100px;
+        height: 100px;
+        transition: transform 0.3s;
+    }
+    
+    .topUser:hover #profilePic { transform: scale(1.05); }
+    
+    .topUser > span {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 10px 0;
+        padding: 5px 12px;
+        background-color: var(--container);
+        border-radius: 20px;
+    }
+    
+    /* Podium squares */
+    .square {
+        width: 140px;
+        height: 260px;
+        border-radius: 12px;
+    }
+    
+    .square:hover { transform: translateY(-5px); }
+    
+    #first .square {
+        height: 300px;
+        width: 160px;
+    }
+    
+    #third .square {
+        height: 220px;
+        width: 130px;
+    }
+    
+    #second { transform: translateY(60px); }
+    #third { transform: translateY(100px); }
+    
+    .topUser > .square > span {
+        font-size: 48px;
+        font-weight: bold;
+    }
+    
+    /* Position indicators */
+    #first::after, #second::after, #third::after {
+        position: absolute;
+        bottom: -30px;
+        font-size: 18px;
+        font-weight: bold;
+    }
+    
+    #first::after {
+        content: '1st';
+        color: var(--gold);
+    }
+    
+    #second::after {
+        content: '2nd';
+        color: var(--silver);
+    }
+    
+    #third::after {
+        content: '3rd';
+        color: var(--bronze);
+    }
+    
+    /* User info section */
+    .userInfo {
+        max-width: 700px;
+        margin: 150px auto 40px;
+        padding: 20px;
+        border-radius: 12px;
+        gap: 60px;
+        position: relative;
+        background-color: var(--container);
+    }
+    
+    .userInfo:hover { transform: translateY(-3px); }
+    
+    .userInfo::before {
+        content: 'YOUR POSITION';
+        position: absolute;
+        top: -12px;
+        left: 20px;
+        background-color: var(--btn);
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: 13px;
+        font-weight: bold;
+    }
+    
+    .userCols span {
+        font-size: 16px;
+        margin-top: 8px;
+    }
+    
+    .userCols strong {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 13px;
+        opacity: 0.8;
+    }
+    
+    .userCols span:last-child {
+        font-size: 22px;
+        font-weight: bold;
+    }
+    
+    .userCols #profilePic {
+        width: 70px;
+        height: 70px;
+        border: 3px solid var(--btn);
+    }
+    
+    /* Other users section */
+    #otherUsers {
+        max-width: 700px;
+        margin: 40px auto;
+        padding-bottom: 50px;
+    }
+    
+    #otherUsers .square {
+        padding: 12px 20px;
+        max-width: 100%;
+        height: 65px;
+    }
+    
+    #otherUsers .square:hover {
+        transform: translateY(-3px);
+        background-color: var(--active-bg);
+    }
+    
+    #otherUsers .square:nth-child(even) {
+        background-color: var(--active-bg);
+    }
+    
+    #otherUsers .square #profilePic {
+        width: 45px;
+        height: 45px;
+    }
+}
+

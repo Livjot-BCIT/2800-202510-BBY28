@@ -1,6 +1,7 @@
 <link rel="stylesheet" href="/styles/navbar.css">
 
-<div class="bottom-navbar">
+<!-- Mobile  Navbar -->
+<div class="bottom-navbar mobile-nav">
 <% navLinks.forEach(function(link) { 
         var iconFile = link.name.toLowerCase().replace(/\s+/g, '') + '.svg';
         // Check if this is the Create Bet link
@@ -10,8 +11,34 @@
             <img src="/images/icons/<%= iconFile %>" alt="<%= link.name %>" />
         </a>
     <% }); %>
-    
 </div>
-</ul>
+
+<!-- Desktop  Navbar -->
+<div class="desktop-nav">
+    <div class="hamburger-menu">
+        <div class="hamburger-icon" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="menu-items">
+            <% navLinks.forEach(function(link) { 
+                var iconFile = link.name.toLowerCase().replace(/\s+/g, '') + '.svg';
+            %>
+                <a href="<%= link.link %>" class="menu-item">
+                    <img src="/images/icons/<%= iconFile %>" alt="<%= link.name %>" />
+                    <span><%= link.name %></span>
+                </a>
+            <% }); %>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleMenu() {
+    document.querySelector('.menu-items').classList.toggle('active');
+    document.querySelector('.hamburger-icon').classList.toggle('active');
+}
+</script>
 </body>
 </html>

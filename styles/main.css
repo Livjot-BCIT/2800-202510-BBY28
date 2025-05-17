@@ -126,6 +126,25 @@ body {
     transition: transform 0.2s;
 }
 
+.tag-filters button:hover {
+    background-color: #5a009d;
+}
+
+.create-btn {
+    position: fixed;
+    bottom: 70px;
+    right: 20px;
+    background-color: #5a009d;
+    color: #ffffff;
+    padding: 15px 20px;
+    border-radius: 50px;
+    font-size: 1.2em;
+    font-weight: bold;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
 .create-btn:hover {
     transform: scale(1.1);
 }

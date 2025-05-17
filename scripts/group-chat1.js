@@ -4,8 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendButton = document.getElementById('sendButton');        // Button to send the typed message.
 
     // Placeholder for the current logged-in user's ID.
-    // In a real application, this ID would be obtained from the server-side authentication system
-    // (e.g., after user login, stored in a session or a secure cookie).
     const currentUserId = 'currentUserPlaceholderId'; 
 
     // Fetch initial messages when the DOM is fully loaded and parsed.
@@ -23,8 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Fetches existing chat messages from the backend API.
-     * Assumes the API endpoint '/api/group-chat/messages' returns a JSON array of message objects.
+     * Fetches existing chat messages from the backend
      */
 
     async function fetchMessages() {
