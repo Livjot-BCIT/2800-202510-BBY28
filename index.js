@@ -247,6 +247,53 @@ app.get('/money', (req, res) => {
 	res.render("money", { title: "Money", css: "/styles/money.css" });
 });
 
+/* Financial Advice Route (Gemini 2.0 Flash) */
+app.post("/api/financial-advice", async (req, res) => {
+	try {
+		const { amount, plan } = req.body;
+
+		// Validation
+		if (!amount || isNaN(amount) || amount <= 0) {
+			return res.status(400).json({ error: "Please enter a valid amount" });
+		}
+
+		if (!plan) {
+			return res.status(400).json({ error: "Please select a financial plan" });
+		}
+
+		const match = plan.match(/(\d+)% Spend \/ (\d+)% Save/);
+		if (!match) {
+			return res.status(400).json({ error: "Invalid plan format" });
+		}
+
+		const [_, spendPercent, savePercent] = match;
+
+		// Create prompt
+		const prompt = `Provide concise financial advice (under 200 characters) for someone with $
+						${amount} who wants to follow this plan: Spend ${spendPercent}% and Save 
+						${savePercent}%. Include practical tips.`;
+
+		// Get AI response
+		const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+		const result = await model.generateContent(prompt);
+		const response = await result.response;
+		const text = response.text();
+
+		res.json({
+			advice: text,
+			plan,
+			amount: parseFloat(amount).toFixed(2)
+		});
+
+	} catch (error) {
+		console.error("AI Error:", error);
+		res.status(500).json({
+			error: "Failed to generate financial advice",
+			details: error.message
+		});
+	}
+});
+
 // app.get('/groups', (req, res) => {
 // 	res.render("groups", { title: "Groups" });
 // });
