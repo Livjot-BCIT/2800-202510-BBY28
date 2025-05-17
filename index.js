@@ -50,7 +50,7 @@ const betCollection = database.db(mongodb_database).collection('bets');
 
 app.set('view engine', 'ejs');
 
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({ extended: false }));
 
 var mongoStore = MongoStore.create({
 	mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_database}?retryWrites=true&w=majority&tls=true`,
@@ -62,39 +62,39 @@ var mongoStore = MongoStore.create({
 })
 
 // Session creation and validation
-app.use(session({ 
-    secret: node_session_secret,
+app.use(session({
+	secret: node_session_secret,
 	store: mongoStore, //default is memory store 
-	saveUninitialized: false, 
+	saveUninitialized: false,
 	resave: true
 }
 ));
 
 function isValidSession(req) {
-    if (req.session.authenticated) {
-        return true;
-    }
-    return false;
+	if (req.session.authenticated) {
+		return true;
+	}
+	return false;
 }
 
-function sessionValidation(req,res,next) {
-    if (isValidSession(req)) {
-        next();
-    }
-    else {
-        res.redirect('/login');
-    }
+function sessionValidation(req, res, next) {
+	if (isValidSession(req)) {
+		next();
+	}
+	else {
+		res.redirect('/login');
+	}
 }
 // END Session creation and validation
 
-app.get('/nosql-injection', async (req,res) => {
+app.get('/nosql-injection', async (req, res) => {
 	var username = req.query.user;
 
 	if (!username) {
 		res.send(`<h3>no user provided - try /nosql-injection?user=name</h3> <h3>or /nosql-injection?user[$ne]=name</h3>`);
 		return;
 	}
-	console.log("user: "+username);
+	console.log("user: " + username);
 
 	const schema = Joi.string().max(20).required();
 	const validationResult = schema.validate(username);
@@ -104,34 +104,34 @@ app.get('/nosql-injection', async (req,res) => {
 	// A URL parameter of user[$ne]=name would get executed as a MongoDB command
 	// and may result in revealing information about all users or a successful
 	// login without knowing the correct password.
-	if (validationResult.error != null) {  
-	   console.log(validationResult.error);
-	   res.send("<h1 style='color:darkred;'>A NoSQL injection attack was detected!!</h1>");
-	   return;
-	}	
+	if (validationResult.error != null) {
+		console.log(validationResult.error);
+		res.send("<h1 style='color:darkred;'>A NoSQL injection attack was detected!!</h1>");
+		return;
+	}
 
-	const result = await userCollection.find({username: username}).project({username: 1, password: 1, _id: 1}).toArray();
+	const result = await userCollection.find({ username: username }).project({ username: 1, password: 1, _id: 1 }).toArray();
 
 	console.log(result);
 
-    res.send(`<h1>Hello ${username}</h1>`);
+	res.send(`<h1>Hello ${username}</h1>`);
 });
 
 // Array of nav links
 const navLinks = [
-    {name: "Home", link: "/main"},
-	{name: "Shop", link: "/shop"},
-    {name: "Leaderboard", link: "/leaderboard"},
-    {name: "Create Bet", link: "/createBet"},
-    {name: "Money", link: "/money"},
-    {name: "Groups", link: "/groups"},
-    {name: "userprofile", link: "/userprofile"}
+	{ name: "Home", link: "/main" },
+	{ name: "Shop", link: "/shop" },
+	{ name: "Leaderboard", link: "/leaderboard" },
+	{ name: "Create Bet", link: "/createBet" },
+	{ name: "Money", link: "/money" },
+	{ name: "Groups", link: "/groups" },
+	{ name: "userprofile", link: "/userprofile" }
 ]
 
 // Middleware to set nav links in locals
 app.use((req, res, next) => {
-    app.locals.navLinks = navLinks;
-    next();
+	app.locals.navLinks = navLinks;
+	next();
 });
 
 // Absolute routes
@@ -143,46 +143,46 @@ app.use('/images', express.static(__dirname + '/images'));
 // Rendering pages
 // Pages on navbar
 app.get('/', async (req, res) => {
-    try {
-        const bets = await betCollection.find({}).toArray();
-        res.render("main", {
-            title: "Challenge Feed",
-            css: "/styles/main.css",
-            bets: bets
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Error loading bets");
-    }
+	try {
+		const bets = await betCollection.find({}).toArray();
+		res.render("main", {
+			title: "Challenge Feed",
+			css: "/styles/main.css",
+			bets: bets
+		});
+	} catch (err) {
+		console.error(err);
+		res.status(500).send("Error loading bets");
+	}
 });
 
 app.get('/main', async (req, res) => {
-    try {
-        const bets = await betCollection.find({}).toArray();
-        res.render("main", {
-            title: "Challenge Feed",
-            css: "/styles/main.css",
-            bets: bets
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Error loading bets");
-    }
+	try {
+		const bets = await betCollection.find({}).toArray();
+		res.render("main", {
+			title: "Challenge Feed",
+			css: "/styles/main.css",
+			bets: bets
+		});
+	} catch (err) {
+		console.error(err);
+		res.status(500).send("Error loading bets");
+	}
 });
 
 app.get('/shop', (req, res) => {
-    res.render("shop", {title: "In-Game Shop", css: "/styles/shop.css"});
+	res.render("shop", { title: "In-Game Shop", css: "/styles/shop.css" });
 });
 
 const { ObjectId } = require('mongodb');
 
 app.get('/leaderboard', async (req, res) => {
 	try {
-        // Adjust the projection and sorting as needed for your leaderboard
-        const users = await userCollection.find({})
-            .project({ firstName: 1, lastName: 1, points: 1, _id: 0 }) // Add fields you want to show
+		// Adjust the projection and sorting as needed for your leaderboard
+		const users = await userCollection.find({})
+			.project({ firstName: 1, lastName: 1, points: 1, _id: 0 }) // Add fields you want to show
 			.sort({ points: -1 })
-            .toArray();
+			.toArray();
 
 		const topThree = users.slice(0, 3);
 		const otherUsers = users.slice(3);
@@ -205,26 +205,26 @@ app.get('/leaderboard', async (req, res) => {
 
 		console.log("Session data:", req.session);
 
-        res.render("leaderboard", {
-            title: "Leaderboard",
-            css: "/styles/leaderboard.css",
+		res.render("leaderboard", {
+			title: "Leaderboard",
+			css: "/styles/leaderboard.css",
 			topThree: topThree,
-            users: otherUsers,
+			users: otherUsers,
 			currentUser: currentUser,
 			currentPosition: position
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Error loading leaderboard");
-    }
+		});
+	} catch (err) {
+		console.error(err);
+		res.status(500).send("Error loading leaderboard");
+	}
 });
 
-app.get('/createBet', (req, res) => {   
-    res.render("createBet", {title: "Create a Bet", css: "/styles/createPost.css"});
+app.get('/createBet', (req, res) => {
+	res.render("createBet", { title: "Create a Bet", css: "/styles/createPost.css" });
 });
 
 app.get('/money', (req, res) => {
-    res.render("money", {title: "Money", css: "/styles/money.css"});
+	res.render("money", { title: "Money", css: "/styles/money.css" });
 });
 
 /* Financial Advice Route (Gemini 2.0 Flash) */
@@ -275,38 +275,38 @@ app.post("/api/financial-advice", async (req, res) => {
 });
 
 app.get('/groups', (req, res) => {
-    res.render("groups", {title: "Groups"});
+	res.render("groups", { title: "Groups" });
 });
 
 app.get('/userprofile', (req, res) => {
-    res.render("userprofile", {title: "Profile", css: "/styles/userprofile.css"});
+	res.render("userprofile", { title: "Profile", css: "/styles/userprofile.css" });
 });
 // END Pages on navbar
 
 // Login/logout authentication
 app.get('/login', (req, res) => {
-    // If the user is already logged in, redirect to the main page
-    if (req.session.authenticated) {
-        res.redirect('/main');
-        return;
-    }
+	// If the user is already logged in, redirect to the main page
+	if (req.session.authenticated) {
+		res.redirect('/main');
+		return;
+	}
 
-    res.render("login", {title: "Login", css: "/styles/auth.css"});
+	res.render("login", { title: "Login", css: "/styles/auth.css" });
 });
 
-app.post('/loggingin', async (req,res) => {
-    var email = req.body.email;
-    var password = req.body.password;
+app.post('/loggingin', async (req, res) => {
+	var email = req.body.email;
+	var password = req.body.password;
 
 	const schema = Joi.string().max(50).required();
 	const validationResult = schema.validate(email);
 	if (validationResult.error != null) {
-	   console.log(validationResult.error);
-	   res.redirect("/login");
-	   return;
+		console.log(validationResult.error);
+		res.redirect("/login");
+		return;
 	}
 
-	const result = await userCollection.find({email: email}).project({firstName: 1, lastName: 1, password: 1, _id: 1}).toArray();
+	const result = await userCollection.find({ email: email }).project({ firstName: 1, lastName: 1, password: 1, _id: 1 }).toArray();
 
 	console.log(result);
 	if (result.length != 1) {
@@ -333,80 +333,81 @@ app.post('/loggingin', async (req,res) => {
 
 app.use('/loggedin', sessionValidation);
 
-app.get('/logout', (req,res) => {
+app.get('/logout', (req, res) => {
 	req.session.destroy();
-    res.redirect('/login');
+	res.redirect('/login');
 });
 // END Login/logout authentication
 
 // Signup authentication
-app.get('/signup', (req, res) => { 
-    res.render("signup", {title: "Signup", css: "/styles/auth.css"});
+app.get('/signup', (req, res) => {
+	res.render("signup", { title: "Signup", css: "/styles/auth.css" });
 });
 
-app.post('/createUser', async (req,res) => {
-    var firstName = req.body.firstName;
-    var lastName = req.body.lastName;
-    var email = req.body.email;
-    var password = req.body.password;
+app.post('/createUser', async (req, res) => {
+	var firstName = req.body.firstName;
+	var lastName = req.body.lastName;
+	var email = req.body.email;
+	var password = req.body.password;
 
 	const schema = Joi.object(
 		{
 			firstName: Joi.string().alphanum().max(20).required(),
-            lastName: Joi.string().alphanum().max(20).required(),
-            email: Joi.string().email().max(50).required(),
+			lastName: Joi.string().alphanum().max(20).required(),
+			email: Joi.string().email().max(50).required(),
 			password: Joi.string().max(20).required()
 		});
-	
-	const validationResult = schema.validate({firstName, lastName, email, password});
-	if (validationResult.error != null) {
-	   console.log(validationResult.error);
-	   res.redirect("/signup");
-	   return;
-   }
 
-    var hashedPassword = await bcrypt.hash(password, saltRounds);
-	
-	const insertResult = await userCollection.insertOne({firstName, lastName, email, password: hashedPassword});
+	const validationResult = schema.validate({ firstName, lastName, email, password });
+	if (validationResult.error != null) {
+		console.log(validationResult.error);
+		res.redirect("/signup");
+		return;
+	}
+
+	var hashedPassword = await bcrypt.hash(password, saltRounds);
+
+	const insertResult = await userCollection.insertOne({ firstName, lastName, email, password: hashedPassword });
 	console.log("Inserted user");
-	
+
 	req.session.authenticated = true;
 	req.session.email = email;
-    req.session.userId = insertResult.insertedId;
-    req.session.cookie.maxAge = expireTime;
+	req.session.userId = insertResult.insertedId;
+	req.session.cookie.maxAge = expireTime;
 
-    var html = "successfully created user";
-    res.redirect('/main');
+	var html = "successfully created user";
+	res.redirect('/main');
 });
 
 // Create a new bet (post)
 app.post('/createBet', async (req, res) => {
 	var betPoster = req.session.userId;
-    var betTitle = req.body.betTitle;
-    var duration = req.body.duration;
-    var participants = req.body.participants;
-    var betType = req.body.betType;
-    var description = req.body.description;
-    var privateBet = req.body.privateBet ? true : false;
-    
-    await betCollection.insertOne({
-        betPoster: betPoster, betTitle: betTitle, duration: duration, participants: participants,
-        betType: betType, description: description, privateBet: privateBet
-    });
+	var betTitle = req.body.betTitle;
+	var duration = req.body.duration;
+	var participants = req.body.participants;
+	var betType = req.body.betType;
+	var description = req.body.description;
+	var privateBet = req.body.privateBet ? true : false;
 
-    console.log("Inserted bet")
-    res.redirect('/main')
+	await betCollection.insertOne({
+		betPoster: betPoster, betTitle: betTitle, duration: duration, participants: participants,
+		betType: betType, description: description, privateBet: privateBet
+	});
+
+	console.log("Inserted bet")
+	res.redirect('/main')
 });
 // END Signup authentication
 // END Rendering pages
 
 // 404 Page
 app.get(/(.*)/, (req, res, next) => {
-    res.status(404);
-	res.render("404", {title: "Page Not Found"});
-    next();
+	res.status(404);
+	res.render("404", { title: "Page Not Found" });
+	next();
 });
 
+/* Start Server */
 app.listen(port, () => {
-	console.log("Node application listening on port "+port);
-}); 
+	console.log(`🚀 Server running at: http://localhost:${port}`);
+});
