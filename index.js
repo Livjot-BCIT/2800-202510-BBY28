@@ -142,12 +142,32 @@ app.use('/images', express.static(__dirname + '/images'));
 
 // Rendering pages
 // Pages on navbar
-app.get('/', (req, res) => {
-    res.render("main", {title: "Challenge Feed", css: "/styles/main.css"});
+app.get('/', async (req, res) => {
+    try {
+        const bets = await betCollection.find({}).toArray();
+        res.render("main", {
+            title: "Challenge Feed",
+            css: "/styles/main.css",
+            bets: bets
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error loading bets");
+    }
 });
 
-app.get('/main', (req, res) => {
-    res.render("main", {title: "Challenge Feed", css: "/styles/main.css"});
+app.get('/main', async (req, res) => {
+    try {
+        const bets = await betCollection.find({}).toArray();
+        res.render("main", {
+            title: "Challenge Feed",
+            css: "/styles/main.css",
+            bets: bets
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error loading bets");
+    }
 });
 
 app.get('/shop', (req, res) => {

@@ -12,7 +12,6 @@
     "express-session": "^1.18.1",
     "google-auth-library": "^9.15.1",
     "joi": "^17.13.3",
-    "mongodb": "^6.16.0",
-    "type": "module"
+    "mongodb": "^6.16.0"
   }
 }
