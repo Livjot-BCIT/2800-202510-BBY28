@@ -294,28 +294,6 @@ app.post("/api/financial-advice", async (req, res) => {
 	}
 });
 
-// app.get('/groups', (req, res) => {
-// 	res.render("groups", { title: "Groups" });
-// });
-
-//make sample data
-const sampleGroups = require('./scripts/sampleGroups.js');
-app.get('/makeGroupData', async (req, res) => {
-	try {
-		const groupCollection = database.db(mongodb_database).collection('groups');
-		const existing = await groupCollection.countDocuments();
-
-		if (existing === 0) {
-			await groupCollection.insertMany(sampleGroups);
-		}
-	} catch (err) {
-		console.error(err);
-	} finally {
-		res.end();
-	}
-});
-
-
 app.get('/groups', (req, res) => {
 	res.render("groups", {
 		title: "Groups",
