@@ -41,7 +41,6 @@ app.use(express.json());
 
 // check if Gemini API key is loadedd
 console.log("Gemini API Key:", process.env.GEMINI_API_KEY ? "Loaded" : "Missing");
-/* END secret section */
 
 const { database } = require('./databaseConnection');
 
