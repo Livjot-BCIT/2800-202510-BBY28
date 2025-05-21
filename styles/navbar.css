@@ -27,7 +27,6 @@ section within your own page css file, thank you! */
 
 /* Styles for the navigation icon links */
 .bottom-navbar .nav-icon {
-.bottom-navbar .nav-icon {
   text-decoration: none; /* removed underline from links */
   background: none; 
   border: none; 
@@ -42,16 +41,13 @@ section within your own page css file, thank you! */
 }
 
 .bottom-navbar .nav-icon:focus {
-.bottom-navbar .nav-icon:focus {
   outline: none; /* remove the outline when an item is focused */
 }
 
 .bottom-navbar .nav-icon:active {
-.bottom-navbar .nav-icon:active {
   background-color: rgba(255, 255, 255, 0.08); /* adding a background effect when the button is active */
 }
 
-.bottom-navbar .nav-icon img {
 .bottom-navbar .nav-icon img {
   width: 28px; 
   height: 28px; 
@@ -61,7 +57,6 @@ section within your own page css file, thank you! */
 }
 
 /* Hover effect for the icons */
-.bottom-navbar .nav-icon:hover img {
 .bottom-navbar .nav-icon:hover img {
   transform: scale(1.15); /* slightly enlarge the icon on hover */
   filter: brightness(0) saturate(100%) invert(100%) sepia(10%) saturate(200%) 
@@ -73,7 +68,6 @@ section within your own page css file, thank you! */
   border-radius: 60%; /* change this if you want to make the purple bg bigger/smaller */
 }
 
-.bottom-navbar .create-btn img {
 .bottom-navbar .create-btn img {
   width: 34px; 
   height: 34px; 
