@@ -27,7 +27,7 @@
                 <% bets.forEach(bet=> { %>
                     <div class="bet-card">
                         <h3>
-                            <%= bet.title || "Untitled Bet" %>
+                            <%= bet.betTitle || "Untitled Bet" %>
                         </h3>
                         <p>
                             <%= bet.description || "No description provided." %>
@@ -35,14 +35,43 @@
                         <span>Type: <%= bet.type || "General" %></span><br>
                         <span>Duration: <%= bet.duration || "No duration specified" %></span><br>
                         <span>Participants: <%= bet.participants || "0" %></span>
+                        <button 
+                        class="btn btn-primary view-bet-btn"
+                        data-title="<%= bet.betTitle %>"
+                        data-description="<%= bet.description %>"
+                        data-type="<%= bet.type %>"
+                        data-duration="<%= bet.duration %>"
+                        data-participants="<%= bet.participants %>"
+                        >
+                            View Details
+                        </button>
                     </div>
                     <% }) %>
                         <% } else { %>
                             <p>No bets available. Create the first one!</p>
                             <% } %>
         </div>
+
+        <!-- Modal -->
+            <div class="modal fade" id="betModal" tabindex="-1" aria-labelledby="betModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="betModalLabel"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="betDescription"></p>
+                    <p><strong>Type:</strong> <span id="betType"></span></p>
+                    <p><strong>Duration:</strong> <span id="betDuration"></span></p>
+                    <p><strong>Participants:</strong> <span id="betParticipants"></span></p>
+                </div>
+                </div>
+            </div>
+        </div>
     </header>
 
     <%- include("templates/navbar") %>
 
         <script src="/scripts/main.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
