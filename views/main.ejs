@@ -2,15 +2,7 @@
 
     <header class="top-bar">
         <h1>🔥 Bet On Yourself</h1>
-        <select id="regionSelect">
-            <option value="America/Vancouver">British Columbia (Pacific Time)</option>
-            <option value="America/Edmonton">Alberta (Mountain Time)</option>
-            <option value="America/Regina">Saskatchewan (Central Time - No DST)</option>
-            <option value="America/Winnipeg">Manitoba (Central Time)</option>
-            <option value="America/Toronto">Ontario (Eastern Time)</option>
-            <option value="America/Halifax">Nova Scotia (Atlantic Time)</option>
-            <option value="America/St_Johns">Newfoundland (Newfoundland Time)</option>
-        </select>
+
         <input type="text" id="search" placeholder="Search challenges..." />
 
         <div class="summary">
@@ -18,31 +10,49 @@
                 <%= bets.length %> challenges
             </span> •
             <span id="totalVotes">
-                <%= bets.reduce((acc, bet)=> acc + (parseInt(bet.participants) || 0), 0) %> total votes
+                <%= bets.reduce((acc, bet)=> acc + (bet.participants?.length || 0), 0) %> total votes
             </span>
         </div>
 
-        <div class="feed-container">
-            <% if (bets && bets.length> 0) { %>
-                <% bets.forEach(bet=> { %>
-                    <div class="bet-card">
-                        <h3>
-                            <%= bet.title || "Untitled Bet" %>
-                        </h3>
-                        <p>
-                            <%= bet.description || "No description provided." %>
-                        </p>
-                        <span>Type: <%= bet.type || "General" %></span><br>
-                        <span>Duration: <%= bet.duration || "No duration specified" %></span><br>
-                        <span>Participants: <%= bet.participants || "0" %></span>
-                    </div>
-                    <% }) %>
-                        <% } else { %>
-                            <p>No bets available. Create the first one!</p>
+        <div class="feed-container" id="feed">
+            <% bets.forEach(bet=> { %>
+                <div class="post-card" data-id="<%= bet._id %>">
+                    <div class="post-header">
+                        <strong>
+                            <%= bet.betTitle %>
+                        </strong>
+                        <% if (session.userId && session.userId.toString()===bet.betPoster?.toString()) { %>
+                            <button class="edit-btn">⋮</button>
                             <% } %>
+                    </div>
+
+                    <!-- Hidden info -->
+                    <div class="post-extra" style="display: none;">
+                        <p>
+                            <%= bet.description %>
+                        </p>
+                        <div class="post-meta">
+                            <span>
+                                <%= bet.duration %>
+                            </span> •
+                            <span>
+                                <%= bet.betType %>
+                            </span> •
+                            <span>
+                                <%= bet.participants.length %> joined
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="post-actions">
+                        <button class="accept-btn">
+                            <i class="fa-solid fa-flag-checkered"></i> Accept
+                        </button>
+                    </div>
+                </div>
+                <% }); %>
         </div>
     </header>
 
     <%- include("templates/navbar") %>
-
         <script src="/scripts/main.js"></script>

@@ -7,6 +7,8 @@ const MongoStore = require('connect-mongo');
 const bcrypt = require('bcrypt');
 const saltRounds = 12;
 
+
+
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const path = require('path');
 const { fileURLToPath } = require('url');
@@ -47,6 +49,8 @@ const { database } = require('./databaseConnection');
 
 const userCollection = database.db(mongodb_database).collection('users');
 const betCollection = database.db(mongodb_database).collection('bets');
+const commentsCollection = database.db(mongodb_database).collection('comments');
+
 
 app.set('view engine', 'ejs');
 
@@ -148,13 +152,20 @@ app.get('/', async (req, res) => {
 		res.render("main", {
 			title: "Challenge Feed",
 			css: "/styles/main.css",
-			bets: bets
+			bets: bets,
+			session: req.session
 		});
 	} catch (err) {
 		console.error(err);
 		res.status(500).send("Error loading bets");
 	}
 });
+app.get('/posts/:id/comments', async (req, res) => {
+	const betId = req.params.id;
+	const comments = await commentsCollection.find({ betId }).sort({ timestamp: -1 }).toArray();
+	res.json(comments);
+});
+
 
 app.get('/main', async (req, res) => {
 	try {
@@ -162,7 +173,8 @@ app.get('/main', async (req, res) => {
 		res.render("main", {
 			title: "Challenge Feed",
 			css: "/styles/main.css",
-			bets: bets
+			bets: bets,
+			session: req.session
 		});
 	} catch (err) {
 		console.error(err);
@@ -171,7 +183,7 @@ app.get('/main', async (req, res) => {
 });
 
 app.get('/shop', (req, res) => {
-	res.render("shop", { title: "In-Game Shop", css: "/styles/shop.css" });
+	res.render("shop", { title: "Shop", css: "/styles/shop.css" });
 });
 
 const { ObjectId } = require('mongodb');
@@ -330,6 +342,23 @@ app.post('/loggingin', async (req, res) => {
 		return;
 	}
 });
+app.post('/posts/:id/comments', async (req, res) => {
+	if (!req.session.authenticated) return res.status(401).json({ error: "Login required" });
+
+	const betId = req.params.id;
+	const { text } = req.body;
+	const comment = {
+		betId,
+		text,
+		timestamp: new Date(),
+		userId: req.session.userId,
+		username: req.session.email  // or use name if available
+	};
+
+	await commentsCollection.insertOne(comment);
+	res.json({ success: true });
+});
+
 
 app.use('/loggedin', sessionValidation);
 
@@ -342,6 +371,39 @@ app.get('/logout', (req, res) => {
 // Signup authentication
 app.get('/signup', (req, res) => {
 	res.render("signup", { title: "Signup", css: "/styles/auth.css" });
+});
+
+// Accept challenge route
+app.post('/posts/:id/accept', async (req, res) => {
+	const betId = req.params.id;
+	const userId = req.session.userId;
+
+	if (!userId) {
+		return res.status(401).json({ error: "You must be logged in to accept a challenge." });
+	}
+
+	try {
+		const bet = await betCollection.findOne({ _id: new ObjectId(betId) });
+		if (!bet) {
+			return res.status(404).json({ error: "Bet not found" });
+		}
+
+		// Avoid duplicate participants
+		if (!bet.participants || !bet.participants.includes(userId.toString())) {
+			await betCollection.updateOne(
+				{ _id: new ObjectId(betId) },
+				{ $push: { participants: userId.toString() } }
+			);
+		}
+
+		// Return the updated bet
+		const updatedBet = await betCollection.findOne({ _id: new ObjectId(betId) });
+		res.json(updatedBet);
+
+	} catch (error) {
+		console.error("Error accepting challenge:", error);
+		res.status(500).json({ error: "Internal Server Error" });
+	}
 });
 
 app.post('/createUser', async (req, res) => {
@@ -381,22 +443,39 @@ app.post('/createUser', async (req, res) => {
 
 // Create a new bet (post)
 app.post('/createBet', async (req, res) => {
-	var betPoster = req.session.userId;
-	var betTitle = req.body.betTitle;
-	var duration = req.body.duration;
-	var participants = req.body.participants;
-	var betType = req.body.betType;
-	var description = req.body.description;
-	var privateBet = req.body.privateBet ? true : false;
+	const betPoster = req.session.userId;
+	const betTitle = req.body.betTitle;
+	const duration = req.body.duration;
+	const betType = req.body.betType;
+	const description = req.body.description;
+	const privateBet = req.body.privateBet === 'Private'; // returns true if checkbox is checked
 
-	await betCollection.insertOne({
-		betPoster: betPoster, betTitle: betTitle, duration: duration, participants: participants,
-		betType: betType, description: description, privateBet: privateBet
-	});
+	// Store as an empty array since participants will be added later
+	const participants = [];
 
-	console.log("Inserted bet")
-	res.redirect('/main')
+	if (!betTitle || !duration || !betType || !description) {
+		return res.status(400).send("Please fill in all required fields.");
+	}
+
+	try {
+		await betCollection.insertOne({
+			betPoster,
+			betTitle,
+			duration,
+			betType,
+			description,
+			privateBet,
+			participants, // as an array of user IDs
+			createdAt: new Date()
+		});
+		console.log("✅ Bet created");
+		res.redirect('/main');
+	} catch (err) {
+		console.error("❌ Failed to create bet:", err);
+		res.status(500).send("Internal server error.");
+	}
 });
+
 // END Signup authentication
 // END Rendering pages
 
