@@ -38,3 +38,17 @@ function renderBets(bets) {
 
 // Load Bets on Page Load
 fetchBets();
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.view-bet-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.getElementById('betModalLabel').textContent = btn.getAttribute('data-title');
+      document.getElementById('betDescription').textContent = btn.getAttribute('data-description');
+      document.getElementById('betType').textContent = btn.getAttribute('data-type');
+      document.getElementById('betDuration').textContent = btn.getAttribute('data-duration');
+      document.getElementById('betParticipants').textContent = btn.getAttribute('data-participants');
+      var modal = new bootstrap.Modal(document.getElementById('betModal'));
+      modal.show();
+    });
+  });
+});
