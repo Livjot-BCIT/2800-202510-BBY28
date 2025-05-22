@@ -1,18 +1,17 @@
+<!-- views/login.ejs -->
 <%- include("templates/header") %>
-<!-- <link rel="stylesheet" href="/styles/auth.css"> -->
-<!-- Login form -->
-<div id="container">
-    <img id="logo" src="/images/Logo.webp" alt="logo"/>
-    
-    <form action="/login" method="POST">
-        <span><strong>Login to Your Account</strong></span>
-        <input type="email" id="email" name="email" placeholder="Email">
-        <input type="password" id="password" name="password" placeholder="Password">
-        
-        <input type="submit" id="button" value="Login">
-    </form>
 
-    <span id="signup">Don't have an account? <a href="/public/signup.html">Signup</a></span>
+<div id="container">
+  <img id="logo" src="/images/Logo.webp" alt="logo"/>
+  <form action="/login" method="POST">
+    <span><strong>Login to Your Account</strong></span>
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <input type="submit" id="button" value="Login">
+  </form>
+  <span id="signup">
+    Don't have an account? <a href="/signup">Signup</a>
+  </span>
 </div>
 
 <script src="/scripts/auth.js"></script>

@@ -1,149 +1,329 @@
-
 require("./utils.js");
+require("dotenv").config();
 
-require('dotenv').config();
-const express = require('express');
-const session = require('express-session');
-const MongoStore = require('connect-mongo');
-const bcrypt = require('bcrypt');
+const express = require("express");
+const session = require("express-session");
+const MongoStore = require("connect-mongo");
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 const saltRounds = 12;
+const Joi = require("joi");
+const path = require("path");
 
-const port = process.env.PORT || 3000;
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const User = require("./models/User");
+const Bet = require("./models/Bet");
+const Group = require("./models/Group");
+
+const {
+  MONGODB_USER,
+  MONGODB_PASSWORD,
+  MONGODB_HOST,
+  MONGODB_DATABASE,
+  MONGODB_SESSION_SECRET,
+  NODE_SESSION_SECRET,
+  GEMINI_API_KEY,
+} = process.env;
 
 const app = express();
+const port = process.env.PORT || 3000;
+const expireTime = 24 * 60 * 60 * 1000; // 1 day
 
-const Joi = require("joi");
+// Gemini AI init (if you need it)
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
+// body‑parsing & view engine
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.set("view engine", "ejs");
 
-const expireTime = 24 * 60 * 60 * 1000; //expires after 1 day  (hours * minutes * seconds * millis)
+mongoose.set("debug", true);
+// ─── connect to MongoDB via Mongoose ──────────────────────────────────────────
+mongoose
+  .connect(
+    `mongodb+srv://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_HOST}/${MONGODB_DATABASE}?retryWrites=true&w=majority&tls=true`
+  )
+  .then(() => console.log("✔️ Connected to MongoDB via Mongoose"))
+  .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-/* secret information section */
-const mongodb_host = process.env.MONGODB_HOST;
-const mongodb_user = process.env.MONGODB_USER;
-const mongodb_password = process.env.MONGODB_PASSWORD;
-const mongodb_database = process.env.MONGODB_DATABASE;
-const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
+// ─── session store ─────────────────────────────────────────────────────────────
+const store = MongoStore.create({
+  mongoUrl: `mongodb+srv://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_HOST}/${MONGODB_DATABASE}?retryWrites=true&w=majority&tls=true`,
+  crypto: { secret: MONGODB_SESSION_SECRET },
+  dbName: MONGODB_DATABASE,
+  collectionName: "sessions",
+});
+app.use(
+  session({
+    secret: NODE_SESSION_SECRET,
+    store,
+    saveUninitialized: false,
+    resave: true,
+    cookie: { maxAge: expireTime },
+  })
+);
 
-const node_session_secret = process.env.NODE_SESSION_SECRET;
-/* END secret section */
-
-const {database} = include('databaseConnection');
-
-const userCollection = database.db(mongodb_database).collection('users');
-
-app.set('view engine', 'ejs');
-
-app.use(express.urlencoded({extended: false}));
-
-var mongoStore = MongoStore.create({
-	mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/?retryWrites=true&w=majority&tls=true`,
-	crypto: {
-		secret: mongodb_session_secret
-	}
-})
-
-app.use(session({ 
-    secret: node_session_secret,
-	store: mongoStore, //default is memory store 
-	saveUninitialized: false, 
-	resave: true
+// ─── auth middleware ───────────────────────────────────────────────────────────
+function isValidSession(req) {
+  return !!req.session.authenticated;
 }
-));
+async function sessionValidation(req, res, next) {
+  if (!req.session.authenticated || !req.session.userId) {
+    return res.redirect('/login');
+  }
+  // Check that the user still exists
+  const user = await User.findById(req.session.userId).lean();
+  if (!user) {
+    // User deleted, clear their session and send them back to signup/login.
+    req.session.destroy(() => {
+      res.redirect('/signup');
+    });
+    return;
+  }
+  // attach the user to res.locals for easy access in views:
+  res.locals.currentUser = user;
+  next();
+}
 
-app.get('/nosql-injection', async (req,res) => {
-	var username = req.query.user;
-
-	if (!username) {
-		res.send(`<h3>no user provided - try /nosql-injection?user=name</h3> <h3>or /nosql-injection?user[$ne]=name</h3>`);
-		return;
-	}
-	console.log("user: "+username);
-
-	const schema = Joi.string().max(20).required();
-	const validationResult = schema.validate(username);
-
-	//If we didn't use Joi to validate and check for a valid URL parameter below
-	// we could run our userCollection.find and it would be possible to attack.
-	// A URL parameter of user[$ne]=name would get executed as a MongoDB command
-	// and may result in revealing information about all users or a successful
-	// login without knowing the correct password.
-	if (validationResult.error != null) {  
-	   console.log(validationResult.error);
-	   res.send("<h1 style='color:darkred;'>A NoSQL injection attack was detected!!</h1>");
-	   return;
-	}	
-
-	const result = await userCollection.find({username: username}).project({username: 1, password: 1, _id: 1}).toArray();
-
-	console.log(result);
-
-    res.send(`<h1>Hello ${username}</h1>`);
-});
-
-// Array of nav links
+// ─── nav links (for header partial) ───────────────────────────────────────────
 const navLinks = [
-    {name: "Home", link: "/main"},
-	{name: "Shop", link: "/shop"},
-    {name: "Leaderboard", link: "/leaderboard"},
-    {name: "Create Bet", link: "/createBet"},
-    {name: "Stats", link: "/stats"},
-    {name: "Groups", link: "/groups"},
-    {name: "userprofile", link: "/userprofile"}
-]
-
-// Middleware to set nav links in locals
+  { name: "Home", link: "/main" },
+  { name: "Shop", link: "/shop" },
+  { name: "Leaderboard", link: "/leaderboard" },
+  { name: "Create Bet", link: "/createBet" },
+  { name: "Money", link: "/money" },
+  { name: "Groups", link: "/groups" },
+  { name: "userprofile", link: "/userprofile" },
+];
 app.use((req, res, next) => {
-    app.locals.navLinks = navLinks;
-    next();
+  res.locals.navLinks = navLinks;
+  next();
 });
 
-// Rendering pages
-app.get('/', (req, res) => {
-    res.render("main", {title: "Home", css: "/styles/main.css"});
+// ─── static folders ────────────────────────────────────────────────────────────
+app.use(express.static(path.join(__dirname, "public")));
+app.use("/styles", express.static(path.join(__dirname, "styles")));
+app.use("/scripts", express.static(path.join(__dirname, "scripts")));
+app.use("/images", express.static(path.join(__dirname, "images")));
+
+// ─── Challenge feed ─────────────────────────────────────────────────────────
+app.get(["/", "/main"], sessionValidation, async (req, res) => {
+  let bets = await Bet.find()
+    .populate("betPoster", "firstName lastName profilePictureUrl")
+    .lean();
+  bets.forEach((b) => {
+    b.poster = b.betPoster;
+  });
+  res.render("main", {
+    title: "Challenge Feed",
+    css: "/styles/main.css",
+    bets,
+  });
 });
 
-app.get('/main', (req, res) => {
-    res.render("main", {title: "Home", css: "/styles/main.css"});
+// ─── Shop ───────────────────────────────────────────────────────────────────
+app.get("/shop", sessionValidation, (req, res) => {
+  res.render("shop", { title: "In‑Game Shop", css: "/styles/shop.css" });
 });
 
-app.get('/shop', (req, res) => {
-    res.render("shop", {title: "In-Game Shop", css: "/styles/shop.css"});
+// ─── Leaderboard ────────────────────────────────────────────────────────────
+app.get("/leaderboard", sessionValidation, async (req, res) => {
+  const users = await User.find({}, "firstName lastName points")
+    .sort({ points: -1 })
+    .lean();
+  const topThree = users.slice(0, 3);
+  const others = users.slice(3);
+
+  let me = null,
+    position = null;
+  if (req.session.userId) {
+    me = await User.findById(req.session.userId, "points").lean();
+    if (me) {
+      position =
+        (await User.countDocuments({ points: { $gt: me.points } })) + 1;
+    }
+  }
+
+  res.render("leaderboard", {
+    title: "Leaderboard",
+    css: "/styles/leaderboard.css",
+    topThree,
+    users: others,
+    currentUser: me,
+    currentPosition: position,
+  });
 });
 
-app.get('/leaderboard', (req, res) => {
-    res.render("leaderboard", {title: "Leaderboard", css: "/styles/leaderboard.css"});
+// ─── Create Bet ─────────────────────────────────────────────────────────────
+app
+  .route("/createBet")
+  .get(sessionValidation, (req, res) => {
+    res.render("createBet", {
+      title: "Create a Bet",
+      css: "/styles/createPost.css",
+    });
+  })
+  .post(sessionValidation, async (req, res) => {
+    const {
+      betTitle,
+      durationValue,
+      durationUnit,
+      participants,
+      betType,
+      description,
+      privateBet
+    } = req.body;
+
+    console.log("CreateBet body:", req.body);
+
+    try {
+      // Save the bet
+      const newBet = await new Bet({
+        betPoster:     req.session.userId,
+        betTitle,
+        durationValue: Number(durationValue),
+        durationUnit,
+        participants:  Number(participants),
+        betType,
+        description,
+        privateBet:    !!privateBet
+      }).save();
+
+      // Push its _id onto the user's createdBets array
+      await User.findByIdAndUpdate(
+        req.session.userId,
+        { $push: { createdBets: newBet._id } },
+        { new: true }
+      );
+
+      // boom done
+      return res.redirect("/main");
+    } catch (err) {
+      console.error("❌ Error in createBet route:", err);
+      return res
+        .status(500)
+        .send("Internal Server Error – check your console for details");
+    }
+  });
+
+// ─── Money + AI ─────────────────────────────────────────────────────────────
+app.get("/money", sessionValidation, (req, res) => {
+  res.render("money", { title: "Money", css: "/styles/money.css" });
+});
+app.post("/api/financial-advice", sessionValidation, async (req, res) => {
+  const { amount, plan } = req.body;
+  // …validate amount & plan…
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+  const { response } = await (
+    await model.generateContent(`Advice for $${amount} with plan ${plan}`)
+  ).response;
+  res.json({ advice: response.text(), plan, amount });
 });
 
-app.get('/createBet', (req, res) => {   
-    res.render("createBet", {title: "Create a Bet", css: "/styles/createBet.css"});
+// ─── Groups ────────────────────────────────────────────────────────────────
+app.get("/groups", sessionValidation, (req, res) => {
+  res.render("groups", { title: "Groups", css: "/styles/groupList.css" });
+});
+app.get("/makeGroupData", async (req, res) => {
+  if ((await Group.countDocuments()) === 0) {
+    const sample = require("./scripts/sampleGroups");
+    await Group.insertMany(sample);
+  }
+  res.end();
+});
+app.get("/api/groups", sessionValidation, async (req, res) => {
+  const page = +req.query.page || 1,
+    limit = 6;
+  const groups = await Group.find()
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .lean();
+  res.json(groups);
 });
 
-app.get('/stats', (req, res) => {
-    res.render("stats", {title: "Stats"});
+// ─── User Profile ──────────────────────────────────────────────────────────
+app.get("/userprofile", sessionValidation, async (req, res) => {
+  const user = await User.findById(req.session.userId)
+    .populate("createdGroups joinedGroups participatedBets createdBets")
+    .lean();
+  res.render("userprofile", {
+    title: "Profile",
+    css: "/styles/userprofile.css",
+    user,
+  });
 });
 
-app.get('/groups', (req, res) => {
-    res.render("groups", {title: "Groups"});
-});
+// ─── Login / Logout ─────────────────────────────────────────────────────────
+app
+  .route("/login")
+  .get((req, res) =>
+    res.render("login", { title: "Login", css: "/styles/auth.css" })
+  )
+  .post(async (req, res) => {
+    const { email, password } = req.body;
+    const schema = Joi.object({
+      email: Joi.string().email().required(),
+      password: Joi.string().min(6).required(),
+    });
+    if (schema.validate({ email, password }).error)
+      return res.redirect("/login");
+    const user = await User.findOne({ email });
+    if (!user) return res.redirect("/login");
+    if (!(await bcrypt.compare(password, user.password)))
+      return res.redirect("/login");
+    req.session.authenticated = true;
+    req.session.userId = user._id.toString();
+    res.redirect("/main");
+  });
 
-app.get('/userprofile', (req, res) => {
-    res.render("userprofile", {title: "Profile", css: "/styles/userprofile.css"});
-});
-// Rendering pages END
+app.get("/logout", sessionValidation, (req, res) =>
+  req.session.destroy(() => res.redirect("/login"))
+);
 
-// Absolute routes
-app.use(express.static(__dirname + "/public"));
-app.use('/styles', express.static(__dirname + '/styles'));
-app.use('/scripts', express.static(__dirname + '/scripts'));
-app.use('/images', express.static(__dirname + '/images'));
+// ─── Signup ────────────────────────────────────────────────────────────────
+app
+  .route("/signup")
+  .get((req, res) =>
+    res.render("signup", { title: "Signup", css: "/styles/auth.css", error: req.query.error })
+  )
+    .post(async (req, res) => {
+    console.log("👉  POST /signup received:", req.body);
 
-// 404 Page
-app.get(/(.*)/, (req, res, next) => {
-    res.status(404);
-	res.render("404", {navLinks: navLinks});
-    next();
-});
+    const { firstName, lastName, email, password } = req.body;
+    const schema = Joi.object({
+      firstName: Joi.string().required(),
+      lastName:  Joi.string().required(),
+      email:     Joi.string().email().required(),
+      password:  Joi.string().min(6).required(),
+    });
+    const { error } = schema.validate({ firstName, lastName, email, password });
+    if (error) {
+      // include the Joi‐message as a query param
+      const msg = encodeURIComponent(error.details[0].message);
+      return res.redirect(`/signup?error=${msg}`);
+    }
 
-app.listen(port, () => {
-	console.log("Node application listening on port "+port);
-}); 
+    if (await User.exists({ email })) {
+      return res.redirect(`/signup?error=${encodeURIComponent("Email already registered.")}`);
+    }
+
+    try {
+      const hash = await bcrypt.hash(password, saltRounds);
+      const newUser = await new User({ firstName, lastName, email, password: hash }).save();
+      req.session.authenticated = true;
+      req.session.userId = newUser._id.toString();
+      return res.redirect("/main");
+    } catch (e) {
+      console.error("❌ Error saving user:", e);
+      return res.redirect(`/signup?error=${encodeURIComponent("Internal server error, please try again.")}`);
+    }
+  });
+
+// ─── 404 handler ──────────────────────────────────────────────────────────
+app.use((req, res) =>
+  res.status(404).render("404", { title: "Page Not Found" })
+);
+
+app.listen(port, () =>
+  console.log(`🚀 Server listening on http://localhost:${port}`)
+);

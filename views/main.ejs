@@ -1,41 +1,60 @@
 <%- include("templates/header") %>
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Challenge Feed</title>
-    <link rel="stylesheet" href="/styles/main.css" />
-</head>
 
-    <header class="top-bar">
-        <h1>🔥 Bet On Yourself</h1>
-        <select id="regionSelect">
-            <option value="America/Vancouver">British Columbia (Pacific Time)</option>
-            <option value="America/Edmonton">Alberta (Mountain Time)</option>
-            <option value="America/Regina">Saskatchewan (Central Time - No DST)</option>
-            <option value="America/Winnipeg">Manitoba (Central Time)</option>
-            <option value="America/Toronto">Ontario (Eastern Time)</option>
-            <option value="America/Halifax">Nova Scotia (Atlantic Time)</option>
-            <option value="America/St_Johns">Newfoundland (Newfoundland Time)</option>
-        </select>
-        <input type="text" id="search" placeholder="Search challenges..." />
+<header class="top-bar">
+  <h1>🔥 Bet On Yourself</h1>
+  <div class="controls">
+    <select id="regionSelect">
+      <option value="America/Vancouver">British Columbia (Pacific Time)</option>
+      <option value="America/Edmonton">Alberta (Mountain Time)</option>
+        <option value="America/Regina">Saskatchewan (Central Time - No DST)</option>
+        <option value="America/Winnipeg">Manitoba (Central Time)</option>
+        <option value="America/Toronto">Ontario (Eastern Time)</option>
+        <option value="America/Halifax">Nova Scotia (Atlantic Time)</option>
+        <option value="America/St_Johns">Newfoundland (Newfoundland Time)</option>
+    </select>
+    <input type="text" id="search" placeholder="Search challenges…" />
+  </div>
+  <div class="summary">
+    <span id="totalChallenges"><%= bets.length %> challenges</span> •
+    <span id="totalVotes">
+      <%= bets.reduce((acc, b) => acc + (parseInt(b.participants)||0), 0) %> total votes
+    </span>
+  </div>
+</header>
 
-        <div class="summary">
-            <span id="totalChallenges">0 challenges</span> •
-            <span id="totalVotes">0 total votes</span>
+<main class="feed-container">
+  <% if (bets && bets.length > 0) { %>
+    <% bets.forEach(bet => { %>
+      <div class="bet-card" data-bet-id="<%= bet._id %>">
+        <div class="bet-card-header">
+          <img class="avatar" src="<%= bet.poster.profilePictureUrl || '/images/default-avatar.png' %>" alt="<%= bet.poster.firstName %>">
+          <a href="/userprofile/<%= bet.poster._id %>" class="username"><%= bet.poster.firstName %> <%= bet.poster.lastName %></a>
+          <span class="timestamp" data-created-at="<%= bet.createdAt.toISOString() %>">
+            <!-- filled by JS -->
+          </span>
         </div>
-
-        <div class="tag-filters">
-            <button onclick="filterByTag('all')">All</button>
-            <button onclick="filterByTag('physical')">Physical</button>
-            <button onclick="filterByTag('puzzle')">Puzzle</button>
-            <button onclick="filterByTag('funny')">Funny</button>
-            <button onclick="filterByTag('timed')">Timed</button>
+        <h2 class="bet-title"><%= bet.betTitle %></h2>
+        <p class="bet-description"><%= bet.description || 'No description provided.' %></p>
+        <div class="bet-meta">
+          <span class="tag">#<%= bet.betType %></span>
+          <span class="duration">⏱ <%= bet.durationValue %> <%= bet.durationUnit %></span>
+          <span class="participants">👥 <%= bet.participants %></span>
         </div>
-    </header>
+        <button class="join-button">Join</button>
+      </div>
+    <% }) %>
+  <% } else { %>
+    <p class="no-bets">No bets available. Be the first to create one!</p>
+  <% } %>
+</main>
 
-    <div class="feed-container" id="feed"></div>
+<!-- Modal for card details -->
+<div id="betModal" class="modal">
+  <div class="modal-content">
+    <span class="modal-close">&times;</span>
+    <div id="modalBody"><!-- injected by JS --></div>
+  </div>
+</div>
 
-    <button class="create-btn" onclick="alert('Redirect to create challenge page')">＋ Challenge</button>
-
-    <script src="../scripts/main.js"></script>
 <%- include("templates/navbar") %>
+<script src="/scripts/main.js"></script>

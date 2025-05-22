@@ -1,31 +1,66 @@
 <%- include("templates/header") %>
-<!-- <link rel="stylesheet" href="/styles/createPost.css">
-<link rel="stylesheet" href="/styles/navbar.css"> -->
 
-<!-- Create a post form -->
-<!-- Change /login to /createPost when its made -->
-<form action="/login" method="POST">
-    <span style="font-size: 20px"><strong>Create a bet</strong></span>
-    <input type="text" id="bet" name="bet" placeholder="Bet">
-    <input type="text" id="duration" name="duration" placeholder="Duration">
-    <input type="number" id="participants" name="participants" min="1" placeholder="Participants">
-    
-    <select name="betType" id="betType" placeholder="Bet Type">
-        <option value="" disabled selected>Bet Type</option>
-        <option value="Physical">Physical</option>
-        <option value="Financial">Financial</option>
-        <option value="Mental">Mental</option>
-        <option value="Social">Social</option>
+<form action="/createBet" method="POST" class="bet‐form">
+  <span style="font-size: 20px"><strong>Create a bet</strong></span>
+
+  <input
+    type="text"
+    id="betTitle"
+    name="betTitle"
+    placeholder="Bet"
+    required
+  />
+
+  <!-- Number + unit dropdown for duration -->
+  <div class="duration-group">
+    <input
+      type="number"
+      id="durationValue"
+      name="durationValue"
+      min="1"
+      placeholder="Amount"
+      required
+    />
+    <select id="durationUnit" name="durationUnit" required>
+      <option value="" disabled selected>Time</option>
+      <option value="hours">Hours</option>
+      <option value="days">Days</option>
+      <option value="weeks">Weeks</option>
+      <option value="months">Months</option>
+      <option value="months">Other</option>
     </select>
+  </div>
 
-    <textarea id="description" name="description" placeholder="Description"></textarea>
+  <input
+    type="number"
+    id="participants"
+    name="participants"
+    min="1"
+    placeholder="Participants"
+    required
+  />
 
-    <div id="checkboxContainer">
-        <input type="checkbox" id="private" name="private" value="Private">
-        <label for="private">Private bet</label>
-    </div>
+  <select name="betType" id="betType" required>
+    <option value="" disabled selected>Bet Type</option>
+    <option value="Physical">Physical</option>
+    <option value="Financial">Financial</option>
+    <option value="Mental">Mental</option>
+    <option value="Social">Social</option>
+  </select>
 
-    <input type="submit" id="button" value="Place your Bets!">
+  <textarea
+    id="description"
+    name="description"
+    placeholder="Description"
+    required
+  ></textarea>
+
+  <div id="checkboxContainer">
+    <input type="checkbox" id="privateBet" name="privateBet" />
+    <label for="privateBet">Private bet</label>
+  </div>
+
+  <input type="submit" id="button" value="Place your Bets!" />
 </form>
 
 <%- include("templates/navbar") %>

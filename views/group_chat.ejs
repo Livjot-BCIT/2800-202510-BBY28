@@ -1,0 +1,23 @@
+<%- include("templates/header") %>
+
+<div class="header">
+    <h1>Main menu - Groups</h1>
+</div>
+
+<div class="group-header">
+    <h2><%= group.title %></h2>
+    <p>Welcome to <%= group.title %></p>
+</div>
+
+<div class="chat-container" id="chatContainer">
+    <!-- Messages will be populated by JavaScript -->
+</div>
+
+<div class="input-area">
+    <input type="text" id="chatInput" placeholder="Message">
+    <button id="sendButton">Send</button>
+</div>
+
+<script src="/scripts/group-chat.js"></script>
+
+<%- include("templates/navbar") %>

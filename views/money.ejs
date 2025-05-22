@@ -1,0 +1,33 @@
+<%- include("templates/header") %>
+
+    <div class="container my-5">
+        <h1>💸 Your Financials</h1>
+
+        <input type="number" id="moneyInput" placeholder="Enter your current money" class="form-control mb-4" />
+
+        <div class="plan-options">
+            <input type="radio" name="plan" value="70% Spend / 30% Save" id="plan1">
+            <label for="plan1">70% Spend / 30% Save</label>
+            <input type="radio" name="plan" value="60% Spend / 40% Save" id="plan2">
+            <label for="plan2">60% Spend / 40% Save</label>
+            <input type="radio" name="plan" value="50% Spend / 50% Save" id="plan3">
+            <label for="plan3">50% Spend / 50% Save</label>
+        </div>
+
+        <button id="aiMagicTrigger" class="btn btn-warning mb-3" onclick="triggerGeminiAI()">🔮 Ask AI for Financial
+            Advice</button>
+
+        <div id="aiResults" class="alert alert-info d-none"></div>
+
+        <div class="chart-container mb-5">
+            <h3>💡 Spending Analysis</h3>
+            <canvas id="moneyChart" width="400" height="400"></canvas>
+        </div>
+    </div>
+
+    <%- include("templates/footer") %>
+
+        <script src="/scripts/money.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<%- include("templates/navbar") %>
