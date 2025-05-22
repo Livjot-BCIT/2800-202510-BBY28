@@ -306,6 +306,7 @@ app.get('/api/groups', async (req, res) => {
 	const page = parseInt(req.query.page) || 1;
 	const limit = 6;
 	const skip = (page - 1) * limit;
+	const userId = req.session.userId;
 
 	try {
 		const groups = await groupCollection.find({})
@@ -315,7 +316,22 @@ app.get('/api/groups', async (req, res) => {
 			.toArray();
 
 
-		res.json(groups);
+		let joinedGroupIds = [];
+		if (userId) {
+			const joined = await groupMembersCollection
+				.find({ userId: new ObjectId(userId) })
+				.project({ groupId: 1 })
+				.toArray();
+
+			joinedGroupIds = joined.map(g => g.groupId.toString());
+		}
+
+		const enrichedGroups = groups.map(group => ({
+			...group,
+			joined: joinedGroupIds.includes(group._id.toString())
+		}));
+
+		res.json(enrichedGroups);
 	} catch (err) {
 		console.error("Failed to fetch paginated groups:", err);
 		res.status(500).json({ error: "Failed to fetch group data" });
@@ -341,6 +357,51 @@ app.post('/api/createGroup', upload.single('groupImage'), async (req, res) => {
 		res.status(500).send('Failed to create group.');
 	}
 });
+
+
+const groupMembersCollection = database.db(mongodb_database).collection('groupMembers');
+
+app.post('/api/joinGroup', async (req, res) => {
+	try {
+		const userId = req.session.userId;
+		const { groupId } = req.body;
+
+		if (!userId) {
+			return res.status(401).json({ error: 'You must be logged in to join a group.' });
+		}
+
+		if (!groupId) {
+			return res.status(400).json({ error: 'Group ID is required.' });
+		}
+
+		const existing = await groupMembersCollection.findOne({
+			userId: new ObjectId(userId),
+			groupId: new ObjectId(groupId)
+		});
+		if (existing) {
+			return res.status(409).json({ error: 'You already joined this group.' });
+		}
+
+		// insert
+		await groupMembersCollection.insertOne({
+			userId: new ObjectId(userId),
+			groupId: new ObjectId(groupId),
+			joinedAt: new Date()
+		});
+
+		// group member count
+		await groupCollection.updateOne(
+			{ _id: new ObjectId(groupId) },
+			{ $inc: { memberCount: 1 } }
+		);
+
+		res.sendStatus(200);
+	} catch (err) {
+		console.error('Join error:', err);
+		res.status(500).json({ error: 'Failed to join group.' });
+	}
+});
+
 
 
 app.get('/userprofile', (req, res) => {

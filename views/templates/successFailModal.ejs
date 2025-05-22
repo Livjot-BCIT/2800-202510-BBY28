@@ -1,0 +1,77 @@
+<!-- ✅ Modal Styles -->
+<style>
+.message-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.message-box {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    max-width: 320px;
+    width: 90%;
+}
+
+.message-box img {
+    width: 60px;
+}
+
+.d-none {
+    display: none;
+}
+</style>
+
+<!-- ✅ Success Modal -->
+<div id="successModal" class="message-modal d-none">
+    <div class="message-box success">
+        <img src="/images/icons/successIcon.svg" alt="Success">
+        <h2>Success</h2>
+        <p id="successMessage">Action completed successfully.</p>
+    </div>
+</div>
+
+<!-- ✅ Fail Modal -->
+<div id="failModal" class="message-modal d-none">
+    <div class="message-box fail">
+        <img src="/images/icons/failIcon.svg" alt="Fail">
+        <h2>Failed</h2>
+        <p id="failMessage">Something went wrong.</p>
+    </div>
+</div>
+
+<!-- ✅ Modal Script -->
+<script>
+function showModal(type, message, reloadAfter = false) {
+    const modalId = type === 'success' ? 'successModal' : 'failModal';
+    const messageId = type === 'success' ? 'successMessage' : 'failMessage';
+
+    const modal = document.getElementById(modalId);
+    const messageBox = document.getElementById(messageId);
+
+    if (!modal || !messageBox) {
+        console.warn("❌ Modal element not found.");
+        return;
+    }
+
+    messageBox.textContent = message;
+    modal.classList.remove('d-none');
+
+    setTimeout(() => {
+        modal.classList.add('d-none');
+        if (reloadAfter && type === 'success') {
+            window.location.reload();
+        }
+    }, 2000);
+}
+</script>

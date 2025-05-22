@@ -106,9 +106,41 @@ function openGroupModal(group) {
     document.getElementById('modalDescription').textContent = group.description;
     document.getElementById('modalType').textContent = group.type;
     document.getElementById('modalMembers').textContent = group.memberCount;
-
+    document.getElementById('groupModal').setAttribute('data-group-id', group._id);
     document.getElementById('groupModal').classList.remove('d-none');
+    const joinBtn = document.querySelector('#groupModal .btn-primary');
+    joinBtn.textContent = group.joined ? '✔ Already joined' : 'Join this group';
+    joinBtn.disabled = group.joined;
 }
+
+document.querySelector('#groupModal .btn-primary').addEventListener('click', async () => {
+    const groupId = document.querySelector('#groupModal').getAttribute('data-group-id');
+
+    try {
+        const res = await fetch('/api/joinGroup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ groupId })
+        });
+
+        if (res.ok) {
+            showModal('success', 'Joined the group!', true);
+            document.getElementById('groupModal').classList.add('d-none');
+        } else {
+            const data = await res.json();
+            showModal('fail', data.error || 'Failed to join.');
+
+
+        }
+    } catch (err) {
+        console.error(err);
+        showModal('fail', 'Error joining group.');
+
+    }
+});
+
 
 document.addEventListener('DOMContentLoaded', () => {
     initSearch();
@@ -153,7 +185,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (res.ok) {
-                    alert('Group created!');
+                    showModal('success', 'Group created!', true);
+
                     createModal.classList.add('d-none');
                     createForm.reset();
                     location.reload();
