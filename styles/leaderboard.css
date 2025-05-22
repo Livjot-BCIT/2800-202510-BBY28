@@ -13,7 +13,6 @@ body {
     background-color: #2b2738;
 }
 
-
 #profilePic {
     width: 81px;
     height: 81px;
@@ -53,12 +52,13 @@ body {
     height: 170px;
 }
 
-
 .topUser {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    width: 100%;
+    text-align: center;
 }
 
 .topUser > .square > span {
@@ -158,5 +158,5 @@ body {
 }
 
 #otherUsers .square:hover {
-    background-color: #C0C0C0;
+    background-color: #9890b1;
 }
