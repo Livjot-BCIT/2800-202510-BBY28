@@ -92,7 +92,88 @@ function handleScroll() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    initSearch();
+    const groupContainer = document.getElementById('groupContainer');
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const loader = document.getElementById('loader');
+
+    let allGroups = [];
+
+    // Load groups when the page loads
     loadGroups();
-    window.addEventListener('scroll', handleScroll);
+
+    // Search functionality
+    searchBtn.addEventListener('click', filterGroups);
+    searchInput.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') {
+            filterGroups();
+        }
+    });
+
+    // Load all groups from the server
+    async function loadGroups() {
+        try {
+            loader.style.display = 'block';
+            
+            const response = await fetch('/api/groups');
+            if (!response.ok) {
+                throw new Error('Failed to fetch groups');
+            }
+            
+            allGroups = await response.json();
+            displayGroups(allGroups);
+        } catch (error) {
+            console.error('Error loading groups:', error);
+            groupContainer.innerHTML = `<p class="text-center text-danger">Failed to load groups. Please try again later.</p>`;
+        } finally {
+            loader.style.display = 'none';
+        }
+    }
+
+    // Display groups in the container
+    function displayGroups(groups) {
+        if (groups.length === 0) {
+            groupContainer.innerHTML = '<p class="text-center">No groups found</p>';
+            return;
+        }
+
+        let html = '<div class="row">';
+        
+        groups.forEach(group => {
+            html += `
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">${group.title}</h5>
+                            <p class="card-text">${group.description || 'No description available'}</p>
+                            <p class="card-text"><small class="text-muted">${group.memberCount || 0} members</small></p>
+                            <div class="d-grid">
+                                <a href="/group/${group._id}" class="btn btn-primary join-chat-btn">Join Chat</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+        groupContainer.innerHTML = html;
+    }
+
+    // Filter groups based on search input
+    function filterGroups() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        
+        if (!searchTerm) {
+            displayGroups(allGroups);
+            return;
+        }
+        
+        const filteredGroups = allGroups.filter(group => 
+            group.title.toLowerCase().includes(searchTerm) || 
+            (group.description && group.description.toLowerCase().includes(searchTerm))
+        );
+        
+        displayGroups(filteredGroups);
+    }
 });

@@ -182,3 +182,71 @@ body {
     color: #555;
     margin-bottom: 8px;
 }
+
+
+@media screen and (max-width: 768px) {
+
+    body {
+        font-size: 0.9rem;
+    }
+    
+    .top-bar {
+        padding: 0.8rem 1rem;
+    }
+    
+    .top-bar h1 {
+        font-size: 1.5rem;
+    }
+    
+    .top-bar input[type="text"] {
+        padding: 0.6rem;
+        margin: 0.8rem 0;
+        font-size: 0.9rem;
+    }
+    
+    .top-bar .summary {
+        font-size: 0.8rem;
+    }
+    
+    .feed-container {
+        padding: 1rem;
+        gap: 1rem;
+    }
+
+    .challenge-post {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .challenge-post .avatar {
+        width: 2.5rem;
+        height: 2.5rem;
+        margin-right: 0.8rem;
+    }
+    
+    .challenge-post .post-body {
+        font-size: 0.95rem;
+    }
+    
+    .tag-filters button {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .bet-card {
+        width: 100%;
+        padding: 1rem;
+    }
+    
+    .bet-card h3 {
+        font-size: 1.2rem;
+        margin-bottom: 0.6rem;
+    }
+    
+    .bet-card p {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+}

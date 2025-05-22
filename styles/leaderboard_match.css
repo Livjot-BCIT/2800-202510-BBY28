@@ -1,0 +1,186 @@
+:root {
+    --bg: #676279;
+    --container: #2B2738;
+    --btn: #6F55B6;
+    --txt: #FEFCFF;
+    --active-bg: #5B566C;
+    --light-gray: #e0e0e0;
+    --dark-gray: #c0c0c0;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--txt);
+}
+
+.container {
+    max-width: 393px;
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Back Button and Date Section */
+.back-button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.back-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--light-gray);
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.challenge-date {
+    color: var(--txt);
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+/* Challenge Header */
+.challenge-header {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.challenge-type {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.challenge-author {
+    font-weight: normal;
+    font-size: 14px;
+}
+
+.challenge-title {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.challenge-description {
+    font-size: 14px;
+    line-height: 1.4;
+    margin-bottom: 15px;
+    text-align: center;
+    padding: 0 10px;
+}
+
+.challenge-deadline {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Leaderboard */
+.leaderboard {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin-bottom: 20px;
+}
+
+.leaderboard-row {
+    background-color: var(--light-gray);
+    padding: 10px 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.leaderboard-row.first {
+    background-color: var(--dark-gray);
+}
+
+.rank {
+    width: 40px;
+    font-weight: bold;
+    color: #000;
+}
+
+.user {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.user-avatar {
+    width: 30px;
+    height: 30px;
+    background-color: var(--btn);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.user-avatar i {
+    color: white;
+    font-size: 16px;
+}
+
+.user-name {
+    font-size: 14px;
+    color: #000;
+}
+
+.points {
+    margin-right: 10px;
+    font-weight: bold;
+    color: #000;
+}
+
+.multiplier {
+    width: 50px;
+    text-align: right;
+    font-weight: bold;
+    color: #000;
+}
+
+/* See all button */
+.see-all {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    margin-bottom: 30px;
+}
+
+.see-all button {
+    background-color: var(--light-gray);
+    color: #3050B3;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        max-width: 600px;
+    }
+}
