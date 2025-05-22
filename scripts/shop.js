@@ -60,16 +60,37 @@ function confirmPurchase(name, price) {
 
 
 // Handle purchase
-function buyItem(name, price) {
+async function buyItem(name, price) {
     if (balance >= price) {
+        const confirmed = await showConfirmation(`Buy ${name} for $${price}?`);
+        if (!confirmed) return;
+
         balance -= price;
         inventory.push(name);
+        updateInventory();
         updateBalance();
-        showToast(`🎉 You bought ${name} for $${price}!`);
+        showToast(`🎉 You bought a ${name} for $${price}!`);
+
+        // 🔄 Save to database
+        await fetch("/api/shop/buy", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, price })
+        });
     } else {
-        showToast("❌ Not enough balance!", "danger");
+        showToast("❌ Not enough money!", "danger");
     }
 }
+
+// Confirmation popup
+function showConfirmation(message) {
+    return new Promise(resolve => {
+        const confirmed = confirm(message); // Replace with custom modal if needed
+        resolve(confirmed);
+    });
+}
+
 
 // Update balance
 function updateBalance() {

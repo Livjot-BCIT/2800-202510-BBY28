@@ -50,6 +50,16 @@ const { database } = require('./databaseConnection');
 const userCollection = database.db(mongodb_database).collection('users');
 const betCollection = database.db(mongodb_database).collection('bets');
 const commentsCollection = database.db(mongodb_database).collection('comments');
+const spendCollection = database.db(mongodb_database).collection('spendings');
+const shopCollection = database.db(mongodb_database).collection('shop_inventory');
+
+app.use(session({
+	secret: node_session_secret,
+	store: mongoStore, //default is memory store 
+	saveUninitialized: false,
+	resave: true
+}
+));
 
 
 app.set('view engine', 'ejs');
@@ -66,13 +76,6 @@ var mongoStore = MongoStore.create({
 })
 
 // Session creation and validation
-app.use(session({
-	secret: node_session_secret,
-	store: mongoStore, //default is memory store 
-	saveUninitialized: false,
-	resave: true
-}
-));
 
 function isValidSession(req) {
 	if (req.session.authenticated) {
@@ -306,6 +309,16 @@ app.get('/login', (req, res) => {
 	res.render("login", { title: "Login", css: "/styles/auth.css" });
 });
 
+app.get("/api/spendings", async (req, res) => {
+	if (!req.session || !req.session.userId) {
+		return res.status(401).json({ error: "Not logged in" });
+	}
+
+	const data = await spendCollection.find({ userId: req.session.userId }).toArray();
+	res.json(data);
+});
+
+
 app.post('/loggingin', async (req, res) => {
 	var email = req.body.email;
 	var password = req.body.password;
@@ -474,6 +487,44 @@ app.post('/createBet', async (req, res) => {
 		console.error("❌ Failed to create bet:", err);
 		res.status(500).send("Internal server error.");
 	}
+});
+app.post("/api/spend", async (req, res) => {
+	if (!req.session || !req.session.userId) {
+		return res.status(401).json({ error: "Unauthorized" });
+	}
+
+	const { amount, date } = req.body;
+	if (!amount || !date) {
+		return res.status(400).json({ error: "Missing data" });
+	}
+
+	await spendCollection.insertOne({
+		userId: req.session.userId,
+		amount: parseFloat(amount),
+		date: new Date(date)
+	});
+
+	res.json({ success: true });
+});
+app.post("/api/shop/buy", async (req, res) => {
+	if (!req.session || !req.session.userId) {
+		return res.status(401).json({ error: "Not logged in" });
+	}
+
+	const { name, price } = req.body;
+
+	if (!name || !price) {
+		return res.status(400).json({ error: "Missing item info" });
+	}
+
+	await shopCollection.insertOne({
+		userId: req.session.userId,
+		itemName: name,
+		price: parseFloat(price),
+		boughtAt: new Date()
+	});
+
+	res.json({ success: true });
 });
 
 // END Signup authentication
