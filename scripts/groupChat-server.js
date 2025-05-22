@@ -6,21 +6,21 @@ const chatContainer = document.getElementById('chatContainer');
 const chatInput = document.getElementById('chatInput');
 const sendButton = document.getElementById('sendButton');
 
-// Get group ID from page - this will be set by your EJS template
+// Get group ID from page 
 const groupId = document.querySelector('meta[name="group-id"]').getAttribute('content');
 const userId = document.querySelector('meta[name="user-id"]').getAttribute('content');
 
 // Join the group chat room when page loads
 socket.emit('join-group', groupId, userId);
 
-// Append messages to the chat container
+// Attach messages to the chat container
 function appendMessage(message, isOwnMessage = false) {
   const messageElement = document.createElement('div');
   messageElement.className = isOwnMessage ? 'message own-message' : 'message';
   messageElement.textContent = message;
   chatContainer.appendChild(messageElement);
   
-  // Scroll to the bottom of the chat
+  // Scroll 
   chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
@@ -29,18 +29,16 @@ sendButton.addEventListener('click', sendMessage);
 
 // Send message when Enter key is pressed
 chatInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') {
-    sendMessage();
-  }
+  if (e.key === 'Enter') { sendMessage();}
 });
 
 function sendMessage() {
   const message = chatInput.value.trim();
   if (message) {
-    // Emit message to server
+    // Send message to server
     socket.emit('send-chat-message', groupId, message);
     
-    // Add message to our own UI
+    // Add message to UI
     appendMessage(`${message}`, true);
     
     // Clear input
@@ -61,7 +59,7 @@ socket.on('user-disconnected', name => {
   appendMessage(`${name} left the group`, true);
 });
 
-// Load previous messages when joining a group
+// Load past messages when joining a group
 fetch(`/api/group-messages/${groupId}`)
   .then(response => response.json())
   .then(messages => {

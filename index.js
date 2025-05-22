@@ -328,7 +328,6 @@ app.get('/money', (req, res) => {
     res.render("money", {title: "Money", css: "/styles/money.css"});
 });
 
-// Replace the existing leaderboard-match route with this:
 app.get('/leaderboard-match', (req, res) => {
     // Hardcoded match data
     const matchData = {
@@ -349,15 +348,10 @@ app.get('/leaderboard-match', (req, res) => {
             { rank: "9th", name: "ohnoimlast", points: 50, multiplier: "x1" }
         ]
     };
-    
-    res.render('leaderboard_match', {
-        title: "Match Leaderboard", 
-        css: "/styles/leaderboard_match.css",
-        match: matchData
+
+    res.render('leaderboard_match', {title: "Match Leaderboard", css: "/styles/leaderboard_match.css", match: matchData
     });
 });
-
-
 
 /* Financial Advice Route (Gemini 2.0 Flash) */
 app.post("/api/financial-advice", async (req, res) => {
@@ -410,7 +404,7 @@ app.get('/groups', (req, res) => {
 	res.render("groups", { title: "Groups" });
 });
 
-// Group chat route - display a specific group's chat
+// Group chat route 
 app.get('/group/:id', sessionValidation, async (req, res) => {
     try {
         const groupId = req.params.id;
@@ -421,9 +415,6 @@ app.get('/group/:id', sessionValidation, async (req, res) => {
         if (!group) {
             return res.status(404).render("404", { title: "Group Not Found" });
         }
-        
-        // Count members (could be stored in the group document)
-        const memberCount = group.members?.length || 0;
         
         res.render('group_chat', {
             title: group.title,
@@ -442,7 +433,6 @@ app.get('/group/:id', sessionValidation, async (req, res) => {
     }
 });
 
-// API endpoint to fetch previous messages
 app.get('/api/group-messages/:groupId', sessionValidation, async (req, res) => {
     try {
         const groupId = req.params.groupId;
@@ -481,29 +471,8 @@ app.get('/api/group-messages/:groupId', sessionValidation, async (req, res) => {
     }
 });
 
-//make sample data
-const sampleGroups = require('./scripts/sampleGroups.js');
-app.get('/makeGroupData', async (req, res) => {
-	try {
-		const groupCollection = database.db(mongodb_database).collection('groups');
-		const existing = await groupCollection.countDocuments();
-
-		if (existing === 0) {
-			await groupCollection.insertMany(sampleGroups);
-		}
-	} catch (err) {
-		console.error(err);
-	} finally {
-		res.end();
-	}
-});
-
-
 app.get('/groupList', (req, res) => {
-	res.render("groupList", {
-		title: "Groups",
-		css: "/styles/groupList.css"
-	});
+	res.render("groupList", { title: "Groups", css: "/styles/groupList.css" });
 });
 
 // API route to get all groups
@@ -517,7 +486,6 @@ app.get('/api/groups', async (req, res) => {
                 _id: group._id,
                 title: group.title,
                 description: group.description,
-                memberCount: group.members ? group.members.length : 0,
                 category: group.category || 'Uncategorized'
             };
         });
@@ -532,7 +500,7 @@ app.get('/api/groups', async (req, res) => {
 app.get('/userprofile', (req, res) => {
 	res.render("userprofile", { title: "Profile", css: "/styles/userprofile.css" });
 });
-// END Pages on navbar
+
 
 // Login/logout authentication
 app.get('/login', (req, res) => {
