@@ -9,13 +9,16 @@ section within your own page css file, thank you! */
   --active-bg: #5B566C; 
 }
 
+/* --------------------- */
 /* Mobile Bottom Navigation */
+/* --------------------- */
+
 .bottom-navbar {
   position: fixed; 
   bottom: 0; 
   left: 0; 
   width: 100%; 
-  max-width: 393px; 
+  max-width: 100%; 
   background: var(--container); 
   padding: 10px 0; 
   display: grid; 
@@ -81,9 +84,11 @@ section within your own page css file, thank you! */
   hue-rotate(10deg) brightness(130%) contrast(100%); /* applies a stronger color change when hovering */
 }
 
-/* Desktop Nav Section */
+/* --------------------- */
+/* Desktop Navigation */
+/* --------------------- */
+
 .desktop-nav {
-  display: none;
   position: fixed;
   top: 20px;
   right: 20px;
@@ -173,7 +178,10 @@ section within your own page css file, thank you! */
   font-weight: 500;
 }
 
+/* --------------------- */
 /* Responsive styles */
+/* --------------------- */
+
 @media (max-width: 768px) {
   .desktop-nav {
     display: none;

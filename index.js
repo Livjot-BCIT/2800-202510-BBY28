@@ -57,6 +57,103 @@ const ai = new GoogleGenerativeAI({
 	apiKey: gemini_api_key
 });
 
+
+/* Initialize Server for group chat */
+const http = require('http');
+const socketIo = require('socket.io');
+const server = http.createServer(app);
+const io = socketIo(server);
+
+// Initialize rooms collection to store chat data
+const rooms = {};
+
+// Socket.IO connection handling
+io.on('connection', socket => {
+  /* Join a room (group) */
+  socket.on('join-group', (groupId, userId) => {
+    /* Initialize room if it doesn't exist */
+    if (!rooms[groupId]) {
+      rooms[groupId] = { users: {} };
+    }
+    
+    socket.join(groupId);
+    
+    /* Get user info from database and store it */
+    getUserInfo(userId).then(user => {
+      const username = `${user.firstName} ${user.lastName}`;
+      rooms[groupId].users[socket.id] = { 
+        id: userId,
+        name: username
+      };
+      
+      /* Notify others that user has joined */
+      socket.to(groupId).emit('user-connected', username);
+    });
+  });
+  
+  /* Handle chat messages */
+  socket.on('send-chat-message', (groupId, message) => {
+    const room = rooms[groupId];
+    if (room && room.users[socket.id]) {
+      socket.to(groupId).emit('chat-message', { 
+        message: message, 
+        name: room.users[socket.id].name 
+      });
+      
+      /* Save message to database */
+      saveMessageToDb(groupId, room.users[socket.id].id, message);
+    }
+  });
+  
+  // Handle disconnection
+  socket.on('disconnect', () => {
+    // Find all rooms the user was in
+    getUserRooms(socket).forEach(groupId => {
+      const username = rooms[groupId].users[socket.id]?.name;
+      if (username) {
+        socket.to(groupId).emit('user-disconnected', username);
+        delete rooms[groupId].users[socket.id];
+      }
+    });
+  });
+});
+
+/* Helper function to get rooms a user is in */
+function getUserRooms(socket) {
+  return Object.entries(rooms).reduce((groups, [groupId, room]) => {
+    if (room.users[socket.id] != null) groups.push(groupId);
+    return groups;
+  }, []);
+}
+
+// Helper function to get user info from the database
+async function getUserInfo(userId) {
+  try {
+    return await userCollection.findOne({ _id: new ObjectId(userId) });
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    return { firstName: "Anonymous", lastName: "User" };
+  }
+}
+
+// Helper function to save messages to database
+async function saveMessageToDb(groupId, userId, message) {
+  try {
+    const messageCollection = database.db(mongodb_database).collection('groupMessages');
+    await messageCollection.insertOne({
+      groupId: groupId,
+      userId: userId,
+      message: message,
+      timestamp: new Date()
+    });
+  } catch (error) {
+    console.error("Error saving message:", error);
+  }
+}
+
+
+// END Initialize Server for group chat
+
 app.use(express.json());
 
 // check if Gemini API key is loadedd
@@ -66,6 +163,7 @@ const { database } = require('./databaseConnection');
 
 const userCollection = database.db(mongodb_database).collection('users');
 const betCollection = database.db(mongodb_database).collection('bets');
+const groupCollection = database.db(mongodb_database).collection('groups');
 
 app.set('view engine', 'ejs');
 
@@ -242,8 +340,12 @@ app.get('/createBet', (req, res) => {
 	res.render("createBet", { title: "Create a Bet", css: "/styles/createPost.css" });
 });
 
+app.get('/match-history', (req, res) => {
+    res.render('match_history', { title: "Bets", css: "/styles/match_history.css" });
+});
+
 app.get('/money', (req, res) => {
-	res.render("money", { title: "Money", css: "/styles/money.css" });
+    res.render("money", {title: "Money", css: "/styles/money.css"});
 });
 
 /* Financial Advice Route (Gemini 2.0 Flash) */
@@ -294,13 +396,131 @@ app.post("/api/financial-advice", async (req, res) => {
 });
 
 app.get('/groups', (req, res) => {
-	res.render("groups", {
-		title: "Groups",
-		css: "/styles/groups.css"
-	});
+	res.render("groups", { title: "Groups", css: "/styles/groups.css" });
 });
 
-const groupCollection = database.db(mongodb_database).collection('groups');
+app.get('/group/:id', (req, res) => {
+    res.render("group_chat", { title: "Group Chat", css: "/styles/group_chat.css" });
+});
+
+/* Commented out to avoid duplicate route, useful for future DB
+// Group chat route 
+app.get('/group/:id', sessionValidation, async (req, res) => {
+    try {
+        const groupId = req.params.id;
+        
+        // Fetch group details from database
+        const group = await groupCollection.findOne({ _id: new ObjectId(groupId) });
+        
+        if (!group) {
+            return res.status(404).render("404", { title: "Group Not Found" });
+        }
+        
+        res.render('group_chat', {
+            title: group.title,
+            css: "/styles/group_chat.css",
+            group: {
+                _id: group._id.toString(),
+                title: group.title,
+                description: group.description || "No description available",
+                memberCount: memberCount
+            },
+            userId: req.session.userId
+        });
+    } catch (err) {
+        console.error("Error loading group:", err);
+        res.status(500).send("Error loading group");
+    }
+});
+
+app.get('/api/group-messages/:groupId', sessionValidation, async (req, res) => {
+    try {
+        const groupId = req.params.groupId;
+        const messageCollection = database.db(mongodb_database).collection('groupMessages');
+        
+        // Get messages for this group, sorted by timestamp
+        const messages = await messageCollection.find({ groupId: groupId })
+            .sort({ timestamp: 1 })
+            .limit(50) // Limit to last 50 messages
+            .toArray();
+            
+        // Fetch user details for each message
+        const messagesWithUserNames = await Promise.all(messages.map(async msg => {
+            let userName = "Unknown User";
+            try {
+                const user = await userCollection.findOne({ _id: new ObjectId(msg.userId) });
+                if (user) {
+                    userName = `${user.firstName} ${user.lastName}`;
+                }
+            } catch (e) {
+                console.error("Error getting username:", e);
+            }
+            
+            return {
+                userId: msg.userId,
+                userName: userName,
+                message: msg.message,
+                timestamp: msg.timestamp
+            };
+        }));
+        
+        res.json(messagesWithUserNames);
+    } catch (err) {
+        console.error("Error loading messages:", err);
+        res.status(500).json({ error: "Failed to load messages" });
+    }
+});
+*/
+
+/* Commented out to avoid duplicate route, useful for future DB
+// API route to get all groups
+app.get('/api/groups', async (req, res) => {
+    try {
+        const groups = await groupCollection.find({}).toArray();
+        
+        // Format the groups for the frontend
+        const formattedGroups = groups.map(group => {
+            return {
+                _id: group._id,
+                title: group.title,
+                description: group.description,
+                category: group.category || 'Uncategorized'
+            };
+        });
+        
+        res.json(formattedGroups);
+    } catch (err) {
+        console.error("Error fetching groups:", err);
+        res.status(500).json({ error: "Failed to load groups" });
+    }
+});
+*/
+
+/* Commented out to avoid duplicate route, useful for future DB
+app.post('/api/createGroup', upload.single('groupImage'), async (req, res) => {
+	try {
+		const { groupName, groupDescription, groupType } = req.body;
+		const imagePath = req.file ? '/images/uploads/' + req.file.filename : '/images/example.jpg';
+
+		await groupCollection.insertOne({
+			name: groupName,
+			description: groupDescription,
+			type: groupType,
+			image: imagePath,
+			memberCount: 0
+		});
+
+		res.sendStatus(200);
+	} catch (err) {
+		console.error('Error creating group:', err);
+		res.status(500).send('Failed to create group.');
+	}
+});
+*/
+
+/* commented out to avoid duplicate route, useful for future DB
+const groupMembersCollection = database.db(mongodb_database).collection('groupMembers');
+*/
 
 app.get('/api/groups', async (req, res) => {
 	const page = parseInt(req.query.page) || 1;
@@ -359,6 +579,49 @@ app.post('/api/createGroup', upload.single('groupImage'), async (req, res) => {
 });
 
 
+/* Commented out to avoid duplicate route, useful for future DB
+app.post('/api/joinGroup', async (req, res) => {
+	try {
+		const userId = req.session.userId;
+		const { groupId } = req.body;
+
+		if (!userId) {
+			return res.status(401).json({ error: 'You must be logged in to join a group.' });
+		}
+
+		if (!groupId) {
+			return res.status(400).json({ error: 'Group ID is required.' });
+		}
+
+		const existing = await groupMembersCollection.findOne({
+			userId: new ObjectId(userId),
+			groupId: new ObjectId(groupId)
+		});
+		if (existing) {
+			return res.status(409).json({ error: 'You already joined this group.' });
+		}
+
+		// insert
+		await groupMembersCollection.insertOne({
+			userId: new ObjectId(userId),
+			groupId: new ObjectId(groupId),
+			joinedAt: new Date()
+		});
+
+		// group member count
+		await groupCollection.updateOne(
+			{ _id: new ObjectId(groupId) },
+			{ $inc: { memberCount: 1 } }
+		);
+
+		res.sendStatus(200);
+	} catch (err) {
+		console.error('Join error:', err);
+		res.status(500).json({ error: 'Failed to join group.' });
+	}
+});
+
+*/
 const groupMembersCollection = database.db(mongodb_database).collection('groupMembers');
 
 app.post('/api/joinGroup', async (req, res) => {
@@ -402,12 +665,10 @@ app.post('/api/joinGroup', async (req, res) => {
 	}
 });
 
-
-
 app.get('/userprofile', (req, res) => {
 	res.render("userprofile", { title: "Profile", css: "/styles/userprofile.css" });
 });
-// END Pages on navbar
+
 
 // Login/logout authentication
 app.get('/login', (req, res) => {
@@ -531,6 +792,43 @@ app.post('/createBet', async (req, res) => {
 // END Signup authentication
 // END Rendering pages
 
+
+// Database initialization route
+app.get('/setup-database', async (req, res) => {
+    try {
+        // Create/ensure collections exist
+        const collections = ['users', 'bets', 'groups', 'groupMessages'];
+        const db = database.db(mongodb_database);
+        
+        // Get list of existing collections
+        const existingCollections = await db.listCollections().toArray();
+        const existingNames = existingCollections.map(c => c.name);
+        
+        // Create collections that don't exist
+        for (const collection of collections) {
+            if (!existingNames.includes(collection)) {
+                await db.createCollection(collection);
+                console.log(`Created collection: ${collection}`);
+            }
+        }
+        
+        // Initialize sample data if collections are empty
+        const groupCollection = db.collection('groups');
+        const groupCount = await groupCollection.countDocuments();
+        
+        if (groupCount === 0) {
+            const sampleGroups = require('./scripts/sampleGroups.js');
+            await groupCollection.insertMany(sampleGroups);
+            console.log('Sample group data created');
+        }
+        
+        res.send('Database setup complete. Collections created and initialized.');
+    } catch (error) {
+        console.error('Database setup error:', error);
+        res.status(500).send('Error setting up database: ' + error.message);
+    }
+});
+
 // 404 Page
 app.get(/(.*)/, (req, res, next) => {
 	res.status(404);
@@ -538,6 +836,7 @@ app.get(/(.*)/, (req, res, next) => {
 	next();
 });
 
-app.listen(port, () => {
-	console.log("Node application listening on port " + port);
+// Server.listen for the socket.io connection
+server.listen(port, () => {
+  console.log("Node application listening on port " + port);
 });

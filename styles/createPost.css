@@ -17,7 +17,7 @@ html {
 }
 
 /* MOBILE STYLES*/
-@media (max-width: 25rem) {
+@media (max-width: 768px) {
     body {
         max-width: 25rem;
         min-height: 100vh;

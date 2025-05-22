@@ -1,0 +1,45 @@
+<%- include("templates/header") %>
+
+<div class="container">
+    <!-- Back Button -->
+    <div class="back-button">
+        <button class="back-btn" onclick="history.back()">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="challenge-date"><%= match.date %></div>
+    </div>
+
+    <!-- Challenge Header -->
+    <div class="challenge-header">
+        <h2 class="challenge-type">CHALLENGE <span class="challenge-author">From <%= match.creator %></span></h2>
+        <h1 class="challenge-title"><%= match.title %></h1>
+        <p class="challenge-description">
+            <%= match.description %>
+        </p>
+        <p class="challenge-deadline">Closes in <%= match.timeRemaining %>...</p>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="leaderboard">
+        <% match.participants.forEach((participant, index) => { %>
+            <div class="leaderboard-row <%= index === 0 ? 'first' : '' %>">
+                <div class="rank"><%= participant.rank %></div>
+                <div class="user">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-name"><%= participant.name %></div>
+                </div>
+                <div class="points">+<%= participant.points %> PP</div>
+                <div class="multiplier"><%= participant.multiplier %></div>
+            </div>
+        <% }); %>
+    </div>
+
+    <!-- See all button -->
+    <div class="see-all">
+        <button>See all</button>
+    </div>
+</div>
+
+<%- include("templates/navbar") %>

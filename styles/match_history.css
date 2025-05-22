@@ -1,0 +1,169 @@
+:root {
+    --bg: #676279;
+    --container: #2B2738;
+    --btn: #6F55B6;
+    --txt: #FEFCFF;
+    --active-bg: #5B566C;
+    --ongoing: #FFA500;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--txt);
+}
+
+.container {
+    max-width: 393px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Profile Section */
+.profile-section {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.profile-image {
+    position: relative;
+}
+
+
+.edit-button {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: white;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.edit-button i {
+    color: #000;
+    font-size: 14px;
+}
+
+/* History Header */
+.history-header {
+    background-color: #DADADA;
+    padding: 15px;
+    text-align: center;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.history-header h1 {
+    color: #000;
+    font-size: 20px;
+    font-weight: bold;
+    margin: 0;
+}
+
+/* Bet History */
+.bet-history {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.bet-item {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 15px 0;
+}
+
+.bet-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bet-description {
+    font-size: 16px;
+    max-width: 60%;
+}
+
+.bet-status {
+    text-align: right;
+}
+
+.place {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.points {
+    display: block;
+    color: #AAFFAA;
+}
+
+.ongoing {
+    display: block;
+    color: var(--ongoing);
+    font-style: italic;
+}
+
+
+.bet-history {
+    margin-bottom: 80px;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .container {
+        max-width: 100%;
+        padding: 15px;
+    }
+    
+    
+    .avatar-placeholder {
+        width: 50px;
+        height: 50px;
+        border-width: 3px;
+    }
+    
+    .avatar-placeholder::after {
+        width: 66px;
+        height: 33px;
+        border-width: 3px;
+        bottom: -25px;
+        left: -11px;
+    }
+    
+    .edit-button {
+        width: 25px;
+        height: 25px;
+    }
+    
+    .history-header {
+        padding: 12px;
+        margin-bottom: 15px;
+    }
+    
+    .history-header h1 {
+        font-size: 18px;
+    }
+    
+    .bet-item {
+        padding: 12px 0;
+    }
+    
+    .bet-description {
+        font-size: 14px;
+    }
+}
