@@ -1,54 +1,48 @@
-// Fetch and Render Bets
-async function fetchBets() {
-    try {
-        const response = await fetch('/posts');
-        if (!response.ok) throw new Error("Failed to load bets");
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll('.post-card').forEach(card => {
+        const betId = card.getAttribute("data-id");
 
-        const bets = await response.json();
-        renderBets(bets);
-    } catch (error) {
-        console.error("Error loading bets:", error);
-    }
-}
+        // 🏁 Accept Challenge
+        const acceptBtn = card.querySelector(".accept-btn");
+        acceptBtn.addEventListener("click", async (e) => {
+            e.stopPropagation(); // prevent triggering card click
+            try {
+                const res = await fetch(`/posts/${betId}/accept`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" }
+                });
+                const updated = await res.json();
+                acceptBtn.textContent = "✅ Accepted";
+                acceptBtn.disabled = true;
 
-// Render Bets to the Feed
-function renderBets(bets) {
-    const feed = document.getElementById('feed');
-    feed.innerHTML = '';
+                const meta = card.querySelector(".post-meta");
+                if (meta) {
+                    meta.innerHTML = `${updated.duration} • ${updated.betType} • ${updated.participants.length} joined`;
+                }
+            } catch (err) {
+                console.error("Error accepting challenge:", err);
+            }
+        });
 
-    bets.forEach(bet => {
-        const betCard = document.createElement('div');
-        betCard.className = 'bet-card';
-        betCard.innerHTML = `
-            <h3>${bet.betTitle || "Untitled Challenge"}</h3>
-            <p>${bet.description || "No description provided."}</p>
-            <span>Type: ${bet.betType || "Unknown"}</span><br>
-            <span>Duration: ${bet.duration || "Unknown"}</span><br>
-            <span>Participants: ${bet.participants || "0"}</span><br>
-            <span>Private: ${bet.privateBet ? "Yes" : "No"}</span>
-        `;
-        feed.appendChild(betCard);
+        // 📌 Click to expand/collapse details
+        card.addEventListener("click", async (e) => {
+            if (e.target.closest("button")) return; // don't collapse on button clicks
+
+            const extra = card.querySelector(".post-extra");
+            const isVisible = extra.style.display === "block";
+            extra.style.display = isVisible ? "none" : "block";
+        });
     });
+});
+// Live search filter
+const searchInput = document.getElementById("search");
+searchInput.addEventListener("input", () => {
+    const keyword = searchInput.value.toLowerCase();
+    const cards = document.querySelectorAll(".post-card");
 
-    // Update totals
-    document.getElementById("totalChallenges").textContent = `${bets.length} challenges`;
-    const totalVotes = bets.reduce((acc, bet) => acc + (bet.participants || 0), 0);
-    document.getElementById("totalVotes").textContent = `${totalVotes} total votes`;
-}
-
-// Load Bets on Page Load
-fetchBets();
-
-document.addEventListener('DOMContentLoaded', function() {
-  document.querySelectorAll('.view-bet-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      document.getElementById('betModalLabel').textContent = btn.getAttribute('data-title');
-      document.getElementById('betDescription').textContent = btn.getAttribute('data-description');
-      document.getElementById('betType').textContent = btn.getAttribute('data-type');
-      document.getElementById('betDuration').textContent = btn.getAttribute('data-duration');
-      document.getElementById('betParticipants').textContent = btn.getAttribute('data-participants');
-      var modal = new bootstrap.Modal(document.getElementById('betModal'));
-      modal.show();
+    cards.forEach(card => {
+        const title = card.querySelector(".post-header strong")?.textContent.toLowerCase() || "";
+        const match = title.includes(keyword);
+        card.style.display = match ? "block" : "none";
     });
-  });
 });

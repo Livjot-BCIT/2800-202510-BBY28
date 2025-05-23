@@ -1,20 +1,14 @@
-/* Base Styles */
 body {
     font-family: 'Segoe UI', sans-serif;
     background-color: #f8f0ff;
     color: #4c1d95;
-    margin: 0;
-    padding: 20px;
 }
 
-/* Shop Container */
 .shop-container {
     background-color: #ffffff;
     padding: 30px;
     border-radius: 16px;
-    max-width: 100%;
-    margin: auto;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
 }
 
 h1 {
@@ -23,58 +17,72 @@ h1 {
     margin-bottom: 20px;
 }
 
-.balance {
-    font-size: 20px;
-    margin-bottom: 20px;
-    text-align: center;
+#balance {
     color: #9d4edd;
     font-weight: bold;
 }
 
-.item-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
+/* Toast */
+.toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
 }
 
-.shop-item {
-    flex: 1 1 45%;
-    background-color: #f3e8ff;
-    border-radius: 15px;
-    padding: 15px;
-    text-align: center;
-    transition: background-color 0.3s, transform 0.3s;
+.toast-message {
+    background-color: #7f3dff;
+    color: white;
+    padding: 12px 18px;
+    margin-top: 10px;
+    border-radius: 10px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-.shop-item:hover {
-    background-color: #d8b4fe;
-    transform: scale(1.05);
+.toast-message.show {
+    opacity: 1;
+    transform: translateY(0);
 }
 
-.item-name {
-    font-size: 1.2em;
-    font-weight: bold;
+.toast-message.danger {
+    background-color: #e11d48;
+}
+
+/* Custom Confirm Modal */
+.confirm-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9998;
+}
+
+.confirm-modal {
+    background-color: white;
+    padding: 20px 25px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    max-width: 320px;
+    width: 90%;
     color: #4c1d95;
 }
 
-.item-price {
-    margin: 10px 0;
-    color: #7f3dff;
-    font-weight: bold;
+.confirm-buttons {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
 }
 
-button {
-    background-color: #6a0dad;
-    color: #ffffff;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 8px;
+.confirm-modal button {
     font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-button:hover {
-    background-color: #5a009d;
 }

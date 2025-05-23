@@ -2,15 +2,7 @@
 
     <header class="top-bar">
         <h1>🔥 Bet On Yourself</h1>
-        <select id="regionSelect">
-            <option value="America/Vancouver">British Columbia (Pacific Time)</option>
-            <option value="America/Edmonton">Alberta (Mountain Time)</option>
-            <option value="America/Regina">Saskatchewan (Central Time - No DST)</option>
-            <option value="America/Winnipeg">Manitoba (Central Time)</option>
-            <option value="America/Toronto">Ontario (Eastern Time)</option>
-            <option value="America/Halifax">Nova Scotia (Atlantic Time)</option>
-            <option value="America/St_Johns">Newfoundland (Newfoundland Time)</option>
-        </select>
+
         <input type="text" id="search" placeholder="Search challenges..." />
 
         <div class="summary">
@@ -18,7 +10,7 @@
                 <%= bets.length %> challenges
             </span> •
             <span id="totalVotes">
-                <%= bets.reduce((acc, bet)=> acc + (parseInt(bet.participants) || 0), 0) %> total votes
+                <%= bets.reduce((acc, bet)=> acc + (bet.participants?.length || 0), 0) %> total votes
             </span>
         </div>
 
@@ -35,14 +27,9 @@
                         <span>Type: <%= bet.type || "General" %></span><br>
                         <span>Duration: <%= bet.duration || "No duration specified" %></span><br>
                         <span>Participants: <%= bet.participants || "0" %></span>
-                        <button 
-                        class="btn btn-primary view-bet-btn"
-                        data-title="<%= bet.betTitle %>"
-                        data-description="<%= bet.description %>"
-                        data-type="<%= bet.type %>"
-                        data-duration="<%= bet.duration %>"
-                        data-participants="<%= bet.participants %>"
-                        >
+                        <button class="btn btn-primary view-bet-btn" data-title="<%= bet.betTitle %>"
+                            data-description="<%= bet.description %>" data-type="<%= bet.type %>"
+                            data-duration="<%= bet.duration %>" data-participants="<%= bet.participants %>">
                             View Details
                         </button>
                     </div>
@@ -53,19 +40,19 @@
         </div>
 
         <!-- Modal -->
-            <div class="modal fade" id="betModal" tabindex="-1" aria-labelledby="betModalLabel" aria-hidden="true">
+        <div class="modal fade" id="betModal" tabindex="-1" aria-labelledby="betModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="betModalLabel"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p id="betDescription"></p>
-                    <p><strong>Type:</strong> <span id="betType"></span></p>
-                    <p><strong>Duration:</strong> <span id="betDuration"></span></p>
-                    <p><strong>Participants:</strong> <span id="betParticipants"></span></p>
-                </div>
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="betModalLabel"></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="betDescription"></p>
+                        <p><strong>Type:</strong> <span id="betType"></span></p>
+                        <p><strong>Duration:</strong> <span id="betDuration"></span></p>
+                        <p><strong>Participants:</strong> <span id="betParticipants"></span></p>
+                    </div>
                 </div>
             </div>
         </div>

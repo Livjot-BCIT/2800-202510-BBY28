@@ -9,6 +9,8 @@ const MongoStore = require('connect-mongo');
 const bcrypt = require('bcrypt');
 const saltRounds = 12;
 
+
+
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const path = require('path');
 const { fileURLToPath } = require('url');
@@ -69,86 +71,86 @@ const rooms = {};
 
 // Socket.IO connection handling
 io.on('connection', socket => {
-  /* Join a room (group) */
-  socket.on('join-group', (groupId, userId) => {
-    /* Initialize room if it doesn't exist */
-    if (!rooms[groupId]) {
-      rooms[groupId] = { users: {} };
-    }
-    
-    socket.join(groupId);
-    
-    /* Get user info from database and store it */
-    getUserInfo(userId).then(user => {
-      const username = `${user.firstName} ${user.lastName}`;
-      rooms[groupId].users[socket.id] = { 
-        id: userId,
-        name: username
-      };
-      
-      /* Notify others that user has joined */
-      socket.to(groupId).emit('user-connected', username);
-    });
-  });
-  
-  /* Handle chat messages */
-  socket.on('send-chat-message', (groupId, message) => {
-    const room = rooms[groupId];
-    if (room && room.users[socket.id]) {
-      socket.to(groupId).emit('chat-message', { 
-        message: message, 
-        name: room.users[socket.id].name 
-      });
-      
-      /* Save message to database */
-      saveMessageToDb(groupId, room.users[socket.id].id, message);
-    }
-  });
-  
-  // Handle disconnection
-  socket.on('disconnect', () => {
-    // Find all rooms the user was in
-    getUserRooms(socket).forEach(groupId => {
-      const username = rooms[groupId].users[socket.id]?.name;
-      if (username) {
-        socket.to(groupId).emit('user-disconnected', username);
-        delete rooms[groupId].users[socket.id];
-      }
-    });
-  });
+	/* Join a room (group) */
+	socket.on('join-group', (groupId, userId) => {
+		/* Initialize room if it doesn't exist */
+		if (!rooms[groupId]) {
+			rooms[groupId] = { users: {} };
+		}
+
+		socket.join(groupId);
+
+		/* Get user info from database and store it */
+		getUserInfo(userId).then(user => {
+			const username = `${user.firstName} ${user.lastName}`;
+			rooms[groupId].users[socket.id] = {
+				id: userId,
+				name: username
+			};
+
+			/* Notify others that user has joined */
+			socket.to(groupId).emit('user-connected', username);
+		});
+	});
+
+	/* Handle chat messages */
+	socket.on('send-chat-message', (groupId, message) => {
+		const room = rooms[groupId];
+		if (room && room.users[socket.id]) {
+			socket.to(groupId).emit('chat-message', {
+				message: message,
+				name: room.users[socket.id].name
+			});
+
+			/* Save message to database */
+			saveMessageToDb(groupId, room.users[socket.id].id, message);
+		}
+	});
+
+	// Handle disconnection
+	socket.on('disconnect', () => {
+		// Find all rooms the user was in
+		getUserRooms(socket).forEach(groupId => {
+			const username = rooms[groupId].users[socket.id]?.name;
+			if (username) {
+				socket.to(groupId).emit('user-disconnected', username);
+				delete rooms[groupId].users[socket.id];
+			}
+		});
+	});
 });
 
 /* Helper function to get rooms a user is in */
 function getUserRooms(socket) {
-  return Object.entries(rooms).reduce((groups, [groupId, room]) => {
-    if (room.users[socket.id] != null) groups.push(groupId);
-    return groups;
-  }, []);
+	return Object.entries(rooms).reduce((groups, [groupId, room]) => {
+		if (room.users[socket.id] != null) groups.push(groupId);
+		return groups;
+	}, []);
 }
 
 // Helper function to get user info from the database
 async function getUserInfo(userId) {
-  try {
-    return await userCollection.findOne({ _id: new ObjectId(userId) });
-  } catch (error) {
-    console.error("Error fetching user:", error);
-    return { firstName: "Anonymous", lastName: "User" };
-  }
+	try {
+		return await userCollection.findOne({ _id: new ObjectId(userId) });
+	} catch (error) {
+		console.error("Error fetching user:", error);
+		return { firstName: "Anonymous", lastName: "User" };
+	}
 }
 
 // Helper function to save messages to database
 async function saveMessageToDb(groupId, userId, message) {
-  try {
-    const messageCollection = database.db(mongodb_database).collection('groupMessages');
-    await messageCollection.insertOne({
-      groupId: groupId,
-      userId: userId,
-      message: message,
-      timestamp: new Date()
-    });
-  } catch (error) {
-    console.error("Error saving message:", error);
-  }
+	try {
+		const messageCollection = database.db(mongodb_database).collection('groupMessages');
+		await messageCollection.insertOne({
+			groupId: groupId,
+			userId: userId,
+			message: message,
+			timestamp: new Date()
+		});
+	} catch (error) {
+		console.error("Error saving message:", error);
+	}
 }
 
 
@@ -160,10 +162,22 @@ app.use(express.json());
 console.log("Gemini API Key:", process.env.GEMINI_API_KEY ? "Loaded" : "Missing");
 
 const { database } = require('./databaseConnection');
-
+const db = database.db(mongodb_database);
 const userCollection = database.db(mongodb_database).collection('users');
 const betCollection = database.db(mongodb_database).collection('bets');
+const commentsCollection = database.db(mongodb_database).collection('comments');
+const spendCollection = database.db(mongodb_database).collection('spendings');
+const shopCollection = database.db(mongodb_database).collection('shop_inventory');
 const groupCollection = database.db(mongodb_database).collection('groups');
+
+app.use(session({
+	secret: node_session_secret,
+	store: mongoStore, //default is memory store 
+	saveUninitialized: false,
+	resave: true
+}
+));
+
 
 app.set('view engine', 'ejs');
 
@@ -179,13 +193,6 @@ var mongoStore = MongoStore.create({
 })
 
 // Session creation and validation
-app.use(session({
-	secret: node_session_secret,
-	store: mongoStore, //default is memory store 
-	saveUninitialized: false,
-	resave: true
-}
-));
 
 function isValidSession(req) {
 	if (req.session.authenticated) {
@@ -265,13 +272,20 @@ app.get('/', async (req, res) => {
 		res.render("main", {
 			title: "Challenge Feed",
 			css: "/styles/main.css",
-			bets: bets
+			bets: bets,
+			session: req.session
 		});
 	} catch (err) {
 		console.error(err);
 		res.status(500).send("Error loading bets");
 	}
 });
+app.get('/posts/:id/comments', async (req, res) => {
+	const betId = req.params.id;
+	const comments = await commentsCollection.find({ betId }).sort({ timestamp: -1 }).toArray();
+	res.json(comments);
+});
+
 
 app.get('/main', async (req, res) => {
 	try {
@@ -279,7 +293,8 @@ app.get('/main', async (req, res) => {
 		res.render("main", {
 			title: "Challenge Feed",
 			css: "/styles/main.css",
-			bets: bets
+			bets: bets,
+			session: req.session
 		});
 	} catch (err) {
 		console.error(err);
@@ -288,7 +303,7 @@ app.get('/main', async (req, res) => {
 });
 
 app.get('/shop', (req, res) => {
-	res.render("shop", { title: "In-Game Shop", css: "/styles/shop.css" });
+	res.render("shop", { title: "Shop", css: "/styles/shop.css" });
 });
 
 const { ObjectId } = require('mongodb');
@@ -341,11 +356,11 @@ app.get('/createBet', (req, res) => {
 });
 
 app.get('/match-history', (req, res) => {
-    res.render('match_history', { title: "Bets", css: "/styles/match_history.css" });
+	res.render('match_history', { title: "Bets", css: "/styles/match_history.css" });
 });
 
 app.get('/money', (req, res) => {
-    res.render("money", {title: "Money", css: "/styles/money.css"});
+	res.render("money", { title: "Money", css: "/styles/money.css" });
 });
 
 /* Financial Advice Route (Gemini 2.0 Flash) */
@@ -395,82 +410,84 @@ app.post("/api/financial-advice", async (req, res) => {
 	}
 });
 
+
+/* Commented out to avoid duplicate route, useful for future DB
+// Group chat route 
+app.get('/group/:id', sessionValidation, async (req, res) => {
+	try {
+		const groupId = req.params.id;
+	    
+		// Fetch group details from database
+		const group = await groupCollection.findOne({ _id: new ObjectId(groupId) });
+	    
+		if (!group) {
+			return res.status(404).render("404", { title: "Group Not Found" });
+		}
+	    
+		res.render('group_chat', {
+			title: group.title,
+			css: "/styles/group_chat.css",
+			group: {
+				_id: group._id.toString(),
+				title: group.title,
+				description: group.description || "No description available",
+				memberCount: memberCount
+			},
+			userId: req.session.userId
+		});
+	} catch (err) {
+		console.error("Error loading group:", err);
+		res.status(500).send("Error loading group");
+	}
+});
+
+app.get('/api/group-messages/:groupId', sessionValidation, async (req, res) => {
+	try {
+		const groupId = req.params.groupId;
+		const messageCollection = database.db(mongodb_database).collection('groupMessages');
+	    
+		// Get messages for this group, sorted by timestamp
+		const messages = await messageCollection.find({ groupId: groupId })
+			.sort({ timestamp: 1 })
+			.limit(50) // Limit to last 50 messages
+			.toArray();
+		    
+		// Fetch user details for each message
+		const messagesWithUserNames = await Promise.all(messages.map(async msg => {
+			let userName = "Unknown User";
+			try {
+				const user = await userCollection.findOne({ _id: new ObjectId(msg.userId) });
+				if (user) {
+					userName = `${user.firstName} ${user.lastName}`;
+				}
+			} catch (e) {
+				console.error("Error getting username:", e);
+			}
+		    
+			return {
+				userId: msg.userId,
+				userName: userName,
+				message: msg.message,
+				timestamp: msg.timestamp
+			};
+		}));
+	    
+		res.json(messagesWithUserNames);
+	} catch (err) {
+		console.error("Error loading messages:", err);
+		res.status(500).json({ error: "Failed to load messages" });
+	}
+});
+*/
+
 app.get('/groups', (req, res) => {
 	res.render("groups", { title: "Groups", css: "/styles/groups.css" });
 });
 
 app.get('/group/:id', (req, res) => {
-    res.render("group_chat", { title: "Group Chat", css: "/styles/group_chat.css" });
+	res.render("group_chat", { title: "Group Chat", css: "/styles/group_chat.css" });
 });
 
-/* Commented out to avoid duplicate route, useful for future DB
-// Group chat route 
-app.get('/group/:id', sessionValidation, async (req, res) => {
-    try {
-        const groupId = req.params.id;
-        
-        // Fetch group details from database
-        const group = await groupCollection.findOne({ _id: new ObjectId(groupId) });
-        
-        if (!group) {
-            return res.status(404).render("404", { title: "Group Not Found" });
-        }
-        
-        res.render('group_chat', {
-            title: group.title,
-            css: "/styles/group_chat.css",
-            group: {
-                _id: group._id.toString(),
-                title: group.title,
-                description: group.description || "No description available",
-                memberCount: memberCount
-            },
-            userId: req.session.userId
-        });
-    } catch (err) {
-        console.error("Error loading group:", err);
-        res.status(500).send("Error loading group");
-    }
-});
-
-app.get('/api/group-messages/:groupId', sessionValidation, async (req, res) => {
-    try {
-        const groupId = req.params.groupId;
-        const messageCollection = database.db(mongodb_database).collection('groupMessages');
-        
-        // Get messages for this group, sorted by timestamp
-        const messages = await messageCollection.find({ groupId: groupId })
-            .sort({ timestamp: 1 })
-            .limit(50) // Limit to last 50 messages
-            .toArray();
-            
-        // Fetch user details for each message
-        const messagesWithUserNames = await Promise.all(messages.map(async msg => {
-            let userName = "Unknown User";
-            try {
-                const user = await userCollection.findOne({ _id: new ObjectId(msg.userId) });
-                if (user) {
-                    userName = `${user.firstName} ${user.lastName}`;
-                }
-            } catch (e) {
-                console.error("Error getting username:", e);
-            }
-            
-            return {
-                userId: msg.userId,
-                userName: userName,
-                message: msg.message,
-                timestamp: msg.timestamp
-            };
-        }));
-        
-        res.json(messagesWithUserNames);
-    } catch (err) {
-        console.error("Error loading messages:", err);
-        res.status(500).json({ error: "Failed to load messages" });
-    }
-});
-*/
 
 app.get('/api/groups', async (req, res) => {
 	const page = parseInt(req.query.page) || 1;
@@ -587,6 +604,16 @@ app.get('/login', (req, res) => {
 	res.render("login", { title: "Login", css: "/styles/auth.css" });
 });
 
+app.get("/api/spendings", async (req, res) => {
+	if (!req.session || !req.session.userId) {
+		return res.status(401).json({ error: "Not logged in" });
+	}
+
+	const data = await spendCollection.find({ userId: req.session.userId }).toArray();
+	res.json(data);
+});
+
+
 app.post('/loggingin', async (req, res) => {
 	var email = req.body.email;
 	var password = req.body.password;
@@ -623,6 +650,23 @@ app.post('/loggingin', async (req, res) => {
 		return;
 	}
 });
+app.post('/posts/:id/comments', async (req, res) => {
+	if (!req.session.authenticated) return res.status(401).json({ error: "Login required" });
+
+	const betId = req.params.id;
+	const { text } = req.body;
+	const comment = {
+		betId,
+		text,
+		timestamp: new Date(),
+		userId: req.session.userId,
+		username: req.session.email  // or use name if available
+	};
+
+	await commentsCollection.insertOne(comment);
+	res.json({ success: true });
+});
+
 
 app.use('/loggedin', sessionValidation);
 
@@ -635,6 +679,39 @@ app.get('/logout', (req, res) => {
 // Signup authentication
 app.get('/signup', (req, res) => {
 	res.render("signup", { title: "Signup", css: "/styles/auth.css" });
+});
+
+// Accept challenge route
+app.post('/posts/:id/accept', async (req, res) => {
+	const betId = req.params.id;
+	const userId = req.session.userId;
+
+	if (!userId) {
+		return res.status(401).json({ error: "You must be logged in to accept a challenge." });
+	}
+
+	try {
+		const bet = await betCollection.findOne({ _id: new ObjectId(betId) });
+		if (!bet) {
+			return res.status(404).json({ error: "Bet not found" });
+		}
+
+		// Avoid duplicate participants
+		if (!bet.participants || !bet.participants.includes(userId.toString())) {
+			await betCollection.updateOne(
+				{ _id: new ObjectId(betId) },
+				{ $push: { participants: userId.toString() } }
+			);
+		}
+
+		// Return the updated bet
+		const updatedBet = await betCollection.findOne({ _id: new ObjectId(betId) });
+		res.json(updatedBet);
+
+	} catch (error) {
+		console.error("Error accepting challenge:", error);
+		res.status(500).json({ error: "Internal Server Error" });
+	}
 });
 
 app.post('/createUser', async (req, res) => {
@@ -701,38 +778,37 @@ app.post('/createBet', async (req, res) => {
 
 // Database initialization route
 app.get('/setup-database', async (req, res) => {
-    try {
-        // Create/ensure collections exist
-        const collections = ['users', 'bets', 'groups', 'groupMessages'];
-        const db = database.db(mongodb_database);
-        
-        // Get list of existing collections
-        const existingCollections = await db.listCollections().toArray();
-        const existingNames = existingCollections.map(c => c.name);
-        
-        // Create collections that don't exist
-        for (const collection of collections) {
-            if (!existingNames.includes(collection)) {
-                await db.createCollection(collection);
-                console.log(`Created collection: ${collection}`);
-            }
-        }
-        
-        // Initialize sample data if collections are empty
-        const groupCollection = db.collection('groups');
-        const groupCount = await groupCollection.countDocuments();
-        
-        if (groupCount === 0) {
-            const sampleGroups = require('./scripts/sampleGroups.js');
-            await groupCollection.insertMany(sampleGroups);
-            console.log('Sample group data created');
-        }
-        
-        res.send('Database setup complete. Collections created and initialized.');
-    } catch (error) {
-        console.error('Database setup error:', error);
-        res.status(500).send('Error setting up database: ' + error.message);
-    }
+	try {
+		// Create/ensure collections exist
+		const collections = ['users', 'bets', 'groups', 'groupMessages'];
+
+
+		// Get list of existing collections
+		const existingCollections = await db.listCollections().toArray();
+		const existingNames = existingCollections.map(c => c.name);
+
+		// Create collections that don't exist
+		for (const collection of collections) {
+			if (!existingNames.includes(collection)) {
+				await db.createCollection(collection);
+				console.log(`Created collection: ${collection}`);
+			}
+		}
+
+		// Initialize sample data if collections are empty
+		const groupCount = await groupCollection.countDocuments();
+
+		if (groupCount === 0) {
+			const sampleGroups = require('./scripts/sampleGroups.js');
+			await groupCollection.insertMany(sampleGroups);
+			console.log('Sample group data created');
+		}
+
+		res.send('Database setup complete. Collections created and initialized.');
+	} catch (error) {
+		console.error('Database setup error:', error);
+		res.status(500).send('Error setting up database: ' + error.message);
+	}
 });
 
 // 404 Page
@@ -744,5 +820,5 @@ app.get(/(.*)/, (req, res, next) => {
 
 // Server.listen for the socket.io connection
 server.listen(port, () => {
-  console.log("Node application listening on port " + port);
+	console.log("Node application listening on port " + port);
 });

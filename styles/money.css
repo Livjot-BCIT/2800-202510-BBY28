@@ -206,3 +206,45 @@ tfoot th {
     line-height: 1.6;
     word-wrap: break-word;
 }
+
+@media screen and (max-width: 576px) {
+
+    h1,
+    h3,
+    h4 {
+        font-size: 1.25rem;
+        text-align: center;
+    }
+
+    .plan-options label {
+        font-size: 0.95rem;
+    }
+
+    .chart-container canvas {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+
+    h4,
+    h3 {
+        font-size: 1.2rem;
+        text-align: center;
+    }
+
+    .chart-container canvas {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .form-label {
+        font-size: 0.95rem;
+    }
+
+    .form-control,
+    .form-select,
+    button {
+        font-size: 1rem;
+    }
+}

@@ -10,32 +10,38 @@ async function seedDatabase() {
         const db = client.db(process.env.MONGODB_DATABASE);
         const betsCollection = db.collection("bets");
 
-        // Sample bets
+        // Sample bets using your actual structure
         const sampleBets = [
             {
-                title: "Chess Challenge",
+                betTitle: "Chess Challenge",
                 duration: "1 week",
-                participants: 2,
-                type: "mental",
-                description: "Get 200 more ELO"
+                participants: [],
+                betType: "Mental",
+                description: "Reach +200 ELO in blitz chess",
+                privateBet: false,
+                createdAt: new Date()
             },
             {
-                title: "Marathon Madness",
+                betTitle: "Marathon Madness",
                 duration: "2 weeks",
-                participants: 10,
-                type: "physical",
-                description: "Run 50 kilometers in two weeks"
+                participants: [],
+                betType: "Physical",
+                description: "Run a total of 50km in two weeks",
+                privateBet: false,
+                createdAt: new Date()
             },
             {
-                title: "No Sugar Challenge",
+                betTitle: "No Sugar Challenge",
                 duration: "1 month",
-                participants: 5,
-                type: "diet",
-                description: "Avoid all sugary foods for one month"
+                participants: [],
+                betType: "Social",
+                description: "Avoid all sugary snacks for 30 days",
+                privateBet: true,
+                createdAt: new Date()
             }
         ];
 
-        // Insert sample bets
+        await betsCollection.deleteMany({}); // Optional: Clear existing for fresh seed
         await betsCollection.insertMany(sampleBets);
         console.log("✅ Sample bets inserted successfully");
     } catch (error) {
