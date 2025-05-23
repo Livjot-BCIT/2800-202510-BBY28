@@ -1,89 +1,142 @@
+/* ───── Variables ───── */
+:root {
+  --bg-light:    #f2f4f8;
+  --card-bg:     #ffffff;
+  --border:      #e2e8f0;
+  --shadow:      rgba(0, 0, 0, 0.05);
+  --primary:     #805ad5;
+  --accent:      #d53f8c;
+  --text-dark:   #1a202c;
+  --text-muted:  #718096;
+  --radius:      12px;
+  --spacing:     1rem;
+  --transition:  0.2s ease;
+}
+
+/* ───── Global ───── */
 body {
-    background-color: #f2f4f8;
-    font-family: 'Segoe UI', sans-serif;
-    padding: 1.5rem;
+  background: var(--bg-light);
+  font-family: 'Segoe UI', sans-serif;
+  color: var(--text-dark);
+  padding: calc(var(--spacing) * 1.5);
 }
 
 h3 {
-    font-weight: 600;
-    margin-bottom: 1.5rem;
+  font-weight: 600;
+  margin-bottom: calc(var(--spacing) * 1.5);
+  color: var(--primary);
+}
+
+/* ───── Filter & Search ───── */
+#filterSelect,
+.search-container input {
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto var(--spacing);
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  box-shadow: 0 2px 6px var(--shadow);
+  color: var(--text-dark);
 }
 
 .search-container {
-    position: relative;
-    max-width: 500px;
-    margin-bottom: 2rem;
-}
-
-.search-container input {
-    width: 100%;
-    padding: 0.75rem 3rem 0.75rem 1rem;
-    border-radius: 12px;
-    border: 1px solid #ccc;
-    background-color: white;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    font-size: 1rem;
+  position: relative;
+  max-width: 500px;
+  margin: 0 auto var(--spacing);
 }
 
 .search-container img {
-    position: absolute;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
-    pointer-events: none;
-    opacity: 0.7;
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  opacity: 0.6;
+  pointer-events: none;
 }
 
+/* ───── Bet / Group Cards ───── */
+.bet-rectangle,
 .group-card {
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-    transition: transform 0.2s ease;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 2px 8px var(--shadow);
+  padding: var(--spacing);
+  margin-bottom: calc(var(--spacing) * 1.5);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: transform var(--transition), box-shadow var(--transition);
 }
 
+.bet-rectangle:hover,
 .group-card:hover {
-    transform: translateY(-4px);
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px var(--shadow);
 }
 
+/* If you still have .group-card img.group-img */
 .group-card img.group-img {
-    width: 120px;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 12px;
-    flex-shrink: 0;
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  object-fit: cover;
+  border-radius: var(--radius);
+  margin-bottom: var(--spacing);
 }
 
-.group-content {
-    flex-grow: 1;
-}
-
+/* ───── Text Elements ───── */
+.bet-rectangle .bet-title,
 .group-title {
-    font-weight: 600;
-    font-size: 1.25rem;
-    margin-bottom: 0.25rem;
-    color: #222;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-dark);
 }
 
-.group-description {
-    font-size: 0.95rem;
-    color: #555;
-    margin-bottom: 0.5rem;
-}
-
+.bet-rectangle .bet-owner,
+.bet-rectangle .bet-participants,
+.bet-rectangle .bet-countdown,
+.group-description,
 .group-meta {
-    font-size: 0.85rem;
-    color: #888;
-    margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0;
 }
 
-.view-btn {
-    border-radius: 8px;
-    font-weight: 500;
+.bet-rectangle .countdown {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* ───── Buttons ───── */
+.view-btn,
+.join-button {
+  align-self: start;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--primary);
+  color: #fff;
+  transition: background var(--transition);
+}
+
+.view-btn:hover,
+.join-button:hover {
+  background: darken(var(--primary), 10%);
+}
+
+/* ───── Utility ───── */
+.no-bets {
+  text-align: center;
+  color: var(--text-muted);
+  margin-top: var(--spacing);
 }

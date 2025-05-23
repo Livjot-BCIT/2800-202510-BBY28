@@ -264,6 +264,21 @@ body {
   border-radius: 50%;
 }
 
+/* For cards and modal headers */
+.avatar {
+  border: 2px solid #6F55B6;    /* pick whatever color you like */
+  padding: 2px;                 /* space between image and border */
+  border-radius: 50%;           /* keep it perfectly round */
+}
+
+/* For the member list items */
+.member-avatar {
+  border: 2px solid #6F55B6;
+  padding: 2px;
+  border-radius: 50%;
+}
+
+
 .member-item {
   display: flex;
   align-items: center;

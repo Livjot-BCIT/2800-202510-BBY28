@@ -12,7 +12,9 @@ const betSchema = new mongoose.Schema({
   betType:      { type: String, required: true },
   description:  { type: String },
   privateBet:   { type: Boolean, default: false },
-  createdAt:    { type: Date, default: Date.now }
+  notice:         { type: String, default: '' },
+  createdAt:    { type: Date, default: Date.now },
+  startedAt:   { type: Date }    
 });
 
 module.exports = mongoose.model('Bet', betSchema);

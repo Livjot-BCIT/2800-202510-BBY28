@@ -15,14 +15,14 @@ const User = require("./models/User");
 const Bet = require("./models/Bet");
 const Group = require("./models/Group");
 
-const multer      = require('multer');
-const cloudinary  = require('cloudinary').v2;
-const { Readable } = require('stream');
+const multer = require("multer");
+const cloudinary = require("cloudinary").v2;
+const { Readable } = require("stream");
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key:    process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 // in‑memory storage so we can stream to Cloudinary
@@ -42,7 +42,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 const expireTime = 24 * 60 * 60 * 1000; // 1 day
 
-// Gemini AI init 
+// Gemini AI init
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 // body‑parsing & view engine
@@ -82,14 +82,14 @@ function isValidSession(req) {
 }
 async function sessionValidation(req, res, next) {
   if (!req.session.authenticated || !req.session.userId) {
-    return res.redirect('/login');
+    return res.redirect("/login");
   }
   // Check that the user still exists
   const user = await User.findById(req.session.userId).lean();
   if (!user) {
     // User deleted, clear their session and send them back to signup/login.
     req.session.destroy(() => {
-      res.redirect('/signup');
+      res.redirect("/signup");
     });
     return;
   }
@@ -123,7 +123,7 @@ app.use("/images", express.static(path.join(__dirname, "images")));
 app.get(["/", "/main"], sessionValidation, async (req, res) => {
   let bets = await Bet.find()
     .populate("betPoster", "firstName lastName profilePictureUrl")
-    .populate('participants','firstName lastName profilePictureUrl')
+    .populate("participants", "firstName lastName profilePictureUrl")
     .lean();
   bets.forEach((b) => {
     b.poster = b.betPoster;
@@ -184,7 +184,7 @@ app
       durationUnit,
       betType,
       description,
-      privateBet
+      privateBet,
     } = req.body;
 
     console.log("CreateBet body:", req.body);
@@ -192,15 +192,15 @@ app
     try {
       // Save the bet
       const newBet = await new Bet({
-        betPoster:     req.session.userId,
+        betPoster: req.session.userId,
         betTitle,
         durationValue: Number(durationValue),
         durationUnit,
-        participants:  [req.session.userId],
+        participants: [req.session.userId],
         participantCount: 1,
         betType,
         description,
-        privateBet:    !!privateBet
+        privateBet: !!privateBet,
       }).save();
 
       // Push its _id onto the user's createdBets array
@@ -221,43 +221,61 @@ app
   });
 
 // ─── Join a Bet ─────────────────────────────────────────────────────────────
+app.post("/api/bets/:id/join", sessionValidation, async (req, res) => {
+  try {
+    const betId = req.params.id;
+    const userId = req.session.userId;
+
+    // 1) fetch the bet
+    const bet = await Bet.findById(betId);
+    if (!bet) return res.status(404).json({ error: "Bet not found" });
+
+    // 2) if not already a participant, add them
+    if (!bet.participants.includes(userId)) {
+      bet.participants.push(userId);
+      bet.participantCount = bet.participants.length;
+      await bet.save();
+      // also add to user's participatedBets
+      await User.findByIdAndUpdate(userId, {
+        $addToSet: { participatedBets: betId },
+      });
+    }
+
+    // 3) return updated list of participants
+    const participants = await User.find(
+      { _id: { $in: bet.participants } },
+      "firstName lastName profilePictureUrl"
+    ).lean();
+
+    res.json({ participants });
+  } catch (err) {
+    console.error("❌ /api/bets/:id/jjoin error:", err);
+    res.status(500).json({ error: "Internal error" });
+  }
+});
+
+// ─── Start a Bet ─────────────────────────────────────────────────────────────
 app.post(
-  "/api/bets/:id/join",
+  "/api/bets/:id/start",
   sessionValidation,
   async (req, res) => {
     try {
-      const betId  = req.params.id;
-      const userId = req.session.userId;
-
-      // 1) fetch the bet
-      const bet = await Bet.findById(betId);
+      const bet = await Bet.findById(req.params.id);
       if (!bet) return res.status(404).json({ error: "Bet not found" });
-
-      // 2) if not already a participant, add them
-      if (!bet.participants.includes(userId)) {
-        bet.participants.push(userId);
-        bet.participantCount = bet.participants.length;
-        await bet.save();
-        // also add to user's participatedBets
-        await User.findByIdAndUpdate(userId, {
-          $addToSet: { participatedBets: betId },
-        });
-      }
-
-      // 3) return updated list of participants
-      const participants = await User.find(
-        { _id: { $in: bet.participants } },
-        "firstName lastName profilePictureUrl"
-      ).lean();
-
-      res.json({ participants });
+      // only the creator can start
+      if (bet.betPoster.toString() !== req.session.userId)
+        return res.status(403).json({ error: "Not allowed" });
+      if (bet.startedAt)
+        return res.status(400).json({ error: "Bet already started" });
+      bet.startedAt = new Date();
+      await bet.save();
+      res.json({ startedAt: bet.startedAt });
     } catch (err) {
-      console.error("❌ /api/bets/:id/jjoin error:", err);
+      console.error(err);
       res.status(500).json({ error: "Internal error" });
     }
   }
 );
-
 
 // ─── Money + AI ─────────────────────────────────────────────────────────────
 app.get("/money", sessionValidation, (req, res) => {
@@ -273,26 +291,110 @@ app.post("/api/financial-advice", sessionValidation, async (req, res) => {
   res.json({ advice: response.text(), plan, amount });
 });
 
-// ─── Groups ────────────────────────────────────────────────────────────────
-app.get("/groups", sessionValidation, (req, res) => {
-  res.render("groups", { title: "Groups", css: "/styles/groupList.css" });
-});
-app.get("/makeGroupData", async (req, res) => {
-  if ((await Group.countDocuments()) === 0) {
-    const sample = require("./scripts/sampleGroups");
-    await Group.insertMany(sample);
+// ─── My Bets (Groups) Page ───────────────────────────────────────────────────
+app.get("/groups", sessionValidation, async (req, res, next) => {
+  try {
+    const user = await User.findById(req.session.userId)
+      .populate({
+        path: "participatedBets",
+        populate: { path: "betPoster", select: "firstName lastName" },
+      })
+      .populate({
+        path: "createdBets",
+        populate: { path: "betPoster", select: "firstName lastName" },
+      })
+      .lean();
+
+    res.render("groups", {
+      title: "My Bets",
+      css: "/styles/groupList.css",
+      currentUser: user,
+    });
+  } catch (err) {
+    next(err);
   }
-  res.end();
 });
-app.get("/api/groups", sessionValidation, async (req, res) => {
-  const page = +req.query.page || 1,
-    limit = 6;
-  const groups = await Group.find()
-    .skip((page - 1) * limit)
-    .limit(limit)
-    .lean();
-  res.json(groups);
-});
+
+// ─── Bet Leaderboard (inner match page) ───────────────────────────────────────
+app.get(
+  '/bets/:id/match_leaderboard',
+  sessionValidation,
+  async (req, res, next) => {
+    try {
+      const bet = await Bet.findById(req.params.id)
+        .populate('betPoster','firstName lastName profilePictureUrl')
+        .populate('participants','firstName lastName profilePictureUrl points')
+        .lean();
+      if (!bet) return res.status(404).render('404');
+      
+      const startTs = bet.startedAt
+        ? new Date(bet.startedAt).getTime()
+        : null;
+
+      const units = {
+        hours: 3600,
+        days: 86400,
+        weeks: 604800,
+        months: 2592000,
+      };
+
+      const endTs =
+        startTs !== null
+          ? startTs + bet.durationValue * units[bet.durationUnit] * 1000
+          : null;
+      // sort participants by points descending
+      const pts = (bet.participants||[]).slice()
+        .sort((a,b)=> (b.points||0)-(a.points||0));
+      const topThree       = pts.slice(0,3);
+      const otherUsers     = pts.slice(3);
+
+      // current user's rank
+      const meId           = req.session.userId;
+      const currentPosition = pts.findIndex(u=>u._id.toString()===meId) + 1;
+
+      res.render('match_leaderboard', {
+        title:          bet.betTitle,
+        css:            '/styles/match_leaderboard.css',
+
+        // for your script block:
+        betId:          bet._id.toString(),
+        creatorId:      bet.betPoster._id.toString(),
+        durationValue:  bet.durationValue,
+        durationUnit:   bet.durationUnit,
+        startedAt:      bet.startedAt || null,
+
+        // for the template itself:
+        bet,
+        endTs,
+        topThree,
+        users:          otherUsers,
+        currentUser:    res.locals.currentUser,
+        currentPosition
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+// ─── Save daily notice ────────────────────────────────────────────────────────
+app.post(
+  "/bets/:id/notice",
+  sessionValidation,
+  async (req, res, next) => {
+    try {
+      console.log("📝 Got notice:", req.params.id, req.body.notice);
+      const { notice } = req.body;
+      await Bet.findByIdAndUpdate(req.params.id, { notice });
+      // back to the same match_leaderboard view
+      return res.redirect(`/bets/${req.params.id}/match_leaderboard`);
+    } catch (err) {
+      console.error("❌ Error saving notice:", err);
+      return res.status(500).send("Could not save your message");
+    }
+  }
+);
+
 
 // ─── User Profile ──────────────────────────────────────────────────────────
 app.get("/userprofile", sessionValidation, async (req, res) => {
@@ -307,19 +409,20 @@ app.get("/userprofile", sessionValidation, async (req, res) => {
 });
 
 // ─── User Settings ───────────────────────────────────────────────────────────
-const streamifier = require('streamifier');
+const streamifier = require("streamifier");
 
-app.route("/usersettings")
+app
+  .route("/usersettings")
   .get(sessionValidation, (req, res) => {
     // res.locals.currentUser already populated
     res.render("usersettings", {
       title: "Settings",
-      css: "/styles/usersettings.css"
+      css: "/styles/usersettings.css",
     });
   })
   .post(
     sessionValidation,
-    upload.single("avatar"),                   // <input name="avatar" type="file">
+    upload.single("avatar"), // <input name="avatar" type="file">
     async (req, res, next) => {
       try {
         // 1) Gather the text fields
@@ -330,12 +433,13 @@ app.route("/usersettings")
         if (req.file) {
           const result = await new Promise((resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream(
-              { folder: 'profile_pics', public_id: `user_${req.session.userId}` },
-              (err, r) => err ? reject(err) : resolve(r)
+              {
+                folder: "profile_pics",
+                public_id: `user_${req.session.userId}`,
+              },
+              (err, r) => (err ? reject(err) : resolve(r))
             );
-            streamifier
-              .createReadStream(req.file.buffer)
-              .pipe(uploadStream);
+            streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
           });
           update.profilePictureUrl = result.secure_url;
         }
@@ -380,17 +484,21 @@ app.get("/logout", sessionValidation, (req, res) =>
 app
   .route("/signup")
   .get((req, res) =>
-    res.render("signup", { title: "Signup", css: "/styles/auth.css", error: req.query.error })
+    res.render("signup", {
+      title: "Signup",
+      css: "/styles/auth.css",
+      error: req.query.error,
+    })
   )
-    .post(async (req, res) => {
+  .post(async (req, res) => {
     console.log("👉  POST /signup received:", req.body);
 
     const { firstName, lastName, email, password } = req.body;
     const schema = Joi.object({
       firstName: Joi.string().required(),
-      lastName:  Joi.string().required(),
-      email:     Joi.string().email().required(),
-      password:  Joi.string().min(6).required(),
+      lastName: Joi.string().required(),
+      email: Joi.string().email().required(),
+      password: Joi.string().min(6).required(),
     });
     const { error } = schema.validate({ firstName, lastName, email, password });
     if (error) {
@@ -400,18 +508,29 @@ app
     }
 
     if (await User.exists({ email })) {
-      return res.redirect(`/signup?error=${encodeURIComponent("Email already registered.")}`);
+      return res.redirect(
+        `/signup?error=${encodeURIComponent("Email already registered.")}`
+      );
     }
 
     try {
       const hash = await bcrypt.hash(password, saltRounds);
-      const newUser = await new User({ firstName, lastName, email, password: hash }).save();
+      const newUser = await new User({
+        firstName,
+        lastName,
+        email,
+        password: hash,
+      }).save();
       req.session.authenticated = true;
       req.session.userId = newUser._id.toString();
       return res.redirect("/main");
     } catch (e) {
       console.error("❌ Error saving user:", e);
-      return res.redirect(`/signup?error=${encodeURIComponent("Internal server error, please try again.")}`);
+      return res.redirect(
+        `/signup?error=${encodeURIComponent(
+          "Internal server error, please try again."
+        )}`
+      );
     }
   });
 

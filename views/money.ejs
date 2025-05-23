@@ -24,10 +24,42 @@
             <canvas id="moneyChart" width="400" height="400"></canvas>
         </div>
     </div>
+    <!-- 📊 Mobile-Optimized Spending Tracker -->
+    <div class="card p-3 mb-4">
+        <h4 class="mb-3 text-center">📊 Track Your Spending</h4>
+        <form id="spendingForm">
+            <div class="mb-3">
+                <label for="spendAmount" class="form-label">💰 Amount Spent</label>
+                <input type="number" class="form-control" id="spendAmount" placeholder="e.g., 50" required />
+            </div>
+            <div class="mb-3">
+                <label for="spendDate" class="form-label">📅 Date of Spending</label>
+                <input type="date" class="form-control" id="spendDate" required />
+            </div>
+            <button type="submit" class="btn btn-success w-100">💾 Save</button>
+        </form>
+    </div>
+
+    <div class="mb-4">
+        <label for="viewFilter" class="form-label fw-semibold">📅 View Mode</label>
+        <select id="viewFilter" class="form-select">
+            <option value="week">Weekly</option>
+            <option value="biweek">Bi-Weekly</option>
+            <option value="month">Monthly</option>
+            <option value="year">Yearly</option>
+        </select>
+    </div>
+
+    <div class="chart-container mb-5">
+        <h3 class="text-center mb-3">📈 Spending History</h3>
+        <canvas id="spendingChart" class="w-100" style="max-height: 400px;"></canvas>
+    </div>
+
+
 
     <%- include("templates/footer") %>
 
         <script src="/scripts/money.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<%- include("templates/navbar") %>
+        <%- include("templates/navbar") %>

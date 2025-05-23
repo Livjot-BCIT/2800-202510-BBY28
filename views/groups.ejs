@@ -1,3 +1,49 @@
 <%- include("templates/header") %>
 
+<select id="filterSelect">
+  <option value="">Filter</option>
+  <option value="joined">Joined</option>
+  <option value="created">Created</option>
+</select>
+
+<div id="groupContainer">
+  <% 
+    // combine joined & created into one list
+    const allBets = [
+      ...currentUser.participatedBets.map(b => ({ bet: b, category: "joined" })),
+      ...currentUser.createdBets      .map(b => ({ bet: b, category: "created" }))
+    ];
+  %>
+
+  <% if (allBets.length) { %>
+    <% allBets.forEach(({ bet, category }) => {
+         const count = (bet.participants || []).length;
+         const start = bet.startedAt ? new Date(bet.startedAt) : null;
+         const units = { hours:3600, days:86400, weeks:604800, months:2592000 };
+         const endTs = start
+                       ? start.getTime() + bet.durationValue * units[bet.durationUnit]*1000
+                       : null;
+    %>
+      <div class="bet-rectangle"
+           data-category="<%= category %>"
+           data-end-ts="<%= endTs %>"
+           onclick="location.href='/bets/<%= bet._id %>/match_leaderboard'">
+        <h3><%= bet.betTitle %></h3>
+        <p>Owner: <%= bet.betPoster.firstName %> <%= bet.betPoster.lastName %></p>
+        <p>👥 <%= count %> participants</p>
+        <p>
+          <% if (endTs) { %>
+            Time left: <span class="countdown">--:--:--</span>
+          <% } else { %>
+            Not started
+          <% } %>
+        </p>
+      </div>
+    <% }) %>
+  <% } else { %>
+    <p class="no-bets">You’re not in any bets yet.</p>
+  <% } %>
+</div>
+
 <%- include("templates/navbar") %>
+<script src="/scripts/groups.js"></script>

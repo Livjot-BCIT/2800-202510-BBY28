@@ -1,9 +1,13 @@
 <%- include("templates/header") %>
 
+<script>
+  // so your front‑end knows who “me” is
+  window.currentUserId = '<%- currentUser._id.toString() %>';
+</script>
+
 <header class="top-bar">
   <h1>🔥 Bet On Yourself</h1>
   <div class="controls">
-    <!-- timezone selector + search input -->
     <select id="regionSelect">
       <option value="America/Vancouver">British Columbia (Pacific Time)</option>
       <option value="America/Edmonton">Alberta (Mountain Time)</option>
@@ -30,49 +34,57 @@
 </header>
 
 <main class="feed-container">
-  <% if (bets && bets.length > 0) { %>
-    <% bets.forEach(function(bet) { 
-         // prepare truncation
+  <% if (bets.length) { %>
+    <% bets.forEach(bet => {
+         // 1) Truncate description
          const fullDesc  = bet.description || "";
          const shortDesc = fullDesc.length > 250
                            ? fullDesc.slice(0,250) + "…"
                            : fullDesc;
 
-         // participants: full vs truncated
-         const fullCnt  = Array.isArray(bet.participants)
+         // 2) Compute & truncate participants
+         const fullCnt   = Array.isArray(bet.participants)
                            ? bet.participants.length
                            : (bet.participantCount || 0);
-         const cntStr   = fullCnt.toString();
-         const shortCnt = cntStr.length > 3
+         const cntStr    = fullCnt.toString();
+         const shortCnt  = cntStr.length > 3
                            ? cntStr.slice(0,3) + "…"
                            : cntStr;
+
+         // 3) Detect owner / joined
+         const meId     = locals.currentUser
+                          ? locals.currentUser._id.toString()
+                          : null;
+         const isOwner  = meId === bet.betPoster._id.toString();
+         const isJoined = Array.isArray(bet.participants)
+                           && bet.participants
+                                .some(u => u._id.toString() === meId);
+
+         // 4) Serialize members for the modal
+         const membersData = JSON.stringify(
+           (bet.participants || []).map(u => ({
+             _id:    u._id.toString(),
+             firstName: u.firstName,
+             lastName:  u.lastName,
+             avatar:    u.profilePictureUrl
+           }))
+         );
     %>
-      %>
       <div
         class="bet-card"
         data-bet-id="<%= bet._id %>"
         data-creator="<%= bet.betPoster._id %>"
-        data-members='<%- JSON.stringify(
-            (bet.participants || []).map(u=>({
-              _id: u._id.toString(),
-              firstName:          u.firstName,
-              lastName:           u.lastName,
-              profilePictureUrl:  u.profilePictureUrl
-            }))
-          ) %>'
-        data-description="<%- (bet.description||"").replace(/"/g,'&quot;') %>"
+        data-members='<%- membersData %>'
+        data-joined="<%= isOwner||isJoined %>"
+        data-description="<%- fullDesc.replace(/"/g,'&quot;') %>"
         data-duration-value="<%= bet.durationValue %>"
         data-duration-unit="<%= bet.durationUnit %>"
-        data-participants="<%= 
-            Array.isArray(bet.participants)
-              ? bet.participants.length
-              : (bet.participantCount||0)
-        %>"
+        data-participants="<%= fullCnt %>"
       >
         <div class="bet-card-header">
           <img
             class="avatar"
-            src="<%= bet.poster.profilePictureUrl || '/images/icons/userprofile.svg' %>"
+            src="<%= bet.poster.profilePictureUrl || '/images/icons/userProfile.svg' %>"
             alt="<%= bet.poster.firstName %>"
           />
           <a href="/userprofile/<%= bet.poster._id %>" class="username">
@@ -99,9 +111,19 @@
 
         <p class="bet-description"><%= shortDesc %></p>
 
-        <button class="join-button">Join</button>
+        <button
+           class="join-button<%= (isOwner||isJoined) ? ' joined' : '' %>"
+           data-joined="<%= isOwner||isJoined %>"
+           data-owner="<%= isOwner %>"
+           data-bet-id="<%= bet._id %>"
+        >
+          <%= isOwner
+              ? 'Manage'
+              : (isJoined ? 'Go to group' : 'Join')
+          %>
+        </button>
       </div>
-    <% }); %>
+    <% }) %>
   <% } else { %>
     <p class="no-bets">No bets available. Be the first to create one!</p>
   <% } %>

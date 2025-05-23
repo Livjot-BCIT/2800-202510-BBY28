@@ -1,12 +1,23 @@
 <%- include("templates/header") %>
 
+<!-- Add meta tags for client JS to access -->
+<meta name="group-id" content="<%= group._id %>">
+<meta name="user-id" content="<%= userId %>">
+
 <div class="header">
-    <h1>Main menu - Groups</h1>
+    <div class="back-button">
+        <button class="back-btn" onclick="location.href='/groups'">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1><%= group.title %></h1>
+    </div>
 </div>
 
 <div class="group-header">
-    <h2><%= group.title %></h2>
-    <p>Welcome to <%= group.title %></p>
+    <p class="group-description"><%= group.description %></p>
+    <div class="group-members">
+        <span>Group Chat</span>
+    </div>
 </div>
 
 <div class="chat-container" id="chatContainer">
@@ -14,10 +25,14 @@
 </div>
 
 <div class="input-area">
-    <input type="text" id="chatInput" placeholder="Message">
-    <button id="sendButton">Send</button>
+    <input type="text" id="chatInput" placeholder="Type a message...">
+    <button id="sendButton">
+        <i class="fas fa-paper-plane"></i>
+    </button>
 </div>
 
-<script src="/scripts/group-chat.js"></script>
+<!-- Socket.IO client library -->
+<script src="/socket.io/socket.io.js"></script>
+<script src="/scripts/groupChat-server.js"></script>
 
 <%- include("templates/navbar") %>

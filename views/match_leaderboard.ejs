@@ -1,100 +1,146 @@
-<%- include("templates/header") %>
+<%- include("templates/header", { title, css: "/styles/match_leaderboard.css" }) %>
 
-<div class="bet-details">
-    <h1 class="bet-title"><%= bet.betTitle %></h1>
-    <p class="bet-description"><%= bet.description %></p>
-</div>
+<script>
+  window.betId         = "<%= betId %>";
+  window.creatorId     = "<%= creatorId %>";
+  window.currentUserId = "<%- currentUser._id.toString() %>";
+  window.durationValue = <%= durationValue %>;
+  window.durationUnit  = "<%= durationUnit %>";
+  window.startTs       = <%= startedAt ? startedAt.getTime() : 'null' %>;
 
-<!-- Top three user display -->
-<div id="topThree">
-    <% if (results && results.length > 0) { %>
-        <% if (results.length > 1) { %>
-            <div class="topUser" id="second" style="opacity: 0;"> <!-- left bar -->
-                <img id="profilePic" src="<%= results[1].profilePic || '/images/profilePic.jpg' %>" alt="profile pic"/>
-                <span><%= results[1].username %></span>
-                <div class="square">
-                    <span>2</span>
-                </div>
-                <div class="points-gained" style="opacity: 0;">
-                    <span>+<%= results[1].pointsGained %> Points</span>
-                    <span class="multiplier">x2</span>
-                </div>
-            </div>
-        <% } %>
-        
-        <% if (results.length > 0) { %>
-            <div class="topUser" id="first" style="opacity: 0;"> <!-- middle bar -->
-                <img id="profilePic" src="<%= results[0].profilePic || '/images/profilePic.jpg' %>" alt="profile pic"/>
-                <span><%= results[0].username %></span>
-                <div class="square">
-                    <span>1</span>
-                </div>
-                <div class="points-gained" style="opacity: 0;">
-                    <span>+<%= results[0].pointsGained %> Points</span>
-                    <span class="multiplier">x3</span>
-                </div>
-            </div>
-        <% } %>
-        
-        <% if (results.length > 2) { %>
-            <div class="topUser" id="third" style="opacity: 0;"> <!-- right bar -->
-                <img id="profilePic" src="<%= results[2].profilePic || '/images/profilePic.jpg' %>" alt="profile pic"/>
-                <span><%= results[2].username %></span>
-                <div class="square">
-                    <span>3</span>
-                </div>
-                <div class="points-gained" style="opacity: 0;">
-                    <span>+<%= results[2].pointsGained %> Points</span>
-                    <span class="multiplier">x1.5</span>
-                </div>
-            </div>
-        <% } %>
-    <% } else { %>
-        <p class="no-results">No results available for this bet yet.</p>
+  // compute endTs now that window.duration* & window.startTs exist
+  (function(){
+    const units = { hours: 3600, days: 86400, weeks: 604800, months: 2592000 };
+    if (window.startTs !== null) {
+      window.betEndTs = window.startTs
+        + window.durationValue * units[window.durationUnit] * 1000;
+    }
+  })();
+</script>
+
+<main class="match-container">
+
+  <!-- Top‑of‑page: creator only, Start Bet if not started yet -->
+  <section class="match-actions-top">
+    <% if (currentUser._id.toString() === creatorId && !startedAt) { %>
+      <button id="startBetBtn" class="btn manage-btn">Start Bet</button>
     <% } %>
-</div>
+  </section>
 
-<!-- User's own position (if they participated) -->
-<% if (userResult) { %>
-    <div class="userInfo">
-        <div class="userCols">
-            <img id="profilePic" src="<%= userResult.profilePic || '/images/profilePic.jpg' %>" alt="profile pic"/>
-            <span><%= userResult.username %></span>
-        </div>
+  <!-- Countdown (hidden until start) -->
+  <section class="match-timer" style="<%= startedAt ? "" : "display:none" %>">
+    Time remaining: <span id="matchTimer">--:--:--</span>
+  </section>
 
-        <div class="userCols">
-            <span><strong>Points</strong></span>
-            <span><%= userResult.points %></span>
+  <!-- Podium -->
+  <div class="podium-wrapper">
+    <div class="podium-base"></div>
+    <div class="podium">
+      <% [
+          { idx:1, cls:'second' },
+          { idx:0, cls:'first'  },
+          { idx:2, cls:'third'  }
+         ].forEach(({idx,cls}) => {
+           const u = topThree[idx];
+           if (!u) return;
+      %>
+        <div class="pillar <%=cls%>">
+          <div class="avatar-name">
+            <img class="user-avatar"
+                 src="<%= u.profilePictureUrl||'/images/default-avatar.png' %>"
+                 alt="" />
+            <div class="user-name">
+              <%= u.firstName %> <%= u.lastName %>
+            </div>
+          </div>
+          <div class="pillar-content">
+            <div class="points"><%= u.points %> pts</div>
+            <div class="rank-badge"><%= cls==='first'?1:cls==='second'?2:3 %></div>
+          </div>
         </div>
-
-        <div class="userCols">
-            <span><strong>Position</strong></span>
-            <span><%= userResult.position %></span>
-        </div>
+      <% }) %>
     </div>
-<% } %>
+  </div>
 
-<!-- Other participants -->
-<div id="otherUsers">
-    <% if (results && results.length > 3) { %>
-        <% for(let i = 3; i < results.length; i++) { %>
-            <div class="square">
-                <span id="otherUserInfo">
-                    <%= i+1 %>
-                    <img id="profilePic" src="<%= results[i].profilePic || '/images/profilePic.jpg' %>" alt="profile pic"/>
-                    <%= results[i].username %>
-                </span>
-                <span><%= results[i].points %> Points</span>
-            </div>
-        <% } %>
+  <!-- Daily message -->
+  <section class="group-notice">
+    <% const isOwner = currentUser._id.toString() === creatorId; %>
+
+    <% if (isOwner) { %>
+      <!-- 1) Display the current notice as read‑only -->
+      <div
+        id="noticeDisplay"
+        class="group-notice-display"
+        tabindex="0"
+        title="Click to edit today's message"
+      ><% if (bet.notice) { %>
+      <%= bet.notice %>
+      <% } else { %>
+        <span class="placeholder">Click here to set today's message…</span>
+      <% } %></div>
+
+      <!-- 2) The same textarea + save button, but hidden by default -->
+      <form
+        id="noticeForm"
+        method="POST"
+        action="/bets/<%= betId %>/notice"
+        class="group-notice-edit"
+        style="display: none;"
+      >
+        <textarea
+          id="groupNotice"
+          name="notice"
+          placeholder="Enter daily message…"
+        ><%= bet.notice || '' %></textarea>
+        <button type="submit" class="btn save-notice">
+          💾 Save
+        </button>
+      </form>
+    <% } else { %>
+      <div class="group-notice-display">
+        <%= bet.notice || 'No daily message yet.' %>
+      </div>
     <% } %>
-</div>
+  </section>
 
-<div class="actions">
-    <a href="/bet-details/<%= bet._id %>" class="action-btn">View Bet Details</a>
-    <a href="/groups" class="action-btn">Back to Groups</a>
-</div>
+  <!-- Your stats -->
+  <section class="userInfo">
+    <div class="user-col">
+      <img class="user-avatar"
+           src="<%= currentUser.profilePictureUrl||'/images/default-avatar.png' %>"
+           alt="You" />
+      <div class="user-name"><%= currentUser.firstName %> <%= currentUser.lastName %></div>
+    </div>
+    <div class="user-col">
+      <div class="label">Points</div>
+      <div class="value"><%= currentUser.points %></div>
+    </div>
+    <div class="user-col">
+      <div class="label">Position</div>
+      <div class="value"><%= currentPosition %></div>
+    </div>
+  </section>
+
+  <!-- Ranks #4+ -->
+  <section id="otherUsers" class="other-users">
+    <% users.forEach((u,i) => { %>
+      <div class="other-user">
+        <div class="rank">#<%= i+4 %></div>
+        <img class="user-avatar"
+             src="<%= u.profilePictureUrl||'/images/default-avatar.png' %>"
+             alt="" />
+        <div class="user-name"><%= u.firstName %> <%= u.lastName %></div>
+        <div class="points"><%= u.points %> pts</div>
+      </div>
+    <% }) %>
+  </section>
+
+  <!-- Bottom action buttons -->
+  <section class="match-actions-bottom">
+    <a href="/bets/<%=betId%>/leaderboard" class="btn">Leader board</a>
+    <a href="/bets/<%=betId%>/chat"        class="btn">Chatroom</a>
+  </section>
+</main>
 
 <script src="/scripts/match_leaderboard.js"></script>
-
 <%- include("templates/navbar") %>
