@@ -70,29 +70,57 @@ body {
   inset 0 0 4px rgba(255, 255, 255, 0.04);
 }
 
-.profile-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  position: relative;
+/* ensure avatar image fills the same space */
+.profile-header .user-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* style the bet links */
+bett-link,
+.bet-link:visited {
+  color: var(--txt);
+  text-decoration: none;
+}
+.bet-link:hover {
+  text-decoration: underline;
 }
 
 .edit-btn {
-  font-size: 18px;
-  background: none;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: var(--btn);
   border: none;
-  color: var(--btn);
+  padding: 4px;
+  border-radius: 50%;
   cursor: pointer;
-  align-self: flex-end;
-  margin-bottom: -10px;
-  margin-right: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.user-avatar {
-  font-size: 60px;
-  text-align: center;
+.edit-btn .edit-icon {
+  width: 16px;
+  height: 16px;
 }
+
+.avatar-container {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto;               /* center within parent */
+}
+.user-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;            /* crop/scale to fill square */
+  border-radius: 50%;
+  display: block;
+}
+
 
 .profile-details {
   margin-top: 16px;
@@ -173,6 +201,10 @@ body {
 }
 
 .bets-box {
+  /* allow inner boxes to scroll if overflow */
+  max-height: 200px;     
+  overflow-y: auto;
+
   background: var(--container);
   flex: 1;
   border-radius: 14px;

@@ -2,59 +2,84 @@
 
 <!-- Top Navbar -->
 <div class="top-navbar">
-    <button class="nav-btn active">Account</button>
-    <button class="nav-btn" onclick="location.ref='/financials.html'">Financials</button>
-    <button class="nav-btn" onclick="location.href='/COMP2800-BBY28/public/usersettings.html'">Settings</button>
+  <button class="nav-btn active">Account</button>
+  <button class="nav-btn" onclick="location.href='/money'">Financials</button>
+  <button class="nav-btn" onclick="location.href='/usersettings'">Settings</button>
 </div>
 
 <!-- User Profile Box -->
 <div class="profile-box">
-    <div class="profile-header">
-    <button class="edit-btn" title="Edit Profile">📝</button>
-    <div class="user-avatar">👤</div>
-    </div>
+  <div class="avatar-container">
+  <img
+    class="user-avatar"
+    src="<%= user.profilePictureUrl || '/images/default-avatar.png' %>"
+    alt="<%= user.firstName %> Avatar"
+  >
+  <button type="button" class="edit-btn" onclick="location.href='/usersettings'" title="Edit Profile">
+    <img src="/images/icons/edit.svg" class="edit-icon" />
+  </button>
+</div>
 
-    <div class="profile-details">
-    <p class="username">@username here</p>
-    <p class="realname">James S.</p>
-    <p class="email">Email@here.ca</p>
+
+  <div class="profile-details">
+    <p class="username">@<%= user.email.split('@')[0] %></p>
+    <p class="realname"><%= user.firstName %> <%= user.lastName %></p>
+    <p class="email"><%= user.email %></p>
     <button class="edit-bio-btn">Edit Bio</button>
-    </div>
+  </div>
 </div>
 
 <!-- Stats Box -->
 <div class="stats-box">
-    <div class="column">
+  <div class="column">
     <p class="label">Date Joined:</p>
-    <p class="label">Total $ Saved:</p>
     <p class="label">Total Points:</p>
-    <p class="label">Bets Won:</p>
-    </div>
-    <div class="column">
-    <p class="value">01/05/2024</p>
-    <p class="value">$123.45</p>
+    <p class="label">Bets Participated:</p>
+    <p class="label">Groups Joined:</p>
+    <p class="label">Groups Created:</p>
+  </div>
+  <div class="column">
     <p class="value">
-        <img src="points.png" alt="points" class="points-icon" /> 42.00
+      <%= new Date(user.dateJoined).toLocaleDateString() %>
     </p>
-    <p class="value">9</p>
-    </div>
+    <p class="value"><%= user.points %></p>
+    <p class="value"><%= user.participatedBets.length %></p>
+    <p class="value"><%= user.joinedGroups.length %></p>
+    <p class="value"><%= user.createdGroups.length %></p>
+  </div>
 </div>
 
 <!-- Bets and Bets Created -->
 <div class="bets-section">
-    <div class="bets-box">
-    <p>Bets:</p>
-    <div class="inner-bet-box" onclick="alert('Ongoing popup')">
-        Ongoing
-    </div>
-    <div class="inner-bet-box" onclick="alert('Closed popup')">Closed</div>
-    </div>
-    <div class="bets-box">
+  <div class="bets-box">
+    <p>Bets Joined:</p>
+    <% if (user.participatedBets.length) { %>
+      <% user.participatedBets.forEach(b => { %>
+        <div class="inner-bet-box">
+          <a href="/bets/<%= b._id %>" class="bet-link">
+            <%= b.betTitle %>
+          </a>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <div class="inner-bet-box">None yet</div>
+    <% } %>
+  </div>
+
+  <div class="bets-box">
     <p>Bets Created:</p>
-    <div class="inner-bet-created-box" onclick="alert('Created popup')">
-        View All
-    </div>
-    </div>
+    <% if (user.createdGroups.length) { %>
+      <% user.createdGroups.forEach(b => { %>
+        <div class="inner-bet-created-box">
+          <a href="/bets/<%= b._id %>" class="bet-link">
+            <%= b.betTitle %>
+          </a>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <div class="inner-bet-created-box">None yet</div>
+    <% } %>
+  </div>
 </div>
 
 <%- include("templates/navbar") %>

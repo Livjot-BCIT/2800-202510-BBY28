@@ -1,60 +1,68 @@
-/* Base Styles */
+:root {
+  --muted-txt: rgba(255, 255, 255, 0.75);
+}
+
 body {
-    font-family: 'Segoe UI', sans-serif;
-    background-color: #f3e8ff;
-    color: #4c1d95;
-    margin: 0;
-    padding: 0;
+  font-family: "Segoe UI", sans-serif;
+  background-color: #f3e8ff;
+  color: #4c1d95;
+  margin: 0;
+  padding: 0;
 }
 
 /* Header */
 .top-bar {
-    background-color: #7f3dff;
-    color: #ffffff;
-    padding: 15px 20px;
-    text-align: center;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  /* comment out sticky if you don't want the topbar */
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background-color: #7f3dff;
+  color: #ffffff;
+  padding: 15px 20px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .top-bar h1 {
-    margin: 0;
-    font-size: 1.8em;
+  margin: 0;
+  font-size: 1.8em;
 }
 
 .top-bar input[type="text"] {
-    width: 90%;
-    padding: 10px;
-    margin: 15px 0;
-    border-radius: 10px;
-    border: none;
-    font-size: 1em;
+  width: 90%;
+  padding: 10px;
+  margin: 15px 0;
+  border-radius: 10px;
+  border: none;
+  font-size: 1em;
 }
 
 .top-bar .summary {
-    margin-bottom: 10px;
-    color: #f0d9ff;
-    font-weight: bold;
+  margin-bottom: 10px;
+  color: #f0d9ff;
+  font-weight: bold;
 }
 
 /* layout */
 .feed-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1rem;
   padding: 1rem;
+  margin-bottom: 4rem;
 }
 
 /* each bet card */
 .bet-card {
   background: #fff;
-  border-radius: .5rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,.1);
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   padding: 1rem;
   position: relative;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  transition: transform .1s ease;
+  transition: transform 0.1s ease;
 }
 .bet-card:hover {
   transform: translateY(-4px);
@@ -63,46 +71,69 @@ body {
 /* header row */
 .bet-card-header {
   display: flex;
+  position: relative;
   align-items: center;
-  gap: .5rem;
-  margin-bottom: .5rem;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
 }
+
+/* push the whole timestamp block to the right */
+.bet-card-header .timestamp-wrapper {
+  margin-left: auto;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+}
+
+/* the “Bet created at:” label */
+.bet-card-header .timestamp-label {
+  font-size: 0.75rem;
+}
+
+.bet-card-header .timestamp {
+  font-size: 0.85rem;
+  color: var(--muted-txt);
+  margin-top: 2px;
+}
+
 .bet-card-header .avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
 }
+
 .bet-card-header .username {
   font-weight: bold;
   color: #333;
   text-decoration: none;
 }
+
 .bet-card-header .timestamp {
   margin-left: auto;
-  font-size: .85rem;
+  font-size: 0.85rem;
   color: #666;
 }
 
 /* title + description */
 .bet-title {
   font-size: 1.25rem;
-  margin: .5rem 0;
+  margin: 0.5rem 0;
 }
 .bet-description {
   flex-grow: 1;
   color: #444;
-  margin-bottom: .75rem;
+  margin-bottom: 0.75rem;
 }
 
 /* meta row */
 .bet-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: .5rem;
-  font-size: .9rem;
+  gap: 0.5rem;
+  font-size: 0.9rem;
   color: #555;
-  margin-bottom: .75rem;
+  margin-bottom: 0.75rem;
 }
 .bet-meta .tag {
   background: #eef;
@@ -111,12 +142,12 @@ body {
   border-radius: 4px;
 }
 .join-button {
-  align-self: flex-end;
-  padding: .5rem 1rem;
+  align-self: flex-start;
+  padding: 0.5rem 2rem;
   background: #28a745;
   color: #fff;
   border: none;
-  border-radius: .25rem;
+  border-radius: 0.25rem;
   cursor: pointer;
 }
 .join-button:hover {
@@ -131,26 +162,124 @@ body {
 }
 
 /* modal */
+/* make the modal center and flex‐column */
 .modal {
-  display: none; /* show via JS */
+  display: none;
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
   align-items: center;
   justify-content: center;
+  z-index: 1000; 
 }
+
 .modal-content {
-  background: #fff;
-  border-radius: .5rem;
-  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
   width: 90%;
-  padding: 1rem;
-  position: relative;
+  max-width: 500px;
+  background: #fff;
+  border-radius: 0.5rem;
+  overflow: hidden;
 }
-.modal-close {
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: #f7f7f7;
+}
+
+.modal-header,
+.modal-footer {
+  flex-shrink: 0;
+  padding: 1rem;
+  background: #f7f7f7;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modal-footer .join-button,
+.modal-footer .report-button {
+  flex: 0 0 auto;
+}
+
+.modal-footer .report-button {
+  margin-left: auto;
+}
+
+.modal-body {
+  overflow-y: auto;
+  padding: 1rem;
+  flex-grow: 1;
+}
+
+/* Modal header avatar */
+.modal-header .avatar {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.modal-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.modal-header .modal-close {
   position: absolute;
-  top: .5rem;
-  right: .5rem;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
   font-size: 1.5rem;
   cursor: pointer;
+}
+
+.modal-user-info {
+  margin-left: 0.75rem;
+}
+
+.modal-user-info .modal-meta {
+  margin-top: 0.25rem;
+  display: flex;
+  gap: 1rem;
+  font-size: 0.9rem;
+}
+
+/* Make sure the avatar is a reasonable size */
+.modal-header .avatar {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.member-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.member-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.member-name {
+  font-weight: 500;
+}
+.member-owner {
+  margin-left: 0.25rem;
+  color: gold;
 }

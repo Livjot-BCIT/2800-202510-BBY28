@@ -1,0 +1,83 @@
+<%- include("templates/header") %>
+
+<!-- Top Navbar -->
+<div class="top-navbar">
+  <button class="nav-btn" onclick="location.href='/userProfile'">Account</button>
+  <button class="nav-btn" onclick="location.href='/money'">Financials</button>
+  <button class="nav-btn active">Settings</button>
+</div>
+
+<form action="/usersettings" method="POST" enctype="multipart/form-data" style="position: relative;">
+  <!-- Sign Out button -->
+  <a href="/logout"
+     class="signout-btn"
+     title="Sign Out"
+     style="
+       position: absolute;
+       top: 16px;
+       right: 16px;
+       background: none;
+       border: 1px solid #f00;
+       color: #f00;
+       padding: 4px 8px;
+       border-radius: 4px;
+       font-size: 0.9rem;
+       text-decoration: none;
+     ">
+    Sign Out
+  </a>
+
+  <!-- Profile Box (with avatar) -->
+  <div class="profile-box">
+    <div class="profile-header">
+      <label for="avatar" class="avatar-container">
+        <img
+          class="user-avatar"
+          src="<%= currentUser.profilePictureUrl || '/images/default-avatar.png' %>"
+          alt="<%= currentUser.firstName %>’s avatar"
+        />
+        <button type="button" class="edit-btn" title="Change Picture">
+          <img src="/images/icons/edit.svg" alt="Edit" class="edit-icon"/>
+        </button>
+        <input id="avatar" name="avatar" type="file" accept="image/*" hidden>
+      </label>
+    </div>
+
+    <div class="profile-details">
+      <div class="field-row">
+        <label class="field-label" for="firstName">First name:</label>
+        <input id="firstName" name="firstName" type="text" value="<%= currentUser.firstName %>" required>
+      </div>
+      <div class="field-row">
+        <label class="field-label" for="lastName">Last name:</label>
+        <input id="lastName" name="lastName" type="text" value="<%= currentUser.lastName %>" required>
+      </div>
+      <div class="field-row">
+        <label class="field-label" for="email">Email:</label>
+        <input id="email" name="email" type="email" value="<%= currentUser.email %>" required>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preferences, Security, etc. -->
+
+  <button type="submit" class="edit-bio-btn">Save Changes</button>
+</form>
+
+<script>
+  const avatarInput = document.getElementById('avatar');
+  const avatarImg   = document.querySelector('.avatar-container .user-avatar');
+  avatarInput.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => avatarImg.src = ev.target.result;
+    reader.readAsDataURL(file);
+  });
+
+  document.querySelector('.edit-btn').addEventListener('click', () => {
+    avatarInput.click();
+  });
+</script>
+
+<%- include("templates/navbar") %>

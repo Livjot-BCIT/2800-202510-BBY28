@@ -15,6 +15,19 @@ const User = require("./models/User");
 const Bet = require("./models/Bet");
 const Group = require("./models/Group");
 
+const multer      = require('multer');
+const cloudinary  = require('cloudinary').v2;
+const { Readable } = require('stream');
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key:    process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+// in‑memory storage so we can stream to Cloudinary
+const upload = multer({ storage: multer.memoryStorage() });
+
 const {
   MONGODB_USER,
   MONGODB_PASSWORD,
@@ -29,7 +42,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 const expireTime = 24 * 60 * 60 * 1000; // 1 day
 
-// Gemini AI init (if you need it)
+// Gemini AI init 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 // body‑parsing & view engine
@@ -110,6 +123,7 @@ app.use("/images", express.static(path.join(__dirname, "images")));
 app.get(["/", "/main"], sessionValidation, async (req, res) => {
   let bets = await Bet.find()
     .populate("betPoster", "firstName lastName profilePictureUrl")
+    .populate('participants','firstName lastName profilePictureUrl')
     .lean();
   bets.forEach((b) => {
     b.poster = b.betPoster;
@@ -168,7 +182,6 @@ app
       betTitle,
       durationValue,
       durationUnit,
-      participants,
       betType,
       description,
       privateBet
@@ -183,7 +196,8 @@ app
         betTitle,
         durationValue: Number(durationValue),
         durationUnit,
-        participants:  Number(participants),
+        participants:  [req.session.userId],
+        participantCount: 1,
         betType,
         description,
         privateBet:    !!privateBet
@@ -205,6 +219,45 @@ app
         .send("Internal Server Error – check your console for details");
     }
   });
+
+// ─── Join a Bet ─────────────────────────────────────────────────────────────
+app.post(
+  "/api/bets/:id/join",
+  sessionValidation,
+  async (req, res) => {
+    try {
+      const betId  = req.params.id;
+      const userId = req.session.userId;
+
+      // 1) fetch the bet
+      const bet = await Bet.findById(betId);
+      if (!bet) return res.status(404).json({ error: "Bet not found" });
+
+      // 2) if not already a participant, add them
+      if (!bet.participants.includes(userId)) {
+        bet.participants.push(userId);
+        bet.participantCount = bet.participants.length;
+        await bet.save();
+        // also add to user's participatedBets
+        await User.findByIdAndUpdate(userId, {
+          $addToSet: { participatedBets: betId },
+        });
+      }
+
+      // 3) return updated list of participants
+      const participants = await User.find(
+        { _id: { $in: bet.participants } },
+        "firstName lastName profilePictureUrl"
+      ).lean();
+
+      res.json({ participants });
+    } catch (err) {
+      console.error("❌ /api/bets/:id/jjoin error:", err);
+      res.status(500).json({ error: "Internal error" });
+    }
+  }
+);
+
 
 // ─── Money + AI ─────────────────────────────────────────────────────────────
 app.get("/money", sessionValidation, (req, res) => {
@@ -252,6 +305,49 @@ app.get("/userprofile", sessionValidation, async (req, res) => {
     user,
   });
 });
+
+// ─── User Settings ───────────────────────────────────────────────────────────
+const streamifier = require('streamifier');
+
+app.route("/usersettings")
+  .get(sessionValidation, (req, res) => {
+    // res.locals.currentUser already populated
+    res.render("usersettings", {
+      title: "Settings",
+      css: "/styles/usersettings.css"
+    });
+  })
+  .post(
+    sessionValidation,
+    upload.single("avatar"),                   // <input name="avatar" type="file">
+    async (req, res, next) => {
+      try {
+        // 1) Gather the text fields
+        const { firstName, lastName, email } = req.body;
+        const update = { firstName, lastName, email };
+
+        // 2) If there’s a new avatar, stream it to Cloudinary
+        if (req.file) {
+          const result = await new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+              { folder: 'profile_pics', public_id: `user_${req.session.userId}` },
+              (err, r) => err ? reject(err) : resolve(r)
+            );
+            streamifier
+              .createReadStream(req.file.buffer)
+              .pipe(uploadStream);
+          });
+          update.profilePictureUrl = result.secure_url;
+        }
+
+        // 3) Persist all changes in one go
+        await User.findByIdAndUpdate(req.session.userId, update);
+        res.redirect("/userprofile");
+      } catch (err) {
+        next(err);
+      }
+    }
+  );
 
 // ─── Login / Logout ─────────────────────────────────────────────────────────
 app
