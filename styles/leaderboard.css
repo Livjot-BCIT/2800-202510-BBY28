@@ -4,12 +4,186 @@
 }
 
 body {
-    width: 393px;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    margin: 0;
+    padding: 0;
+    background-color: #2b2738;
+}
+
+#profilePic {
+    width: 81px;
+    height: 81px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Top three */
+#topThree {
+    display: flex;
+    flex-direction: row;
+    gap: 11px;
+    justify-content: center;
+    position: relative;
+    top: 30px;
+    color: white;
+    width: 50vw;
+    min-width: 393;
+}
+
+.square {
+    width: 85px;
+    height: 204px; 
+    flex-shrink: 0;
+    background-color: #3b364c;
+    text-align: center;
+    padding-top: 4px;
+}
+
+#second {
+    transform: translateY(55px);
+}
+
+#third {
+    transform: translateY(80px);
+}
+
+#third .square {
+    height: 170px;
+}
+
+.topUser {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    text-align: center;
+}
+
+.topUser > .square > span {
+    justify-content: center;
+    font-size: 40px;
+    color: white;
+}
+/* Top three */
+
+/* User info */
+.userInfo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+
+    background-color: #D9D9D9;
+    margin-left: 16px;
+    margin-right: 16px;
+    padding: 12px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+
+    gap: 70px;
+
+    color: white;
+    background-color: #6f55b6;
+
+    width: 50vw;
+    min-width: 393px;
+}
+
+.userCols {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.userCols #profilePic {
+    width: 55px;
+    height: 55px;
+}
+
+.userInfo .square {
+    width: 362px;
+    height: 111px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+/* User info */
+
+/* Other users */
+#otherUsers {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 50px 15px 0px 15px;
+    gap: 4px;
+
+    background-color: #676179;
+    color: white;
+    border-radius: 10px;
+    width: 50vw;
+    min-width: 393px;
+}
+
+#otherUsers .square {
+    width: 362px;
+    height: 59px;
+    border-radius: 10px;
+    background-color: transparent;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 100x;
+    padding: 20px;
+
+    transition: background-color 0.3s ease;
+    width: 50vw;
+    min-width: 393px;
+}
+
+#otherUsers .square #profilePic {
+    width: 40px;
+    height: 40px;
+    border-radius: 100%;
+    object-fit: cover;
+}
+
+#otherUserInfo {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+#otherUsers .square:hover {
+    background-color: #9890b1;
+}
+
+/* Mobile view (default, or up to 600px) */
+@media (max-width: 600px) {
+* {
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    width: 100vw;
     height: 852px;
     margin: 0;
     padding: 0;
-    border: 2px;
-    border-style: solid;
     background-color: #2b2738;
 }
 
@@ -85,16 +259,18 @@ body {
     gap: 70px;
 
     color: white;
+
+    width: 393px;
 }
 
 .userInfo {
     background-color: #6f55b6;
+    text-align: center;
 }
 
 .userCols {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .userCols #profilePic {
@@ -159,4 +335,5 @@ body {
 
 #otherUsers .square:hover {
     background-color: #9890b1;
+}
 }
