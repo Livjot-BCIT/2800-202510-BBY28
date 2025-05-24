@@ -1,12 +1,9 @@
 {
-  "name": "bby28-bet-on-yourself",
+  "name": "betr-bet-on-yourself",
   "version": "1.0.0",
-  "description": " an app that entrust users to achieve their goals through supportive group bets, with regular check-ins and mutual encouragement, engaging a sense of accountability.",
   "main": "index.js",
-  "type": "module", 
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "node index.js"
   },
   "dependencies": {
     "@google/genai": "^0.14.1",
