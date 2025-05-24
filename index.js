@@ -280,16 +280,51 @@ app.post("/api/bets/:id/start", sessionValidation, async (req, res) => {
 app.get("/money", sessionValidation, (req, res) => {
   res.render("money", { title: "Money", css: "/styles/money.css" });
 });
-app.post("/api/financial-advice", sessionValidation, async (req, res) => {
-  const { amount, plan } = req.body;
-  // …validate amount & plan…
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-  const { response } = await (
-    await model.generateContent(`Advice for $${amount} with plan ${plan}`)
-  ).response;
-  res.json({ advice: response.text(), plan, amount });
-});
+app.post("/api/financial-advice", async (req, res) => {
+  try {
+    const { amount, plan } = req.body;
 
+    // Validation
+    if (!amount || isNaN(amount) || amount <= 0) {
+      return res.status(400).json({ error: "Please enter a valid amount" });
+    }
+
+    if (!plan) {
+      return res.status(400).json({ error: "Please select a financial plan" });
+    }
+
+    const match = plan.match(/(\d+)% Spend \/ (\d+)% Save/);
+    if (!match) {
+      return res.status(400).json({ error: "Invalid plan format" });
+    }
+
+    const [_, spendPercent, savePercent] = match;
+
+    // Create prompt
+    const prompt = `Provide concise financial advice (under 200 characters) for someone with $
+						${amount} who wants to follow this plan: Spend ${spendPercent}% and Save 
+						${savePercent}%. Include practical tips.`;
+
+    // Get AI response
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+
+    res.json({
+      advice: text,
+      plan,
+      amount: parseFloat(amount).toFixed(2)
+    });
+
+  } catch (error) {
+    console.error("AI Error:", error);
+    res.status(500).json({
+      error: "Failed to generate financial advice",
+      details: error.message
+    });
+  }
+});
 // ─── My Bets (Groups) Page ───────────────────────────────────────────────────
 app.get("/groups", sessionValidation, async (req, res, next) => {
   try {
@@ -583,6 +618,30 @@ app.get(
     res.json(out);
   }
 );
+const Spending = require('./models/Spending'); // adjust path as needed
+
+app.post('/api/spend', async (req, res) => {
+  try {
+    const { amount, date } = req.body;
+    const userId = req.session.userId;
+
+    if (!userId || !amount || !date) {
+      return res.status(400).json({ error: "Missing data" });
+    }
+
+    const newSpend = new Spending({
+      userId,
+      amount: parseFloat(amount),
+      date: new Date(date)
+    });
+
+    await newSpend.save();
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Error saving spend:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 // send a new chat message
 app.post(
@@ -628,6 +687,18 @@ app.post(
     );
   }
 );
+app.get('/api/spendings', async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const spendings = await Spending.find({ userId }).sort({ date: 1 });
+    res.json(spendings);
+  } catch (err) {
+    console.error("Error fetching spendings:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 // the page that holds the chat UI
 app.get("/group/:id", sessionValidation, async (req, res, next) => {

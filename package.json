@@ -19,4 +19,15 @@
     "socket.io": "^4.8.1",
     "streamifier": "^0.1.1"
   }
+},
+{
+  "name": "bet-on-yourself",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    // your dependencies
+  }
 }
