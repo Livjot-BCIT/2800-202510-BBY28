@@ -453,14 +453,28 @@ app.post("/bets/:id/notice", sessionValidation, async (req, res, next) => {
 
 // ─── User Profile ──────────────────────────────────────────────────────────
 app.get("/userprofile", sessionValidation, async (req, res) => {
-  const user = await User.findById(req.session.userId)
-    .populate("createdGroups joinedGroups participatedBets createdBets")
-    .lean();
-  res.render("userprofile", {
-    title: "Profile",
-    css: "/styles/userprofile.css",
-    user,
-  });
+  try {
+    if (!req.session.userId) {
+      return res.redirect("/login");
+    }
+
+    const user = await User.findById(req.session.userId)
+      .populate("createdGroups joinedGroups participatedBets createdBets")
+      .lean();
+
+    if (!user) {
+      return res.status(404).render("404", { title: "User Not Found" });
+    }
+
+    res.render("userprofile", {
+      title: "Profile",
+      css: "/styles/userprofile.css",
+      user,
+    });
+  } catch (err) {
+    console.error("Error loading userprofile:", err);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 // ─── User Settings ───────────────────────────────────────────────────────────
