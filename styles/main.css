@@ -64,6 +64,7 @@ body {
   flex-direction: column;
   transition: transform 0.1s ease;
 }
+
 .bet-card:hover {
   transform: translateY(-4px);
 }
@@ -120,6 +121,7 @@ body {
   font-size: 1.25rem;
   margin: 0.5rem 0;
 }
+
 .bet-description {
   flex-grow: 1;
   color: #444;
@@ -135,12 +137,14 @@ body {
   color: #555;
   margin-bottom: 0.75rem;
 }
+
 .bet-meta .tag {
   background: #eef;
   color: #44f;
   padding: 2px 6px;
   border-radius: 4px;
 }
+
 .join-button {
   align-self: flex-start;
   padding: 0.5rem 2rem;
@@ -150,6 +154,7 @@ body {
   border-radius: 0.25rem;
   cursor: pointer;
 }
+
 .join-button:hover {
   background: #218838;
 }
@@ -266,9 +271,9 @@ body {
 
 /* For cards and modal headers */
 .avatar {
-  border: 2px solid #6F55B6;    /* pick whatever color you like */
-  padding: 2px;                 /* space between image and border */
-  border-radius: 50%;           /* keep it perfectly round */
+  border: 2px solid #6F55B6;    
+  padding: 2px;              
+  border-radius: 50%;          
 }
 
 /* For the member list items */
@@ -278,22 +283,24 @@ body {
   border-radius: 50%;
 }
 
-
 .member-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 0.5rem;
 }
+
 .member-avatar {
   width: 24px;
   height: 24px;
   border-radius: 50%;
   object-fit: cover;
 }
+
 .member-name {
   font-weight: 500;
 }
+
 .member-owner {
   margin-left: 0.25rem;
   color: gold;

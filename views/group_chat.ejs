@@ -1,38 +1,53 @@
-<%- include("templates/header") %>
-
-<!-- Add meta tags for client JS to access -->
+<%- include("templates/header", { title: group.title, css: "/styles/group_chat.css" }) %>
 <meta name="group-id" content="<%= group._id %>">
-<meta name="user-id" content="<%= userId %>">
+<meta name="user-id"  content="<%= userId   %>">
 
-<div class="header">
-    <div class="back-button">
-        <button class="back-btn" onclick="location.href='/groups'">
-            <i class="fas fa-arrow-left"></i>
-        </button>
-        <h1><%= group.title %></h1>
-    </div>
-</div>
-
-<div class="group-header">
-    <p class="group-description"><%= group.description %></p>
-    <div class="group-members">
-        <span>Group Chat</span>
-    </div>
-</div>
-
-<div class="chat-container" id="chatContainer">
-    <!-- Messages will be populated by JavaScript -->
-</div>
-
-<div class="input-area">
-    <input type="text" id="chatInput" placeholder="Type a message...">
-    <button id="sendButton">
-        <i class="fas fa-paper-plane"></i>
+<div class="chat-wrapper">
+  <!-- Top Bar -->
+  <header class="chat-header">
+    <button class="back-btn" onclick="location.href='/groups'">
+      <svg width="24" height="24" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M15 18l-6-6 6-6"/>
+      </svg>
     </button>
+    <div class="chat-header-title">
+      <h1><%= group.title %></h1>
+      <% if (group.description) { %>
+        <small class="chat-notice">
+          <%= group.description.length > 100 
+                ? group.description.slice(0,97) + "…" 
+                : group.description %>
+        </small>
+      <% } %>
+    </div>
+    <div class="chat-header-spacer"></div>
+    <button id="toggleSidebarBtn" class="sidebar-toggle" title="Show/Hide participants">☰</button>
+  </header>
+
+  <!-- Main Content -->
+  <div class="chat-main">
+    <section class="chat-messages" id="chatContainer"></section>
+    <aside class="chat-sidebar">
+      <h2>Participants</h2>
+      <ul>
+        <% participants.forEach(u => { %>
+          <li>
+            <img class="sidebar-avatar"
+                 src="<%= u.profilePictureUrl||'/images/default-avatar.png' %>" />
+            <span><%= u.firstName %> <%= u.lastName %></span>
+          </li>
+        <% }) %>
+      </ul>
+    </aside>
+  </div>
+
+  <!-- Bottom Input -->
+  <footer class="chat-input-bar">
+    <input id="chatInput" placeholder="Type your message…" maxlength="500" />
+    <button id="sendButton">Send</button>
+  </footer>
 </div>
 
-<!-- Socket.IO client library -->
 <script src="/socket.io/socket.io.js"></script>
-<script src="/scripts/groupChat-server.js"></script>
-
-<%- include("templates/navbar") %>
+<script src="/scripts/groupChat-client.js"></script>
+    

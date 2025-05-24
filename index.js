@@ -2,7 +2,10 @@ require("./utils.js");
 require("dotenv").config();
 
 const express = require("express");
+const app = express();
 const session = require("express-session");
+const http = require("http").createServer(app);
+const io = require("socket.io")(http);
 const MongoStore = require("connect-mongo");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
@@ -14,6 +17,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const User = require("./models/User");
 const Bet = require("./models/Bet");
 const Group = require("./models/Group");
+const Message = require("./models/Message");
 
 const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
@@ -38,7 +42,6 @@ const {
   GEMINI_API_KEY,
 } = process.env;
 
-const app = express();
 const port = process.env.PORT || 3000;
 const expireTime = 24 * 60 * 60 * 1000; // 1 day
 
@@ -255,27 +258,23 @@ app.post("/api/bets/:id/join", sessionValidation, async (req, res) => {
 });
 
 // ─── Start a Bet ─────────────────────────────────────────────────────────────
-app.post(
-  "/api/bets/:id/start",
-  sessionValidation,
-  async (req, res) => {
-    try {
-      const bet = await Bet.findById(req.params.id);
-      if (!bet) return res.status(404).json({ error: "Bet not found" });
-      // only the creator can start
-      if (bet.betPoster.toString() !== req.session.userId)
-        return res.status(403).json({ error: "Not allowed" });
-      if (bet.startedAt)
-        return res.status(400).json({ error: "Bet already started" });
-      bet.startedAt = new Date();
-      await bet.save();
-      res.json({ startedAt: bet.startedAt });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Internal error" });
-    }
+app.post("/api/bets/:id/start", sessionValidation, async (req, res) => {
+  try {
+    const bet = await Bet.findById(req.params.id);
+    if (!bet) return res.status(404).json({ error: "Bet not found" });
+    // only the creator can start
+    if (bet.betPoster.toString() !== req.session.userId)
+      return res.status(403).json({ error: "Not allowed" });
+    if (bet.startedAt)
+      return res.status(400).json({ error: "Bet already started" });
+    bet.startedAt = new Date();
+    await bet.save();
+    res.json({ startedAt: bet.startedAt });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal error" });
   }
-);
+});
 
 // ─── Money + AI ─────────────────────────────────────────────────────────────
 app.get("/money", sessionValidation, (req, res) => {
@@ -315,21 +314,45 @@ app.get("/groups", sessionValidation, async (req, res, next) => {
   }
 });
 
+// ─── Group Chat ───────────────────────────────────────────────────────────
+app.get("/group/:id", sessionValidation, async (req, res, next) => {
+  try {
+    const betId = req.params.id;
+    const bet = await Bet.findById(betId)
+      .populate("betPoster", "firstName lastName")
+      .populate("participants", "firstName lastName profilePictureUrl")
+      .lean();
+    if (!bet) return res.status(404).render("404", { title: "Not Found" });
+
+    res.render("group_chat", {
+      title: bet.betTitle,
+      css: "/styles/group_chat.css",
+      group: {
+        _id: bet._id.toString(),
+        title: bet.betTitle,
+        description: bet.notice || bet.description || "No description",
+      },
+      participants: bet.participants,
+      userId: req.session.userId,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ─── Bet Leaderboard (inner match page) ───────────────────────────────────────
 app.get(
-  '/bets/:id/match_leaderboard',
+  "/bets/:id/match_leaderboard",
   sessionValidation,
   async (req, res, next) => {
     try {
       const bet = await Bet.findById(req.params.id)
-        .populate('betPoster','firstName lastName profilePictureUrl')
-        .populate('participants','firstName lastName profilePictureUrl points')
+        .populate("betPoster", "firstName lastName profilePictureUrl")
+        .populate("participants", "firstName lastName profilePictureUrl points")
         .lean();
-      if (!bet) return res.status(404).render('404');
-      
-      const startTs = bet.startedAt
-        ? new Date(bet.startedAt).getTime()
-        : null;
+      if (!bet) return res.status(404).render("404");
+
+      const startTs = bet.startedAt ? new Date(bet.startedAt).getTime() : null;
 
       const units = {
         hours: 3600,
@@ -343,33 +366,35 @@ app.get(
           ? startTs + bet.durationValue * units[bet.durationUnit] * 1000
           : null;
       // sort participants by points descending
-      const pts = (bet.participants||[]).slice()
-        .sort((a,b)=> (b.points||0)-(a.points||0));
-      const topThree       = pts.slice(0,3);
-      const otherUsers     = pts.slice(3);
+      const pts = (bet.participants || [])
+        .slice()
+        .sort((a, b) => (b.points || 0) - (a.points || 0));
+      const topThree = pts.slice(0, 3);
+      const otherUsers = pts.slice(3);
 
       // current user's rank
-      const meId           = req.session.userId;
-      const currentPosition = pts.findIndex(u=>u._id.toString()===meId) + 1;
+      const meId = req.session.userId;
+      const currentPosition =
+        pts.findIndex((u) => u._id.toString() === meId) + 1;
 
-      res.render('match_leaderboard', {
-        title:          bet.betTitle,
-        css:            '/styles/match_leaderboard.css',
+      res.render("match_leaderboard", {
+        title: bet.betTitle,
+        css: "/styles/match_leaderboard.css",
 
         // for your script block:
-        betId:          bet._id.toString(),
-        creatorId:      bet.betPoster._id.toString(),
-        durationValue:  bet.durationValue,
-        durationUnit:   bet.durationUnit,
-        startedAt:      bet.startedAt || null,
+        betId: bet._id.toString(),
+        creatorId: bet.betPoster._id.toString(),
+        durationValue: bet.durationValue,
+        durationUnit: bet.durationUnit,
+        startedAt: bet.startedAt || null,
 
         // for the template itself:
         bet,
         endTs,
         topThree,
-        users:          otherUsers,
-        currentUser:    res.locals.currentUser,
-        currentPosition
+        users: otherUsers,
+        currentUser: res.locals.currentUser,
+        currentPosition,
       });
     } catch (err) {
       next(err);
@@ -378,23 +403,18 @@ app.get(
 );
 
 // ─── Save daily notice ────────────────────────────────────────────────────────
-app.post(
-  "/bets/:id/notice",
-  sessionValidation,
-  async (req, res, next) => {
-    try {
-      console.log("📝 Got notice:", req.params.id, req.body.notice);
-      const { notice } = req.body;
-      await Bet.findByIdAndUpdate(req.params.id, { notice });
-      // back to the same match_leaderboard view
-      return res.redirect(`/bets/${req.params.id}/match_leaderboard`);
-    } catch (err) {
-      console.error("❌ Error saving notice:", err);
-      return res.status(500).send("Could not save your message");
-    }
+app.post("/bets/:id/notice", sessionValidation, async (req, res, next) => {
+  try {
+    console.log("📝 Got notice:", req.params.id, req.body.notice);
+    const { notice } = req.body;
+    await Bet.findByIdAndUpdate(req.params.id, { notice });
+    // back to the same match_leaderboard view
+    return res.redirect(`/bets/${req.params.id}/match_leaderboard`);
+  } catch (err) {
+    console.error("❌ Error saving notice:", err);
+    return res.status(500).send("Could not save your message");
   }
-);
-
+});
 
 // ─── User Profile ──────────────────────────────────────────────────────────
 app.get("/userprofile", sessionValidation, async (req, res) => {
@@ -534,11 +554,127 @@ app
     }
   });
 
+// fetch last 50 messages for a group
+app.get(
+  "/api/group-chat/messages/:groupId",
+  sessionValidation,
+  async (req, res) => {
+    const { groupId } = req.params;
+    const msgs = await Message.find({ groupId })
+      .sort({ timestamp: 1 })
+      .limit(50)
+      .lean();
+    const out = await Promise.all(
+      msgs.map(async (m) => {
+        const u = await User.findById(
+          m.userId,
+          "firstName lastName profilePictureUrl"
+        ).lean();
+        return {
+          userId: m.userId.toString(),
+          username: u ? `${u.firstName} ${u.lastName}` : "Unknown",
+          message: m.message,
+          timestamp: m.timestamp,
+          profilePictureUrl:
+            u.profilePictureUrl || "/images/default-avatar.png",
+        };
+      })
+    );
+    res.json(out);
+  }
+);
+
+// send a new chat message
+app.post(
+  "/api/group-chat/send/:groupId",
+  sessionValidation,
+  async (req, res) => {
+    const { groupId } = req.params;
+    const { content } = req.body;
+    const m = await Message.create({
+      groupId,
+      userId: req.session.userId,
+      message: content,
+      timestamp: new Date(),
+    });
+    // broadcast via socket.io
+    const u = await User.findById(
+      req.session.userId,
+      "firstName lastName"
+    ).lean();
+    io.to(groupId).emit("chat-message", {
+      userId: m.userId.toString(),
+      username: `${u.firstName} ${u.lastName}`,
+      message: m.message,
+      profilePictureUrl: u.profilePictureUrl || "/images/default-avatar.png",
+    });
+    res.json(
+      await Promise.all(
+        msgs.map(async (m) => {
+          const u = await User.findById(
+            m.userId,
+            "firstName lastName profilePictureUrl"
+          ).lean();
+          return {
+            userId: m.userId,
+            username: `${u.firstName} ${u.lastName}`,
+            message: m.message,
+            timestamp: m.timestamp,
+            profilePictureUrl:
+              u.profilePictureUrl || "/images/default-avatar.png",
+          };
+        })
+      )
+    );
+  }
+);
+
+// the page that holds the chat UI
+app.get("/group/:id", sessionValidation, async (req, res, next) => {
+  const bet = await Bet.findById(req.params.id).lean();
+  if (!bet) return res.status(404).render("404");
+  res.render("group_chat", {
+    title: bet.betTitle,
+    css: "/styles/group_chat.css",
+    group: {
+      _id: bet._id.toString(),
+      title: bet.betTitle,
+      description: bet.notice || bet.description || "No description",
+    },
+    userId: req.session.userId,
+  });
+});
+
+// ─── Chat Connection ──────────────────────────────────────────────────────────
+io.on("connection", (socket) => {
+  socket.on("join-group", (groupId, userId) => {
+    socket.userId = userId; // ← stash it
+    socket.join(groupId);
+    socket.to(groupId).emit("user-connected", userId);
+  });
+
+  socket.on("send-chat-message", (groupId, message) => {
+    io.to(groupId).emit("chat-message", {
+      userId: socket.userId,
+      message,
+    });
+  });
+
+  socket.on("disconnecting", () => {
+    for (let room of socket.rooms) {
+      if (room !== socket.id) {
+        // now safe—use socket.userId
+        socket.to(room).emit("user-disconnected", socket.userId);
+      }
+    }
+  });
+});
+
 // ─── 404 handler ──────────────────────────────────────────────────────────
 app.use((req, res) =>
   res.status(404).render("404", { title: "Page Not Found" })
 );
 
-app.listen(port, () =>
-  console.log(`🚀 Server listening on http://localhost:${port}`)
-);
+http.listen(port, () => {
+  console.log(`🚀 Server & socket.io listening on http://localhost:${port}`);
+});

@@ -1,146 +1,144 @@
 <%- include("templates/header", { title, css: "/styles/match_leaderboard.css" }) %>
 
-<script>
-  window.betId         = "<%= betId %>";
-  window.creatorId     = "<%= creatorId %>";
-  window.currentUserId = "<%- currentUser._id.toString() %>";
-  window.durationValue = <%= durationValue %>;
-  window.durationUnit  = "<%= durationUnit %>";
-  window.startTs       = <%= startedAt ? startedAt.getTime() : 'null' %>;
+  <script>
+    window.betId = "<%= betId %>";
+    window.creatorId = "<%= creatorId %>";
+    window.currentUserId = "<%- currentUser._id.toString() %>";
+    // despite looking like errors, these are not errors. complier will properly compile them
+    window.durationValue = <%= durationValue %>;
+    window.durationUnit = "<%= durationUnit %>";
+    window.startTs = <%= startedAt ? startedAt.getTime() : 'null' %>;
 
-  // compute endTs now that window.duration* & window.startTs exist
-  (function(){
-    const units = { hours: 3600, days: 86400, weeks: 604800, months: 2592000 };
-    if (window.startTs !== null) {
-      window.betEndTs = window.startTs
-        + window.durationValue * units[window.durationUnit] * 1000;
-    }
-  })();
-</script>
+    // compute endTs now that window.duration* & window.startTs exist
+    (function () {
+      const units = { hours: 3600, days: 86400, weeks: 604800, months: 2592000 };
+      if (window.startTs !== null) {
+        window.betEndTs = window.startTs
+          + window.durationValue * units[window.durationUnit] * 1000;
+      }
+    })();
+  </script>
 
-<main class="match-container">
+  <main class="match-container">
 
-  <!-- Top‑of‑page: creator only, Start Bet if not started yet -->
-  <section class="match-actions-top">
-    <% if (currentUser._id.toString() === creatorId && !startedAt) { %>
-      <button id="startBetBtn" class="btn manage-btn">Start Bet</button>
-    <% } %>
-  </section>
+    <!-- Top‑of‑page: creator only, Start Bet if not started yet -->
+    <section class="match-actions-top">
+      <% if (currentUser._id.toString()===creatorId && !startedAt) { %>
+        <button id="startBetBtn" class="btn manage-btn">Start Bet</button>
+        <% } %>
+    </section>
 
-  <!-- Countdown (hidden until start) -->
-  <section class="match-timer" style="<%= startedAt ? "" : "display:none" %>">
-    Time remaining: <span id="matchTimer">--:--:--</span>
-  </section>
+    <!-- Countdown (hidden until start) -->
+    <section class="match-timer" style="<%= startedAt ? "" : " display:none" %>">
+      Time remaining: <span id="matchTimer">--:--:--</span>
+    </section>
 
-  <!-- Podium -->
-  <div class="podium-wrapper">
-    <div class="podium-base"></div>
-    <div class="podium">
-      <% [
-          { idx:1, cls:'second' },
-          { idx:0, cls:'first'  },
-          { idx:2, cls:'third'  }
-         ].forEach(({idx,cls}) => {
-           const u = topThree[idx];
-           if (!u) return;
-      %>
-        <div class="pillar <%=cls%>">
-          <div class="avatar-name">
-            <img class="user-avatar"
-                 src="<%= u.profilePictureUrl||'/images/default-avatar.png' %>"
-                 alt="" />
-            <div class="user-name">
-              <%= u.firstName %> <%= u.lastName %>
+    <!-- Podium -->
+    <div class="podium-wrapper">
+      <div class="podium-base"></div>
+      <div class="podium">
+        <% [ { idx:1, cls:'second' }, { idx:0, cls:'first' }, { idx:2, cls:'third' } ].forEach(({idx,cls})=> {
+          const u = topThree[idx];
+          if (!u) return;
+          %>
+          <div class="pillar <%=cls%>">
+            <div class="avatar-name">
+              <img class="user-avatar" src="<%= u.profilePictureUrl||'/images/default-avatar.png' %>" alt="" />
+              <div class="user-name">
+                <%= u.firstName %>
+                  <%= u.lastName %>
+              </div>
+            </div>
+            <div class="pillar-content">
+              <div class="points">
+                <%= u.points %> pts
+              </div>
+              <div class="rank-badge">
+                <%= cls==='first' ?1:cls==='second' ?2:3 %>
+              </div>
             </div>
           </div>
-          <div class="pillar-content">
-            <div class="points"><%= u.points %> pts</div>
-            <div class="rank-badge"><%= cls==='first'?1:cls==='second'?2:3 %></div>
+          <% }) %>
+      </div>
+    </div>
+
+    <!-- Daily message -->
+    <section class="group-notice">
+      <% const isOwner=currentUser._id.toString()===creatorId; %>
+
+        <% if (isOwner) { %>
+          <!-- 1) Display the current notice as read‑only -->
+          <div id="noticeDisplay" class="group-notice-display" tabindex="0" title="Click to edit today's message">
+            <% if (bet.notice) { %>
+              <%= bet.notice %>
+                <% } else { %>
+                  <span class="placeholder">Click here to set today's message…</span>
+                  <% } %>
+          </div>
+
+          <!-- 2) The same textarea + save button, but hidden by default -->
+          <form id="noticeForm" method="POST" action="/bets/<%= betId %>/notice" class="group-notice-edit"
+            style="display: none;">
+            <textarea id="groupNotice" name="notice"
+              placeholder="Enter daily message…"><%= bet.notice || '' %></textarea>
+            <button type="submit" class="btn save-notice">
+              💾 Save
+            </button>
+          </form>
+          <% } else { %>
+            <div class="group-notice-display">
+              <%= bet.notice || 'No daily message yet.' %>
+            </div>
+            <% } %>
+    </section>
+
+    <!-- Your stats -->
+    <section class="userInfo">
+      <div class="user-col">
+        <img class="user-avatar" src="<%= currentUser.profilePictureUrl||'/images/default-avatar.png' %>" alt="You" />
+        <div class="user-name">
+          <%= currentUser.firstName %>
+            <%= currentUser.lastName %>
+        </div>
+      </div>
+      <div class="user-col">
+        <div class="label">Points</div>
+        <div class="value">
+          <%= currentUser.points %>
+        </div>
+      </div>
+      <div class="user-col">
+        <div class="label">Position</div>
+        <div class="value">
+          <%= currentPosition %>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ranks #4+ -->
+    <section id="otherUsers" class="other-users">
+      <% users.forEach((u,i)=> { %>
+        <div class="other-user">
+          <div class="rank">#<%= i+4 %>
+          </div>
+          <img class="user-avatar" src="<%= u.profilePictureUrl||'/images/default-avatar.png' %>" alt="" />
+          <div class="user-name">
+            <%= u.firstName %>
+              <%= u.lastName %>
+          </div>
+          <div class="points">
+            <%= u.points %> pts
           </div>
         </div>
-      <% }) %>
-    </div>
-  </div>
+        <% }) %>
+    </section>
 
-  <!-- Daily message -->
-  <section class="group-notice">
-    <% const isOwner = currentUser._id.toString() === creatorId; %>
+    <!-- Bottom action buttons -->
+    <section class="match-actions-bottom">
+      <a href="/bets/<%=betId%>/leaderboard" class="btn">Leaderboard</a>
+      <a href="/group/<%= betId %>" class="btn">Chatroom</a>
+    </section>
+  </main>
 
-    <% if (isOwner) { %>
-      <!-- 1) Display the current notice as read‑only -->
-      <div
-        id="noticeDisplay"
-        class="group-notice-display"
-        tabindex="0"
-        title="Click to edit today's message"
-      ><% if (bet.notice) { %>
-      <%= bet.notice %>
-      <% } else { %>
-        <span class="placeholder">Click here to set today's message…</span>
-      <% } %></div>
-
-      <!-- 2) The same textarea + save button, but hidden by default -->
-      <form
-        id="noticeForm"
-        method="POST"
-        action="/bets/<%= betId %>/notice"
-        class="group-notice-edit"
-        style="display: none;"
-      >
-        <textarea
-          id="groupNotice"
-          name="notice"
-          placeholder="Enter daily message…"
-        ><%= bet.notice || '' %></textarea>
-        <button type="submit" class="btn save-notice">
-          💾 Save
-        </button>
-      </form>
-    <% } else { %>
-      <div class="group-notice-display">
-        <%= bet.notice || 'No daily message yet.' %>
-      </div>
-    <% } %>
-  </section>
-
-  <!-- Your stats -->
-  <section class="userInfo">
-    <div class="user-col">
-      <img class="user-avatar"
-           src="<%= currentUser.profilePictureUrl||'/images/default-avatar.png' %>"
-           alt="You" />
-      <div class="user-name"><%= currentUser.firstName %> <%= currentUser.lastName %></div>
-    </div>
-    <div class="user-col">
-      <div class="label">Points</div>
-      <div class="value"><%= currentUser.points %></div>
-    </div>
-    <div class="user-col">
-      <div class="label">Position</div>
-      <div class="value"><%= currentPosition %></div>
-    </div>
-  </section>
-
-  <!-- Ranks #4+ -->
-  <section id="otherUsers" class="other-users">
-    <% users.forEach((u,i) => { %>
-      <div class="other-user">
-        <div class="rank">#<%= i+4 %></div>
-        <img class="user-avatar"
-             src="<%= u.profilePictureUrl||'/images/default-avatar.png' %>"
-             alt="" />
-        <div class="user-name"><%= u.firstName %> <%= u.lastName %></div>
-        <div class="points"><%= u.points %> pts</div>
-      </div>
-    <% }) %>
-  </section>
-
-  <!-- Bottom action buttons -->
-  <section class="match-actions-bottom">
-    <a href="/bets/<%=betId%>/leaderboard" class="btn">Leader board</a>
-    <a href="/bets/<%=betId%>/chat"        class="btn">Chatroom</a>
-  </section>
-</main>
-
-<script src="/scripts/match_leaderboard.js"></script>
-<%- include("templates/navbar") %>
+  <script src="/scripts/match_leaderboard.js"></script>
+  <%- include("templates/navbar") %>
